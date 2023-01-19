@@ -9,6 +9,7 @@ import pytest
 import pytest_asyncio
 from unittest.mock import MagicMock
 from db_settings import SQLALCHEMY_DATABASE_URL
+from queries import UserRepository, JobRepository, ResponseRepository
 
 
 @pytest.fixture()
@@ -46,3 +47,18 @@ async def sa_session():
 @pytest_asyncio.fixture(autouse=True)
 def setup_factories(sa_session: AsyncSession) -> None:
     UserFactory.session = sa_session
+
+
+@pytest.fixture()
+def user_repo():
+    return UserRepository()
+
+
+@pytest.fixture()
+def job_repo():
+    return JobRepository()
+
+
+@pytest.fixture()
+def response_repo():
+    return ResponseRepository()

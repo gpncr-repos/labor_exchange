@@ -25,13 +25,7 @@ async def read_users(
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
     user_repo = UserRepository()
-    user_instance = User(
-            name=user.name,
-            email=user.email,
-            hashed_password=hash_password(user.password),
-            is_company=user.is_company
-        )
-    return await user_repo.create(db, user_instance)
+    return await user_repo.create_by_schema(db, user)
 
 
 @router.put("", response_model=UserSchema)
