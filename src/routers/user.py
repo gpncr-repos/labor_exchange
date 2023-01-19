@@ -1,9 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+
+from core.security import hash_password
 from schemas import UserSchema, UserInSchema, UserUpdateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
-from queries import user as user_queries
+from queries import UserRepository
 from models import User
 
 
@@ -14,14 +16,22 @@ router = APIRouter(prefix="/users", tags=["users"])
 async def read_users(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
-    skip: int = 0):
-    return await user_queries.get_all(db=db, limit=limit, skip=skip)
+    skip: int = 0
+):
+    user_repo = UserRepository()
+    return await user_repo.get_list(db, limit, skip)
 
 
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
-    user = await user_queries.create(db=db, user_schema=user)
-    return UserSchema.from_orm(user)
+    user_repo = UserRepository()
+    user_instance = User(
+            name=user.name,
+            email=user.email,
+            hashed_password=hash_password(user.password),
+            is_company=user.is_company
+        )
+    return await user_repo.create(db, user_instance)
 
 
 @router.put("", response_model=UserSchema)
@@ -29,9 +39,10 @@ async def update_user(
     id: int,
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)):
-
-    old_user = await user_queries.get_by_id(db=db, id=id)
+    current_user: User = Depends(get_current_user)
+):
+    user_repo = UserRepository()
+    old_user = await user_repo.get_single(db=db, id=id)
 
     if old_user is None or old_user.email != current_user.email:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
@@ -40,6 +51,5 @@ async def update_user(
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
-    new_user = await user_queries.update(db=db, user=old_user)
-
+    new_user = await user_repo.update(db, old_user)
     return UserSchema.from_orm(new_user)
