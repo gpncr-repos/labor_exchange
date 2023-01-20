@@ -14,15 +14,18 @@ router = APIRouter(prefix="/jobs", tags=["jobs"])
 # todo(vvnumb): лучше разделить view и use_case-ы. Для тестового задания это оверкилл
 
 
-@router.post("/", dependencies=[Depends(get_current_employer)])
+@router.post("/")
 async def create_new_job_view(
         payload: schemas.JobInSchema = Body(...),
         db: AsyncSession = Depends(get_db),
+        employer: User = Depends(get_current_employer)
 ) -> schemas.JobSchema:
     """Создание вакансии"""
     job_repo = JobRepository()
     job_instance = Job(**payload.dict(exclude_unset=True))
-    return await job_repo.create(db, job_instance)
+    job_instance.user_id = employer.id
+    job = await job_repo.create(db, job_instance)
+    return schemas.JobSchema.from_orm(job)
 
 
 @router.get("/list")
@@ -33,7 +36,9 @@ async def get_job_list_view(
 ) -> List[schemas.JobSchema]:
     """Получение списка вакансий с limit-offset пагинацией"""
     job_repo = JobRepository()
-    return await job_repo.get_list(db, limit, offset)
+    jobs = await job_repo.get_list(db, limit, offset)
+    items = [schemas.JobSchema.from_orm(obj) for obj in jobs]
+    return items
 
 
 @router.get("/{job_id}")
@@ -46,7 +51,7 @@ async def get_job_by_id_view(
     job: Job = await job_repo.get_single(db, id=job_id)
     if not job:
         raise HTTPException(status_code=404, detail="Vacancy not found")
-    return job
+    return schemas.JobSchema.from_orm(job)
 
 
 @router.patch("/{job_id}", dependencies=[Depends(get_current_employer)])
@@ -63,8 +68,8 @@ async def update_job_view(
     update_fields = payload.dict(exclude_unset=True)
     for key, value in update_fields.items():
         setattr(job, key, value)
-
-    return await job_repo.update(db, job)
+    job = await job_repo.update(db, job)
+    return schemas.JobSchema.from_orm(job)
 
 
 @router.delete("/{job_id}", dependencies=[Depends(get_current_employer)])
@@ -78,10 +83,10 @@ async def get_job_by_id_view(
     return dict(status="ok")
 
 
-@router.get("/respond/{job_id}")
+@router.post("/respond/{job_id}")
 async def make_new_response_view(
         db: AsyncSession = Depends(get_db),
-        employee: User = Depends(get_current_employer),
+        employee: User = Depends(get_current_employee),
         job_id: int = Query(...),
         comment: Optional[str] = Form(None)
 ):
@@ -89,8 +94,10 @@ async def make_new_response_view(
     response = Response(
         user_id=employee.id,
         job_id=job_id,
-        comment=comment
     )
+
+    if comment is not None:
+        response.message = comment
     await response_repo.create(db, response)
     return dict(status="ok")
 
@@ -103,4 +110,6 @@ async def get_responses_view(
         offset: Optional[int] = Query(0)
 ) -> List[schemas.ResponseJobSchema]:
     response_repo = ResponseRepository()
-    return await response_repo.get_list(db, limit, offset, Response.job_id == job_id)
+    responses_list = await response_repo.get_list(db, limit, offset, Response.job_id == job_id)
+    items = [schemas.ResponseJobSchema.from_orm(obj) for obj in responses_list]
+    return items
