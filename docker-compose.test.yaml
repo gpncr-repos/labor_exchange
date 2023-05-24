@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  postgres:
+    container_name: postgres-laborexchange
+    image: postgres
+    environment:
+      POSTGRES_DB: "labor-exchange"
+      POSTGRES_USER: "test"
+      POSTGRES_PASSWORD: "test"
+      PGDATA: /data/postgres
+    volumes:
+       - postgres_test:/data/postgres
+    ports:
+      - "5433:5432"
+
+  pgadmin:
+    container_name: pgadmin4
+    image: dpage/pgadmin4
+    environment:
+      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
+      PGADMIN_DEFAULT_PASSWORD: "admin"
+    ports:
+      - "80:80"
+
+volumes:
+    postgres_test:
