@@ -8,7 +8,7 @@ class UserFactory(AsyncSQLAlchemyModelFactory):
     class Meta:
         model = User
 
-    id = factory.Sequence(lambda n: n)
+    id = factory.Sequence(lambda n: n+5)
     name = factory.Faker("pystr")
     email = factory.Faker("email")
     hashed_password = factory.Faker("password")
