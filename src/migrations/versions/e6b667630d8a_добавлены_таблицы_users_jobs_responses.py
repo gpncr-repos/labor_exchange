@@ -59,8 +59,10 @@ def upgrade() -> None:
         sa.Column(
             "description", sa.String(), nullable=True, comment="Описание вакансии"
         ),
-        sa.Column("salary_from", sa.String, nullable=True, comment="Зарплата от"),
-        sa.Column("salary_to", sa.String, nullable=True, comment="Зарплата до"),
+        sa.Column(
+            "salary_from", sa.DECIMAL(10, 2), nullable=True, comment="Зарплата от"
+        ),
+        sa.Column("salary_to", sa.DECIMAL(10, 2), nullable=True, comment="Зарплата до"),
         sa.Column(
             "is_active", sa.Boolean(), nullable=True, comment="Активна ли вакансия"
         ),
