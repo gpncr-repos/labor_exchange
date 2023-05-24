@@ -20,5 +20,9 @@ class Response(Base):
     )
     message = sa.Column(sa.String, comment="Сопроводительное письмо")
 
-    user = relationship("User", back_populates="responses")
-    job = relationship("Job", back_populates="responses")
+    # user = relationship(
+    #     "User", back_populates="responses"
+    # )  # пользователь, откликнувшийся на данную вакансию
+    # job = relationship(
+    #     "Job", back_populates="responses"
+    # )  # вакансия, на которую откликнулся пользователь

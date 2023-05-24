@@ -1,5 +1,5 @@
 from models import Job
-from schemas import JobInSchema
+from schemas import JobCreateSchema
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -17,7 +17,7 @@ async def get_by_id(db: AsyncSession, job_id: int) -> Optional[Job]:
     return res.scalars().first()
 
 
-async def create(db: AsyncSession, job_schema: JobInSchema) -> Job:
+async def create(db: AsyncSession, job_schema: JobCreateSchema) -> Job:
     job = Job(
         user_id=job_schema.user_id,
         title=job_schema.title,

@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import ResponseSchema, ResponseInSchema, ResponseUpdateSchema
+from schemas import ResponseSchema, ResponseCreateSchema, ResponseInSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import response as response_queries
@@ -25,5 +25,12 @@ async def response_job(
         raise HTTPException(
             status_code=403, detail="Откликаться на вакансию могут только соискатели"
         )
-    response = await response_queries.create(db=db, response_schema=response_schema)
+    response_create_schema = ResponseCreateSchema(
+        user_id=current_user.id,
+        job_id=response_schema.job_id,
+        message=response_schema.message,
+    )
+    response = await response_queries.create(
+        db=db, response_schema=response_create_schema
+    )
     return ResponseSchema.from_orm(response)

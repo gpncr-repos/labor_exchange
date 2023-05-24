@@ -19,7 +19,12 @@ class ResponseUpdateSchema(BaseModel):
     message: Optional[str]
 
 
-class ResponseInSchema(BaseModel):
+class ResponseCreateSchema(BaseModel):
     user_id: int
+    job_id: int
+    message: Optional[str]
+
+
+class ResponseInSchema(BaseModel):
     job_id: int
     message: Optional[str]

@@ -24,3 +24,12 @@ class JobInSchema(BaseModel):
     salary_from: decimal.Decimal
     salary_to: decimal.Decimal
     is_active: bool = True
+
+
+class JobCreateSchema(BaseModel):
+    user_id: int
+    title: str
+    description: str
+    salary_from: decimal.Decimal
+    salary_to: decimal.Decimal
+    is_active: bool = True

@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import JobSchema, JobInSchema
+from schemas import JobSchema, JobInSchema, JobCreateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import job as job_queries
@@ -32,5 +32,13 @@ async def create_job(
         raise HTTPException(
             status_code=403, detail="Вакансию могут создавать только работодатели"
         )
-    job = await job_queries.create(db=db, job_schema=job_schema)
+    job_create_schema = JobCreateSchema(
+        user_id=current_user.id,
+        title=job_schema.title,
+        description=job_schema.description,
+        salary_from=job_schema.salary_from,
+        salary_to=job_schema.salary_to,
+        is_active=job_schema.is_active,
+    )
+    job = await job_queries.create(db=db, job_schema=job_create_schema)
     return JobSchema.from_orm(job)
