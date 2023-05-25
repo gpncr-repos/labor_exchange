@@ -3,7 +3,6 @@ from queries import job as job_query
 from fixtures.jobs import JobFactory
 from schemas import JobCreateSchema
 from fixtures.users import UserFactory
-from schemas import UserInSchema
 from decimal import Decimal
 
 
