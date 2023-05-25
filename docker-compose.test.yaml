@@ -14,14 +14,5 @@ services:
     ports:
       - "5433:5432"
 
-  pgadmin:
-    container_name: pgadmin4
-    image: dpage/pgadmin4
-    environment:
-      PGADMIN_DEFAULT_EMAIL: "admin@example.com"
-      PGADMIN_DEFAULT_PASSWORD: "admin"
-    ports:
-      - "80:80"
-
 volumes:
     postgres_test:
