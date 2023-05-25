@@ -1,28 +1,31 @@
-from db_settings import Base
-import sqlalchemy as sa
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
+
+from db_settings import Base
+import models
 
 
 class Response(Base):
     __tablename__ = "responses"
 
-    id = sa.Column(
-        sa.Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Идентификатор отклика",
     )
-    user_id = sa.Column(
-        sa.Integer, sa.ForeignKey("users.id"), comment="Идентификатор пользователя"
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"), comment="Идентификатор пользователя"
     )
-    job_id = sa.Column(
-        sa.Integer, sa.ForeignKey("jobs.id"), comment="Идентификатор вакансии"
+    job_id: Mapped[int] = mapped_column(
+        ForeignKey("jobs.id"), comment="Идентификатор вакансии"
     )
-    message = sa.Column(sa.String, comment="Сопроводительное письмо")
+    message: Mapped[str] = mapped_column(comment="Сопроводительное письмо")
 
-    # user = relationship(
-    #     "User", back_populates="responses"
-    # )  # пользователь, откликнувшийся на данную вакансию
-    # job = relationship(
-    #     "Job", back_populates="responses"
-    # )  # вакансия, на которую откликнулся пользователь
+    user: Mapped[models.users.User] = relationship(
+        back_populates="responses"
+    )  # соискатель, откликнувшийся на данную вакансию
+    job: Mapped[models.jobs.Job] = relationship(
+        back_populates="responses"
+    )  # вакансия, на которую откликнулся соискатель

@@ -1,30 +1,35 @@
+from __future__ import annotations
+from typing import List
 import datetime
 
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
 from sqlalchemy.orm import relationship
 
 from db_settings import Base
-import sqlalchemy as sa
+import models
 
 
 class User(Base):
     __tablename__ = "users"
 
-    id = sa.Column(
-        sa.Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Идентификатор задачи",
         unique=True,
     )
-    email = sa.Column(sa.String, comment="Email адрес", unique=True)
-    name = sa.Column(sa.String, comment="Имя пользователя")
-    hashed_password = sa.Column(sa.String, comment="Зашифрованный пароль")
-    is_company = sa.Column(sa.Boolean, comment="Флаг компании")
-    created_at = sa.Column(
-        sa.DateTime, comment="Время создания записи", default=datetime.datetime.utcnow
+    email: Mapped[str] = mapped_column(comment="Email адрес", unique=True)
+    name: Mapped[str] = mapped_column(comment="Имя пользователя")
+    hashed_password: Mapped[str] = mapped_column(comment="Зашифрованный пароль")
+    is_company: Mapped[bool] = mapped_column(comment="Флаг компании")
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        comment="Время создания записи", default=datetime.datetime.utcnow
     )
 
-    jobs = relationship(
-        "Job", back_populates="user"
+    jobs: Mapped[List[models.jobs.Job]] = relationship(
+        back_populates="user"
     )  # вакансии, опубликованные пользователем
-    # responses = relationship("Response", back_populates="user")  # отклики пользователя
+    responses: Mapped[List[models.responses.Response]] = relationship(
+        back_populates="user"
+    )  # отклики пользователя

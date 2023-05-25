@@ -1,37 +1,43 @@
+from __future__ import annotations
+from typing import List
+
 import datetime
+from decimal import Decimal
+
+from sqlalchemy import ForeignKey
+from sqlalchemy.orm import Mapped
+from sqlalchemy.orm import mapped_column
+from sqlalchemy.orm import relationship
 
 from db_settings import Base
-import sqlalchemy as sa
-from sqlalchemy.orm import relationship
+import models
 
 
 class Job(Base):
     __tablename__ = "jobs"
 
-    id = sa.Column(
-        sa.Integer,
+    id: Mapped[int] = mapped_column(
         primary_key=True,
         autoincrement=True,
         comment="Идентификатор вакансии",
     )
-    user_id = sa.Column(
-        sa.Integer,
-        sa.ForeignKey("users.id"),
+    user_id: Mapped[int] = mapped_column(
+        ForeignKey("users.id"),
         comment="Идентификатор пользователя, опубликовавшего вакансию",
     )
 
-    title = sa.Column(sa.String, comment="Название вакансии")
-    description = sa.Column(sa.String, comment="Описание вакансии")
-    salary_from = sa.Column(sa.DECIMAL(10, 2), comment="Зарплата от")
-    salary_to = sa.Column(sa.DECIMAL(10, 2), comment="Зарплата до")
-    is_active = sa.Column(sa.Boolean, comment="Активна ли вакансия")
-    created_at = sa.Column(
-        sa.DateTime, comment="Время создания записи", default=datetime.datetime.utcnow
+    title: Mapped[str] = mapped_column(comment="Название вакансии")
+    description: Mapped[str] = mapped_column(comment="Описание вакансии")
+    salary_from: Mapped[Decimal] = mapped_column(comment="Зарплата от")
+    salary_to: Mapped[Decimal] = mapped_column(comment="Зарплата до")
+    is_active: Mapped[bool] = mapped_column(comment="Активна ли вакансия")
+    created_at: Mapped[datetime.datetime] = mapped_column(
+        comment="Время создания записи", default=datetime.datetime.utcnow
     )
 
-    user = relationship(
-        "User", back_populates="jobs"
-    )  # данные пользователя, опубликовавшего вакансию
-    # responses = relationship(
-    #     "Response", back_populates="jobs"
-    # )  # отклики на данную вакансию
+    user: Mapped[models.users.User] = relationship(
+        back_populates="jobs"
+    )  # организация, опубликовавшая вакансию
+    responses: Mapped[List[models.responses.Response]] = relationship(
+        back_populates="job"
+    )  # отклики соискателей
