@@ -17,9 +17,14 @@ async def get_all_jobs(
     return await job_queries.get_all(db=db, limit=limit, skip=skip)
 
 
-@router.get("", response_model=List[JobSchema])
+@router.get("/{job_id}", response_model=JobSchema)
 async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
-    return await job_queries.get_by_id(db=db, job_id=job_id)
+    job = await job_queries.get_by_id(db=db, job_id=job_id)
+
+    if job:
+        return job
+    else:
+        raise HTTPException(404, detail=f"Вакансия #{job_id} не найдена")
 
 
 @router.post("", response_model=JobSchema)

@@ -10,7 +10,7 @@ from models import User
 router = APIRouter(prefix="/responses", tags=["responses"])
 
 
-@router.get("", response_model=List[ResponseSchema])
+@router.get("/{job_id}", response_model=List[ResponseSchema])
 async def get_response_by_job_id(job_id: int, db: AsyncSession = Depends(get_db)):
     return await response_queries.get_by_job_id(db=db, job_id=job_id)
 

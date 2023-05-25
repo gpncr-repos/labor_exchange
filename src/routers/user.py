@@ -12,10 +12,19 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 @router.get("", response_model=List[UserSchema])
 async def read_users(
-    db: AsyncSession = Depends(get_db),
-    limit: int = 100,
-    skip: int = 0):
+    db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0
+):
     return await user_queries.get_all(db=db, limit=limit, skip=skip)
+
+
+@router.get("/{user_id}", response_model=UserSchema)
+async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
+    user = await user_queries.get_by_id(db=db, id=user_id)
+
+    if user:
+        return user
+    else:
+        raise HTTPException(404, detail=f"Пользователь #{user_id} не найден")
 
 
 @router.post("", response_model=UserSchema)
@@ -29,16 +38,20 @@ async def update_user(
     id: int,
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)):
-
+    current_user: User = Depends(get_current_user),
+):
     old_user = await user_queries.get_by_id(db=db, id=id)
 
     if old_user is None or old_user.email != current_user.email:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден"
+        )
 
     old_user.name = user.name if user.name is not None else old_user.name
     old_user.email = user.email if user.email is not None else old_user.email
-    old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
+    old_user.is_company = (
+        user.is_company if user.is_company is not None else old_user.is_company
+    )
 
     new_user = await user_queries.update(db=db, user=old_user)
 
