@@ -4,7 +4,7 @@ import os
 
 DB_USER = os.environ.get("DB_USER", "admin")
 DB_PASS = os.environ.get("DB_PASS", "admin")
-DB_HOST = os.environ.get("DB_HOST", "localhost:5433")
+DB_HOST = os.environ.get("DB_HOST", "localhost:5432")
 DB_NAME = os.environ.get("DB_NAME", "labor-exchange")
 
 SQLALCHEMY_DATABASE_URL = (
