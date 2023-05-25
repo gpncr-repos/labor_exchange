@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import UserSchema, UserInSchema, UserUpdateSchema
+from schemas import UserSchema, UserInSchema, UserUpdateSchema, UserSchemaFull
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import user as user_queries
@@ -17,9 +17,12 @@ async def read_users(
     return await user_queries.get_all(db=db, limit=limit, skip=skip)
 
 
-@router.get("/{user_id}", response_model=UserSchema)
+@router.get("/{user_id}", response_model=UserSchemaFull)
 async def read_user(user_id: int, db: AsyncSession = Depends(get_db)):
     user = await user_queries.get_by_id(db=db, id=user_id)
+
+    await db.refresh(user, attribute_names=["jobs"])
+    await db.refresh(user, attribute_names=["responses"])
 
     if user:
         return user

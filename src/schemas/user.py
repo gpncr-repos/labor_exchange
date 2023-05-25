@@ -1,6 +1,8 @@
 import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, validator, constr
+import schemas.job
+import schemas.response
 
 
 class UserSchema(BaseModel):
@@ -13,6 +15,11 @@ class UserSchema(BaseModel):
 
     class Config:
         orm_mode = True
+
+
+class UserSchemaFull(UserSchema):
+    jobs: list[schemas.job.JobSchema]
+    responses: list[schemas.response.ResponseSchema]
 
 
 class UserUpdateSchema(BaseModel):
@@ -30,6 +37,6 @@ class UserInSchema(BaseModel):
 
     @validator("password2")
     def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values["password"]:
+        if "password" in values and v != values["password"]:
             raise ValueError("Пароли не совпадают!")
         return True

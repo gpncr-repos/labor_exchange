@@ -1,4 +1,4 @@
-from .user import UserInSchema, UserSchema, UserUpdateSchema
+from .user import UserInSchema, UserSchema, UserUpdateSchema, UserSchemaFull
 from .job import JobInSchema, JobSchema, JobCreateSchema
 from .response import (
     ResponseInSchema,
