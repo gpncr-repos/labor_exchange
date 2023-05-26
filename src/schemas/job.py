@@ -1,13 +1,13 @@
 import datetime
 from typing import Optional
 from pydantic import BaseModel, EmailStr, validator, constr, Field
-
+from decimal import Decimal
 
 class CreateJobRequest(BaseModel):
     title: str = Field(..., description='Название вакансии')
     description: str = Field(..., description='Описание вакансии')
-    salary_from: float = Field(..., description='Зарплата от')
-    salary_to: float = Field(..., description='Зарплата до')
+    salary_from: Decimal = Field(..., description='Зарплата от', gt=0)
+    salary_to: Decimal = Field(..., description='Зарплата до', gt=0)
     is_active: bool = Field(False, description='Активна ли вакансия')
 
     class Config:
@@ -15,23 +15,31 @@ class CreateJobRequest(BaseModel):
 
 
 class CreateJobResponse(BaseModel):
-    id: Optional[str] = Field(..., description='Идентификатор вакансии')
-    title: str = Field(..., description='Название вакансии')
-    is_active: bool = Field(..., description='Активна ли вакансия')
-    created_at: datetime.datetime = Field(..., description='Дата создания')
-
+    id: int = Field(..., description='Идентификатор вакансии')
+    info: str = Field(..., description='Информация')
     class Config:
         orm_mode = True
 
+class DeleteJobResponse(BaseModel):
+    id: int = Field(..., description='Идентификатор вакансии')
+    info: str = Field(..., description='Информация')
+    class Config:
+        orm_mode = True
+
+class UpdateJobResponse(BaseModel):
+    id: int = Field(..., description='Идентификатор вакансии')
+    info: str = Field(..., description='Информация')
+    class Config:
+        orm_mode = True
 
 class GetJobResponse(BaseModel):
-    id: Optional[str] = Field(..., description='Идентификатор вакансии')
+    id: int = Field(..., description='Идентификатор вакансии')
     title: str = Field(..., description='Название вакансии')
     description: str = Field(..., description='Описание вакансии')
-    salary_from: str = Field(..., description='Зарплата от')
-    salary_to: str = Field(..., description='Зарплата до')
+    salary_from: Decimal = Field(..., description='Зарплата от', gt=0)
+    salary_to: Decimal = Field(..., description='Зарплата до', gt=0)
     is_active: bool = Field(..., description='Активна ли вакансия')
-    created_at: datetime.datetime = Field(..., description='Дата создания')
+    created_at: datetime.datetime = Field(..., description='Дата создания. ISO8601')
 
     class Config:
         orm_mode = True
@@ -52,5 +60,11 @@ class GetResponseResponse(BaseModel):
     message: str = Field(..., description='Сопроводительное письмо')
     user: GetResponseUserResponse = Field(..., description='Пользователь')
 
+    class Config:
+        orm_mode = True
+
+class CreateResponseResponse(BaseModel):
+    id: int = Field(..., description='Идентификатор вакансии')
+    info: str = Field(..., description='Информация')
     class Config:
         orm_mode = True

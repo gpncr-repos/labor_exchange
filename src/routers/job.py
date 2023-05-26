@@ -9,7 +9,7 @@ from models import User, Job
 from queries import job as job_queries
 from queries.job import get_response_by_job_id
 from schemas.job import CreateJobRequest, CreateJobResponse, GetJobResponse, CreateResponseRequest, \
-    GetResponseUserResponse, GetResponseResponse
+    GetResponseUserResponse, GetResponseResponse, DeleteJobResponse, UpdateJobResponse, CreateResponseResponse
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -22,7 +22,9 @@ async def create_job(job: CreateJobRequest,
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Пользователь не может создать вакансию")
 
     created_job = await job_queries.create_job(db=db, user_id=current_user.id, job_schema=job)
-    return CreateJobResponse.from_orm(created_job)
+    created_job.info = "Вакансия успешно создана"
+    result_schema = CreateJobResponse.from_orm(created_job)
+    return result_schema
 
 
 @router.get("/{job_id}", response_model=GetJobResponse)
@@ -34,7 +36,7 @@ async def get_job(job: Job = Depends(get_current_job), db: AsyncSession = Depend
     return GetJobResponse.from_orm(job)
 
 
-@router.delete("/{job_id}")
+@router.delete("/{job_id}", response_model=DeleteJobResponse)
 async def remove_job(job: Job = Depends(get_current_job),
                      db: AsyncSession = Depends(get_db),
                      current_user: User = Depends(get_current_user),
@@ -44,9 +46,9 @@ async def remove_job(job: Job = Depends(get_current_job),
                             detail="Пользователь не может удалять вакансию")
 
     await job_queries.remove_job(db=db, id=job.id)
+    return DeleteJobResponse(id = job.id, info="Вакансия успешно удалена")
 
-
-@router.put("/{job_id}", response_model=CreateJobResponse)
+@router.put("/{job_id}", response_model=UpdateJobResponse)
 async def update_job(job_request: CreateJobRequest,
                      job: Job = Depends(get_current_job),
                      db: AsyncSession = Depends(get_db),
@@ -64,7 +66,7 @@ async def update_job(job_request: CreateJobRequest,
     old_job.is_active = job_request.is_active if job_request.is_active is not None else old_job.is_active
     new_job = await job_queries.update_job(db=db, job_model=old_job)
 
-    return CreateJobResponse.from_orm(new_job)
+    return UpdateJobResponse(id=new_job.id, info="Вакансия успешно изменена")
 
 
 @router.get("", response_model=List[GetJobResponse])
@@ -73,7 +75,7 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db)):
     return jobs
 
 
-@router.post("/{job_id}/response")
+@router.post("/{job_id}/response", response_model=CreateResponseResponse)
 async def create_response(response_schema: CreateResponseRequest,
                           job: Job = Depends(get_current_job),
                           db: AsyncSession = Depends(get_db),
@@ -82,8 +84,9 @@ async def create_response(response_schema: CreateResponseRequest,
     if current_user.is_company:
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Компания не может откликаться на вакансию")
 
-    await job_queries.create_response(db, job.id, current_user.id, response_schema)
+    result = await job_queries.create_response(db, job.id, current_user.id, response_schema)
 
+    return CreateResponseResponse(id=result.id, info="Успешный отклик на вакансию")
 
 @router.get("/{job_id}/response", response_model=List[GetResponseResponse])
 async def get_response_by_job(job: Job = Depends(get_current_job),
