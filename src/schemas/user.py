@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class UserSchema(BaseModel):
+    # Why str???
     id: Optional[str] = None
     name: str
     email: EmailStr
