@@ -16,10 +16,12 @@ async def create_job(
         current_user: User = Depends(get_current_user)
 ):
     """
-            обрабатывает HTTP POST-запросы на пути /jobs,
-            принимает модель данных JobInSchema,
-            создает "работу" в базе данных с использованием сервиса job_service,
-            возвращает созданную "работу" в формате JobSchema
+    Create a new job with the provided details.
+
+    - **job_in**: Details of the job to be created.
+    - **db**: Database session dependency.
+    - **current_user**: Current authenticated user dependency.
+    - **Returns**: Created job details.
     """
 
     created_job = await job_service.create_job(db=db, job_schema=job_in, current_user=current_user)
@@ -33,11 +35,16 @@ async def get_jobs(
         skip: int = 0
 ):
     """
-            Обрабатывает HTTP GET-запросы на пути /jobs,
-            возвращает список работ в формате List[JobSchema].
+    Get a list of jobs.
+
+    - **db**: Database session dependency.
+    - **limit**: Maximum number of jobs to retrieve (default: 100).
+    - **skip**: Number of jobs to skip (default: 0).
+    - **Returns**: List of jobs.
     """
 
-    return job_service.get_all_jobs(db=db, limit=limit, skip=skip)
+    jobs = await job_service.get_all_jobs(db=db, limit=limit, skip=skip)
+    return jobs
 
 
 @router.get('/{job_id}', response_model=JobSchema)
@@ -46,8 +53,11 @@ async def get_job_by_id(
         db: AsyncSession = Depends(get_db)
 ):
     """
-            Обрабатывает HTTP GET-запросы на пути /jobs/{job_id},
-            возвращает работу с указанным идентификатором в формате JobSchema.
+    Get a job by its ID.
+
+    - **job_id**: ID of the job to retrieve.
+    - **db**: Database session dependency.
+    - **Returns**: Job details.
     """
 
     job = await job_service.get_job_by_id(db=db, job_id=job_id)
