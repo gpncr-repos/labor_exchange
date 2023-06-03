@@ -65,3 +65,22 @@ async def get_job_by_id(
         raise HTTPException(status_code=404, detail="Работа не найдена")
 
     return JobSchema.from_orm(job)
+
+
+@router.delete('/{job_id}', response_model=bool)
+async def delete_job(
+        job_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)
+):
+    """
+    Delete a job by its ID.
+
+    - **job_id**: ID of the job to delete.
+    - **db**: Database session dependency.
+    - **current_user**: Current authenticated user dependency.
+    - **Returns**: True if the job is successfully deleted, exception otherwise.
+    """
+
+    is_deleted = await job_service.deleted_job_by_id(db, job_id=job_id, current_user=current_user)
+    return is_deleted
