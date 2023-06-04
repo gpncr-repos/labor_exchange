@@ -35,7 +35,7 @@ async def get_job_by_id(db: AsyncSession, job_id: int):
     return res.scalars().first()
 
 
-async def deleted_job_by_id(db: AsyncSession, job_id, current_user: User):
+async def delete_job_by_id(db: AsyncSession, job_id, current_user: User):
     job = await db.get(Job, job_id)
 
     if job is None:
