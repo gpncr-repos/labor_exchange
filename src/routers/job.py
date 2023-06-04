@@ -82,5 +82,5 @@ async def delete_job(
     - **Returns**: True if the job is successfully deleted, exception otherwise.
     """
 
-    is_deleted = await job_service.deleted_job_by_id(db, job_id=job_id, current_user=current_user)
+    is_deleted = await job_service.delete_job_by_id(db, job_id=job_id, current_user=current_user)
     return is_deleted
