@@ -1,3 +1,5 @@
+from fastapi import HTTPException, status
+
 from models import User
 from schemas import UserInSchema
 from typing import List, Optional
@@ -19,6 +21,11 @@ async def get_by_id(db: AsyncSession, id: int) -> Optional[User]:
 
 
 async def create(db: AsyncSession, user_schema: UserInSchema) -> User:
+
+    existing_user = await get_by_email(db=db, email=user_schema.email)
+    if existing_user is not None:
+        raise HTTPException(status.HTTP_400_BAD_REQUEST, detail="Пользователь с таким адресом электронной почты уже существует")
+
     user = User(
         name=user_schema.name,
         email=user_schema.email,
