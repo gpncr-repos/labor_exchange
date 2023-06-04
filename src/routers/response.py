@@ -24,7 +24,7 @@ async def create_response(
     - **current_user**: Currently authenticated user dependency.
     - **Returns**: The created response.
     """
-    created_response = await response_service.create_response(db=db, response_scheme=created_response,
+    created_response = await response_service.create_response(db=db, response_schema=created_response,
                                                               current_user=current_user)
     return ResponseSchema.from_orm(created_response)
 
