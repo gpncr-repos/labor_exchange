@@ -10,7 +10,7 @@ from schemas.response import ResponseSchema, ResponseInSchema
 router = APIRouter(prefix='/responses', tags=["responses"])
 
 
-@router.post("", response_model=ResponseInSchema)
+@router.post("", response_model=ResponseSchema)
 async def create_response(
         created_response: ResponseInSchema,
         db: AsyncSession = Depends(get_db),
@@ -46,7 +46,7 @@ async def get_responses_by_job_id(
 
 
 @router.get("/user-id/{user_id}", response_model=List[ResponseSchema])
-async def get_responses_by_job_id(
+async def get_responses_by_user_id(
         user_id: int,
         db: AsyncSession = Depends(get_db)
 ):
