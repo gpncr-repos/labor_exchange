@@ -1,0 +1,12 @@
+.my-account {
+    margin-top: 5rem;
+    color: white;
+}
+
+.account-settings {
+    display: flex;
+    justify-content: center;
+    gap: 5rem;
+    margin: 3rem 0;
+}
+

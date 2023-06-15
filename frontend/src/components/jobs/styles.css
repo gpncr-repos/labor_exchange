@@ -1,0 +1,21 @@
+.jobs-form{
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.jobs-form input {
+    width: 100%;
+}
+
+.jobs-form-container {
+    width: 30%;
+    background-color: #074d78;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.jobs-form button:hover {
+    transform: scale(0.99);
+    transition: all 0.3s ease-in-out;
+}

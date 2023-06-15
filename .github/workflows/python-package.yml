@@ -27,7 +27,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r src/requirements.txt
     - name: Run migrations
-      working-directory: ./src/
+      working-directory: ./backend/src/
       run: |
         alembic upgrade head
       env:
@@ -36,6 +36,6 @@ jobs:
         PG_DB: labor_exchange
 
     - name: Test with pytest
-      working-directory: ./src
+      working-directory: ./backend/src
       run: |
         pytest

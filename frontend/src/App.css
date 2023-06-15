@@ -1,0 +1,15 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+.App {
+  text-align: center;
+  width: 100%;
+  height: 100vh;
+  background: rgb(95,180,231);
+  background: linear-gradient(23deg, rgba(95,180,231,1) 0%, rgba(42,141,199,1) 76%, rgba(6,115,181,1) 100%);
+}
+

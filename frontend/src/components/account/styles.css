@@ -1,0 +1,21 @@
+.account-form{
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.account-form input {
+    width: 100%;
+}
+
+.account-form-container {
+    width: 30%;
+    background-color: #074d78;
+    padding: 2rem;
+    border-radius: 10px;
+}
+
+.account-form button:hover {
+    transform: scale(0.99);
+    transition: all 0.3s ease-in-out;
+}

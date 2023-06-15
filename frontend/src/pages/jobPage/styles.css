@@ -1,0 +1,12 @@
+.my-jobs {
+    margin-top: 5rem;
+    color: white;
+}
+
+.jobs-settings {
+    display: flex;
+    justify-content: space-around;
+    gap: 5rem;
+    margin: 3rem 0;
+}
+

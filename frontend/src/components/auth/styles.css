@@ -1,0 +1,65 @@
+.auth-form-container, .login-form, .register-form {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+label {
+    text-align: left;
+    padding: 0.25rem 0;
+}
+
+
+input {
+    margin: 0 0 1rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+}
+
+button {
+    border: none;
+    background-color: white;
+    padding: 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(0.98);
+    transition: all 0.3s ease-in-out;
+}
+
+.link-btn {
+    background: none;
+    font-size: 1rem;
+    padding-left: 5px;
+    text-decoration: underline;
+    color: white;
+}
+
+.company-label {
+    text-align: left;
+}
+
+.company-checkbox {
+    margin-left: 0.5rem;
+}
+
+.errmsg {
+    background-color: lightpink;
+    color: firebrick;
+    font-weight: bold;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media screen and (min-width: 600px) {
+    .auth-form-container {
+    padding: 2.5rem 5rem;
+    background: #074d78;
+    border-radius: 10px;
+    margin: 0.5rem;
+    }
+}
