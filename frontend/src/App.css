@@ -1,0 +1,53 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: sans-serif;
+}
+
+label {
+    text-align: left;
+    padding: 0.25rem 0;
+}
+
+
+input {
+    margin: 0 0 1rem;
+    padding: 1rem;
+    border: none;
+    border-radius: 10px;
+}
+
+button {
+    border: none;
+    background-color: white;
+    padding: 20px;
+    font-size: 1rem;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+button:hover {
+    transform: scale(0.98);
+    transition: all 0.3s ease-in-out;
+}
+
+input, textarea {outline:none;}
+
+h1 {font-size: 2rem;}
+
+h2 {font-size: 1.7rem;}
+
+h3 {font-size: 1.5rem;}
+
+.error-message {
+    text-align: start;
+    color: red;
+    margin: 0 0 1rem;
+}
+
+.App {
+  text-align: center;
+  width: 100%;
+}
+

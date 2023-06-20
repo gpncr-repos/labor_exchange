@@ -1,0 +1,56 @@
+.NavbarItems{
+    background: #074d78;
+    padding: 0 20px;
+    height: 70px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 1.2rem;
+}
+
+.navbar-logo {
+    display: flex;
+    align-items: center;
+    color: #fff;
+    justify-self: start;
+    cursor: pointer;
+}
+
+.navbar-logo > .fa-pen {
+    margin-left: 10px;
+}
+
+.nav-menu{
+    display: grid;
+    grid-gap: 10px;
+    list-style: none;
+    align-items: center;
+    text-align: center;
+    width: 70vw;
+    justify-content: end;
+}
+
+.nav-links{
+    text-decoration: none;
+    color: #fff;
+    padding: 0.5rem 1rem;
+}
+
+.nav-links:hover {
+  text-decoration: underline;
+  border-radius: 4px;
+}
+
+.btn {
+    color: white;
+    padding: 8px 20px;
+    border-radius: 4px;
+    outline: none;
+    border: none;
+    cursor: pointer;
+    background-color: #49b1bd;
+    margin-left: 1rem;
+    width: 100%;
+}
+
+

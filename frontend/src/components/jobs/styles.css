@@ -1,0 +1,61 @@
+.create-job-form-container,
+.job-list-container {
+  text-align: start;
+  padding: 2.5rem;
+  background: #055e91;
+  border-radius: 10px;
+  margin-bottom: 3rem;
+  width: 65%;
+}
+
+.create-job-form-container {
+  width: 35%;
+}
+
+.job-list__name,
+.create-job-form__name {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.create-job-form {
+  display: flex;
+  flex-direction: column;
+  color: white;
+}
+
+.job-salary-form {
+  display: flex;
+  gap: 1rem;
+}
+
+.create-job-form__salary-from,
+.create-job-form__salary-to {
+  display: flex;
+  flex-direction: column;
+  width: 50%;
+}
+
+.create-job-form__textarea {
+  font-size: 1.2rem;
+  height: 30rem;
+  resize: vertical;
+}
+
+.job-item__title,
+.job-item__description,
+.job-item__salary {
+  margin-bottom: 0.7rem;
+}
+
+.job-item__salary {
+  color: greenyellow;
+  font-size: 2rem;
+}
+
+.job-item {
+  background: #074d78;
+  border-radius: 10px;
+  margin: 0 0 1rem;
+  padding: 2rem;
+}

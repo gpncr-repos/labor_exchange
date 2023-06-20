@@ -1,0 +1,47 @@
+.job-list-container, .response-list-container {
+    width: 50%;
+    text-align: left;
+    padding: 2.5rem 5rem;
+    background: #055e91;
+    border-radius: 10px;
+    margin-bottom: 3rem;
+}
+
+
+.job-list-container__name, .response-list-container__name {
+    margin-bottom: 0.5rem;
+    text-align: center;
+}
+
+.create-response-form{
+    background: #074d78;
+    border-radius: 10px;
+    margin: 0 0 1rem;
+    padding: 2rem;
+}
+
+.create-response-form__form{
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.create-response-form__title, .create-response-form__description, .create-response-form__salary, .create-response-form__textarea{
+    margin-bottom: 0.7rem;
+}
+
+.create-response-form__salary{
+    color: greenyellow;
+    font-size: 2rem;
+}
+
+.create-response-form__textarea {
+    font-size: 1.2rem;
+    height: 5rem;
+    resize: vertical;
+    max-height: 16rem;
+}
+
+.create-response-form__form > label {
+    font-size: 1.2rem;
+}

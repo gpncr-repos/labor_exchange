@@ -1,0 +1,39 @@
+.auth-form-container, .login-form, .register-form {
+    display: flex;
+    flex-direction: column;
+    color: white;
+}
+
+.link-btn {
+    background: none;
+    font-size: 1rem;
+    padding-left: 5px;
+    text-decoration: underline;
+    color: white;
+}
+
+.company-label {
+    text-align: left;
+}
+
+.company-checkbox {
+    margin-left: 0.5rem;
+}
+
+.errmsg {
+    background-color: lightpink;
+    color: firebrick;
+    font-weight: bold;
+    padding: 0.5rem;
+    margin-bottom: 0.5rem;
+}
+
+@media screen and (min-width: 600px) {
+    .auth-form-container {
+        width: 30%;
+        padding: 2.5rem 5rem;
+        background: #074d78;
+        border-radius: 10px;
+        margin: 0.5rem;
+    }
+}
