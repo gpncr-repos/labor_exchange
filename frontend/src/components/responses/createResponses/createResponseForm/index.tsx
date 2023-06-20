@@ -1,6 +1,7 @@
 import React, {useRef, useState} from 'react';
 import axios from "../../../../api/axiosPrivate";
 import {Job} from "../../interfaces";
+import "../../styles.css"
 
 const CreateResponseFormComponent = ({id, user_id, title, description, salary_from, salary_to}: Job) => {
     const [message, setMessage] = useState('')
@@ -21,6 +22,7 @@ const CreateResponseFormComponent = ({id, user_id, title, description, salary_fr
                     withCredentials: true
                 }
             )
+            window.location.reload();
         } catch (err: any) {
             if (err.response?.status === 400) {
                 setErrMsg('Вы уже оставили отклик на эту вакансию');
@@ -32,24 +34,22 @@ const CreateResponseFormComponent = ({id, user_id, title, description, salary_fr
     }
 
     return (
-        <section>
+        <section className="create-response-form">
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">
                 {errMsg}
             </p>
-            <h2>User ID: {user_id}</h2>
-            <h3>Title: {title}</h3>
-            <p>Description: {description}</p>
-            <p>Salary: {salary_from} - {salary_to}</p>
+            <h3 className="create-response-form__title">{title}</h3>
+            <p className="create-response-form__description">{description}</p>
+            <p className="create-response-form__salary">{salary_from} - {salary_to} ₽</p>
 
-            <form onSubmit={handleSubmit}>
-                <label htmlFor="message">Заголовок</label>
-                <input
-                    type="text"
-                    value={message}
-                    onChange={(e) => setMessage(e.target.value)}
-                    id="message"
-                />
-                <button type="submit">Отправить</button>
+            <form onSubmit={handleSubmit} className="create-response-form__form">
+                    <label htmlFor="message">Откликнуться на вакансию:</label>
+                    <textarea className="create-response-form__textarea"
+                        value={message}
+                        onChange={(e) => setMessage(e.target.value)}
+                        placeholder="Напишите о себе" id="message" name="message"
+                    />
+                    <button type="submit">Отправить</button>
             </form>
         </section>
     );

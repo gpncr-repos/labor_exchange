@@ -1,39 +1,52 @@
-import React, {useRef, useState} from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import "../styles.css"
 
 import axios from "../../../api/axios";
 import {useLocation, useNavigate} from "react-router-dom";
 import useAuth from "../../../hooks/useAuth";
 
-const LoginComponent = (props: any) => {
-    const { setAuth } = useAuth()
+interface FormErrors {
+    email?: string;
+    password?: string;
+}
 
+const LoginComponent = (props: any) => {
+    const {setAuth} = useAuth()
     const navigate = useNavigate();
     const location = useLocation();
-    const errRef = useRef<HTMLDivElement>(null);
-
-    const [email, setEmail] = useState('')
-    const [password, setPassword] = useState('')
-    const [errMsg, setErrMsg] = useState('')
-
     const from = location.state?.from?.pathname || "/"
 
+    const initialValues = {email: '', password: ''}
+    const [formValues, setFormValues] = useState(initialValues)
+    const [formErrors, setFormErrors] = useState<FormErrors>({});
+    const [isSubmit, setIsSubmit] = useState(false);
+    const [errMsg, setErrMsg] = useState('')
+
+
+    const handleChange = (event: any) => {
+        const {name, value} = event.target;
+        setFormValues({...formValues, [name]: value});
+    }
+
     const handleSubmit = async (event: any) => {
-        event.preventDefault()
+        event.preventDefault();
+        setFormErrors(validate(formValues))
+        setIsSubmit(true)
+
         try {
 
             const response = await axios.post('/auth',
-                JSON.stringify({email: email, password: password}),
+                JSON.stringify({email: formValues.email, password: formValues.password}),
                 {
                     headers: {'Content-Type': 'application/json'},
                     withCredentials: true
                 }
             );
 
-            const { id: id, access_token: accessToken, is_company: is_company } = response?.data;
+            const {id: id, access_token: accessToken, is_company: is_company} = response?.data;
             setAuth({
-                email: email,
-                password: password,
+                email: formValues.email,
+                password: formValues.password,
                 accessToken: accessToken,
             });
 
@@ -43,42 +56,61 @@ const LoginComponent = (props: any) => {
                 accessToken: accessToken,
             }));
 
-            setEmail('')
-            setPassword('')
             navigate(from, {replace: true})
 
         } catch (err: any) {
             if (!err?.response) {
                 setErrMsg('Сервер не отвечает');
-            } else if (email === '' || password === '') {
-                setErrMsg('Заполните все поля')
-            } else if (err.response?.status === 401) {
+            }else if (err.response?.status === 401) {
                 setErrMsg('Неверный логин или пароль')
             }
-            if (errRef.current) {
-                errRef.current.focus();
-            }
+
         }
     }
 
-    return (
+    useEffect(() => {
+        if (Object.keys(formErrors).length === 0 && isSubmit) {
+            console.log(formValues)
+        }
+    }, [formValues])
 
+    const validate = (values: any) => {
+        const errors: FormErrors = {};
+        const regex = /^[\w.-]+@([\w-]+\.)+[\w-]{2,4}$/;
+        if (!values.email) {
+            errors.email = "Email - это обязательное поле!"
+        } else if (!regex.test(values.email)) {
+            errors.email = "Не правильный формат электронной почты!"
+        }
+        if (!values.password) {
+            errors.password = "Пароль - это обязательное поле!"
+        } else if (values.password.length < 8) {
+            errors.password = "Пароль должен быть не менее 8 символов!"
+        } else if (values.password.length > 20) {
+            errors.password = "Пароль должен быть не более 20 символов!"
+        }
+        return errors;
+    }
+
+    return (
         <section className="auth-form-container">
+            {errMsg && <p className="errmsg">{errMsg}</p>}
             <h1>Вход</h1>
-            <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
             <form className="login-form" onSubmit={handleSubmit}>
                 <label htmlFor="email">Email</label>
                 <input
-                    value={email}
-                    type="email"
-                    onChange={(e) => setEmail(e.target.value)}
+                    value={formValues.email}
+                    type="text"
+                    onChange={handleChange}
                     placeholder="emailexample@gmail.com" id="email" name="email"/>
+                <p className="error-message">{formErrors.email}</p>
                 <label htmlFor="password">Пароль</label>
                 <input
-                    value={password}
+                    value={formValues.password}
                     type="password"
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={handleChange}
                     placeholder="*******" id="password" name="password"/>
+                <p className="error-message">{formErrors.password}</p>
                 <button type="submit">Войти</button>
             </form>
             <div>

@@ -1,0 +1,22 @@
+.my-responses, .my-account, .my-jobs {
+    margin: 3rem 0;
+    color: white;
+}
+
+.responses-settings, .account-settings, .jobs-settings {
+    display: flex;
+    gap: 3rem;
+    justify-content: center;
+    margin: 3rem;
+}
+
+.auth-page, .main-page{
+    text-align: center;
+    display: flex;
+    min-height: 90vh;
+    align-items: center;
+    justify-content: center;
+}
+
+
+

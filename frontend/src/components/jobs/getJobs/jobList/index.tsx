@@ -1,6 +1,9 @@
 import React, {useEffect, useRef, useState} from 'react';
 import axios from "../../../../api/axios";
 import {UserData} from "../../interfaces";
+import "../../styles.css"
+import JobItemComponent from "../jobItem";
+
 const JobListComponent = () => {
     const [jobs, setJobs] = useState<any[]>([]);
     const storage = localStorage.getItem("auth");
@@ -30,20 +33,19 @@ const JobListComponent = () => {
     const filteredJobs = jobs.filter(job => job?.user_id === userData?.id);
 
     return (
-        <section>
-            <h2>Список Ваших вакансий</h2>
+        <section className="job-list-container">
+            <h2 className="job-list__name">Список Ваших вакансий</h2>
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-            {filteredJobs.length ? (
-                <ul>
-                    {filteredJobs.map((job, i) => (
-                        <li key={i}>
-                            {job?.user_id} {job?.title} {job?.description} {job?.salary_from} {job?.salary_to}
-                        </li>
-                    ))}
-                </ul>
-            ) : (
-                <p>No users to display</p>
-            )}
+            <div style={{height: '800px', overflowY: 'scroll', scrollbarWidth: 'thin'}}>
+                {filteredJobs.map((job, index) => {
+                    return (
+                        <JobItemComponent
+                            key={index}
+                            job={job}
+                        />
+                    )
+                })}
+            </div>
         </section>
     );
 };

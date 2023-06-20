@@ -1,5 +1,6 @@
 import React from 'react';
 import { Job, Response } from '../../interfaces';
+import "../../styles.css"
 
 interface ResponseComponentProps {
   response: Response;
@@ -8,13 +9,11 @@ interface ResponseComponentProps {
 
 const ResponseItemComponent = ({ response, job }: ResponseComponentProps) => {
   return (
-    <section>
-      <h2>Вакансия:</h2>
-      <p>Title: {job.title}</p>
-      <p>Description: {job.description}</p>
-      <p>Salary From: {job.salary_from}</p>
-      <p>Salary To: {job.salary_to}</p>
-      <h2>Ваш отклик</h2>
+    <section className="job-item">
+      <h3 className="job-item__title">Вакансия: {job.title}</h3>
+      <p className="job-item__description">{job.description}</p>
+      <p className="job-item__salary">{job.salary_from} - {job.salary_to} ₽</p>
+      <h3>Ваш ответ</h3>
       <p>{response.message}</p>
     </section>
   );

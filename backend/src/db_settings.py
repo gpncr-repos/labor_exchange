@@ -1,8 +1,9 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_scoped_session
 from sqlalchemy.ext.declarative import declarative_base
-from sqlalchemy.orm import sessionmaker, scoped_session
-from sqlalchemy.pool import NullPool
+from asyncio import current_task
 import os
+
+from sqlalchemy.orm import sessionmaker
 
 DB_USER = os.environ.get("DB_USER", "admin")
 DB_PASS = os.environ.get("DB_PASS", "admin")
@@ -19,9 +20,9 @@ else:
 SQLALCHEMY_DATABASE_URL = f"postgresql+asyncpg://{DB_USER}:{DB_PASS}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
 
 engine = create_async_engine(
-    SQLALCHEMY_DATABASE_URL, poolclass=NullPool, future=True
+    SQLALCHEMY_DATABASE_URL,
 )
 
-SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession))
+SessionLocal = async_scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession), scopefunc=current_task)
 
 Base = declarative_base()

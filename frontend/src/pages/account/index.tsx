@@ -1,6 +1,6 @@
 import React from 'react';
 import LogoutButton from "../../components/auth/logoutButton";
-import "./styles.css"
+import "../styles.css"
 import UpdateDataComponent from "../../components/account/updateData";
 import UpdatePasswordComponent from "../../components/account/updatePassword";
 

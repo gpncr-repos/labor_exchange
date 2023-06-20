@@ -4,30 +4,64 @@ import useAuth from "../../../hooks/useAuth";
 import {useNavigate} from "react-router-dom";
 import "../styles.css"
 
+interface FormErrors {
+    password?: string;
+    password2?: string;
+    oldPassword?: string;
+}
+
 const UpdatePasswordComponent = () => {
     const {setAuth} = useAuth();
     const navigate = useNavigate()
-    const [password, setPassword] = useState('');
-    const [password2, setPassword2] = useState('');
-    const [oldPassword, setOldPassword] = useState('');
-    const errRef = useRef<HTMLDivElement>(null);
+
+    const initialValues = {password: '', password2: '', oldPassword: ''};
+    const [formValues, setFormValues] = useState(initialValues);
+    const [formErrors, setFormErrors] = useState<FormErrors>({});
+    const [isSubmit, setIsSubmit] = useState(false);
     const [errMsg, setErrMsg] = useState('');
+
+    const handleChange = (event: any) => {
+        const {name, value} = event.target;
+        setFormValues({...formValues, [name]: value});
+    };
+
+    const validate = (values: any) => {
+        const errors: FormErrors = {};
+        if (!values.password){
+            errors.password = 'Это обязательное поле!'
+        }else if (values.password.length < 8) {
+            errors.password = 'Пароль должен быть не менее 8 символов!';
+        } else if (values.password.length > 20) {
+            errors.password = 'Пароль должен быть не более 20 символов!';
+        }
+
+        if (!values.password2){
+            errors.password2 = 'Это обязательное поле!'
+        }else if (values.password !== values.password2){
+            errors.password2 = 'Пароли не совпадают!'
+        }
+
+        if (!values.oldPassword){
+            errors.oldPassword = 'Это обязательное поле!'
+        }
+
+        return errors;
+    };
 
     const handleUpdatePassword = async (event: any) => {
         event.preventDefault();
+        setIsSubmit(true);
+
+        const errors = validate(formValues);
+        setFormErrors(errors);
 
         try {
 
-            if(password !== password2){
-                setErrMsg('Пароли не совпадают');
-            }else
-            {
                 await axios.put('/users', {
-                    new_password: password,
-                    password: oldPassword
+                    new_password: formValues.password,
+                    password: formValues.oldPassword
                 });
                 setErrMsg('');
-
 
 
                 //TODO: СДЕЛАТЬ АВТОРИЗАЦИЮ ПОСЛЕ ОБНОВЛЕНИЯ!!!!!!!!!!!!!
@@ -35,19 +69,11 @@ const UpdatePasswordComponent = () => {
                 localStorage.setItem('auth', JSON.stringify({}));
                 navigate("/auth")
 
-
-
-            }
         } catch (err: any) {
             if (!err?.response) {
                 setErrMsg('Сервер не отвечает');
-
-            } else if (err.response?.status === 422) {
-                setErrMsg('Некорректные данные');
-
-            }
-            if (errRef.current) {
-                errRef.current.focus();
+            }else if (err.response?.status === 422) {
+                setErrMsg('Неверный старый пароль')
             }
         }
     }
@@ -55,43 +81,39 @@ const UpdatePasswordComponent = () => {
     return (
         <section className="account-form-container">
             <h2>Изменить пароль</h2>
-            <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">
-                {errMsg}
-            </p>
+            {errMsg && <p className="errmsg">{errMsg}</p>}
+
             <form className="account-form" onSubmit={handleUpdatePassword}>
                 <label htmlFor="newPassword">Новый пароль</label>
                 <input
                     type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    value={formValues.password}
+                    onChange={handleChange}
                     placeholder="*******"
                     id="newPassword"
                     name="password"
-                    minLength={8}
-                    required
                 />
+                <p className="error-message">{formErrors.password}</p>
                 <label htmlFor="newPassword2">Подтвердите новый пароль</label>
                 <input
                     type="password"
-                    value={password2}
-                    onChange={(e) => setPassword2(e.target.value)}
+                    value={formValues.password2}
+                    onChange={handleChange}
                     placeholder="*******"
                     id="newPassword2"
                     name="password2"
-                    minLength={8}
-                    required
                 />
+                <p className="error-message">{formErrors.password2}</p>
                 <label htmlFor="oldPassword">Старый пароль</label>
                 <input
                     type="password"
-                    value={oldPassword}
-                    onChange={(e) => setOldPassword(e.target.value)}
+                    value={formValues.oldPassword}
+                    onChange={handleChange}
                     placeholder="*******"
                     id="oldPassword"
                     name="oldPassword"
-                    minLength={8}
-                    required
                 />
+                <p className="error-message">{formErrors.oldPassword}</p>
 
                 <button type="submit">Обновить</button>
             </form>

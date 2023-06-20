@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import axios from '../../../../api/axios';
 import ResponseItemComponent from '../responseItem';
 import { UserData, Response, Job } from '../../interfaces';
+import "../../styles.css"
 
 const ResponsesListComponent = () => {
   const [responses, setResponses] = useState<Response[]>([]);
@@ -36,22 +37,22 @@ const ResponsesListComponent = () => {
   }, []);
 
   return (
-    <section>
-
-      <h2>Отклики</h2>
+    <section className="response-list-container">
+      <h2 className="response-list-container__name">Ваши отклики</h2>
       <p ref={errRef} className={errMsg ? 'errmsg' : 'offscreen'} aria-live="assertive">
         {errMsg}
       </p>
+      <div style={{ height: '50rem', overflowY: 'scroll', scrollbarWidth: 'thin' }}>
       {responses.map((response, index) => {
-        const matchingJob = jobs.find((job) => job.id === response.job_id);
+        const filteredJob = jobs.find((job) => job.id === response.job_id);
 
-        if (matchingJob) {
+        if (filteredJob) {
           return (
 
             <ResponseItemComponent
               key={index}
               response={response}
-              job={matchingJob}
+              job={filteredJob}
             />
 
           );
@@ -59,6 +60,7 @@ const ResponsesListComponent = () => {
 
         return null;
       })}
+      </div>
     </section>
   );
 };

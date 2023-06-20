@@ -2,7 +2,7 @@ import React, {useState, useEffect, useRef} from 'react';
 import axios from "../../../../api/axiosPrivate";
 import "../../styles.css"
 
-const CreateJobFormComponent = ({onJobAdded}: any) => {
+const CreateJobFormComponent = () => {
     const [title, setTitle] = useState('');
     const [description, setDescription] = useState('');
     const [salaryFrom, setSalaryFrom] = useState('');
@@ -31,7 +31,7 @@ const CreateJobFormComponent = ({onJobAdded}: any) => {
                     withCredentials: true
                 }
             );
-            onJobAdded();
+            window.location.reload();
         } catch (err: any) {
             if (!err?.response) {
                 setErrMsg('Сервер не отвечает');
@@ -51,10 +51,10 @@ const CreateJobFormComponent = ({onJobAdded}: any) => {
     };
 
     return (
-        <section className="jobs-form-container">
-            <h1>Создать новую вакансию</h1>
+        <section className="create-job-form-container">
+            <h2 className="create-job-form__name">Создать новую вакансию</h2>
             <p ref={errRef} className={errMsg ? "errmsg" : "offscreen"} aria-live="assertive">{errMsg}</p>
-            <form className="jobs-form" onSubmit={handleSubmit}>
+            <form className="create-job-form" onSubmit={handleSubmit}>
                 <label htmlFor="title">Заголовок</label>
                 <input
                     type="text"
@@ -63,32 +63,37 @@ const CreateJobFormComponent = ({onJobAdded}: any) => {
                     id="title"
                 />
                 <label htmlFor="description">Описание</label>
-                <input
-                    type="text"
-                    value={description}
-                    onChange={(e) => setDescription(e.target.value)}
-                    id="description"
+                <textarea className="create-job-form__textarea"
+                          value={description}
+                          onChange={(e) => setDescription(e.target.value)}
+                          placeholder="Расскажите о Вашей вакансии..." id="description" name="description"
                 />
-                <label htmlFor="salary-from">Зарплата от</label>
-                <input
-                    type="number"
-                    min="0"
-                    max="1000000"
-                    step="1"
-                    value={salaryFrom}
-                    onChange={(e) => setSalaryFrom(e.target.value)}
-                    id="salary-from"
-                />
-                <label htmlFor="salary-to">Зарплата до</label>
-                <input
-                    type="number"
-                    min={salaryFrom}
-                    max="1000000"
-                    step="1"
-                    value={salaryTo}
-                    onChange={(e) => setSalaryTo(e.target.value)}
-                    id="salary-to"
-                />
+                <div className="job-salary-form">
+                    <div className="create-job-form__salary-from">
+                        <label htmlFor="salary-from">Зарплата от</label>
+                        <input
+                            type="number"
+                            min="0"
+                            max="1000000"
+                            step="1"
+                            value={salaryFrom}
+                            onChange={(e) => setSalaryFrom(e.target.value)}
+                            id="salary-from"
+                        />
+                    </div>
+                    <div className="create-job-form__salary-to">
+                        <label htmlFor="salary-to">Зарплата до</label>
+                        <input
+                            type="number"
+                            min={salaryFrom}
+                            max="1000000"
+                            step="1"
+                            value={salaryTo}
+                            onChange={(e) => setSalaryTo(e.target.value)}
+                            id="salary-to"
+                        />
+                    </div>
+                </div>
                 <button type="submit">Создать</button>
             </form>
         </section>

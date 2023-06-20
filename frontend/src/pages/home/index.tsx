@@ -3,7 +3,7 @@ import React from 'react';
 const HomePage = () => {
     return (
         <>
-            <div className="page"></div>
+            <div className="main-page" style={{color: "white", fontSize: "40px"}}>:)</div>
         </>
     );
 };

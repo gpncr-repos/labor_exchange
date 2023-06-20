@@ -1,3 +1,4 @@
+import re
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 
@@ -50,7 +51,7 @@ async def update_user(
         await user_queries.update(db=db, user=old_user)
 
     old_user.name = user.name if user.name is not None else old_user.name
-    old_user.email = user.email if user.email is not None else old_user.email
+    old_user.email = user.email if user.email is not None and re.match(r'^[\w\.-]+@([\w-]+\.)+[\w-]{2,4}$', user.email) else old_user.email
 
     new_user = await user_queries.update(db=db, user=old_user)
 
