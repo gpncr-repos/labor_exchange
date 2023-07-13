@@ -4,10 +4,9 @@ from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class UserSchema(BaseModel):
-    id: Optional[str] = None
+    id: int
     name: str
     email: EmailStr
-    hashed_password: str
     is_company: bool
     created_at: datetime.datetime
 
@@ -29,7 +28,7 @@ class UserInSchema(BaseModel):
     is_company: bool = False
 
     @validator("password2")
-    def password_match(cls, v, values, **kwargs):
+    def password_match(cls, v, values):
         if 'password' in values and v != values["password"]:
             raise ValueError("Пароли не совпадают!")
         return True
