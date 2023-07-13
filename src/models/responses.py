@@ -10,7 +10,7 @@ class Response(Base):
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), comment="Идентификатор пользователя")
     job_id = sa.Column(sa.Integer, sa.ForeignKey('jobs.id'), comment="Идентификатор вакансии")
 
-    # добавьте ваши колонки сюда
+    message = sa.Column(sa.String, comment="Сопроводительное письмо")
 
     user = relationship("User", back_populates="responses")
     job = relationship("Job", back_populates="responses")
