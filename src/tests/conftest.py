@@ -2,7 +2,7 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from fixtures.users import UserFactory
+from factories.users import UserFactory
 from fastapi.testclient import TestClient
 from main import app
 import pytest
