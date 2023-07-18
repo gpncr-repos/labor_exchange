@@ -9,7 +9,7 @@ from pydantic import ValidationError
 async def test_get_all(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     all_users = await user_query.get_all(sa_session)
     assert all_users
@@ -21,7 +21,7 @@ async def test_get_all(sa_session):
 async def test_get_by_id(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     current_user = await user_query.get_by_id(sa_session, user.id)
     assert current_user is not None
@@ -32,7 +32,7 @@ async def test_get_by_id(sa_session):
 async def test_get_by_email(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     current_user = await user_query.get_by_email(sa_session, user.email)
     assert current_user is not None
@@ -72,7 +72,7 @@ async def test_create_password_mismatch(sa_session):
 async def test_update(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     user.name = "updated_name"
     updated_user = await user_query.update(sa_session, user=user)

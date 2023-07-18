@@ -13,7 +13,7 @@ from schemas import JobCreateSchema, JobUpdateSchema
 async def test_get_all(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
+    await sa_session.flush()
 
     all_jobs = await job_query.get_all(sa_session)
     assert all_jobs
@@ -27,7 +27,7 @@ async def test_get_all(sa_session):
 async def test_get_by_id(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
+    await sa_session.flush()
 
     current_job = await job_query.get_by_id(sa_session, job.id)
     assert current_job is not None
@@ -38,7 +38,7 @@ async def test_get_by_id(sa_session):
 async def test_create(sa_session):
     user = UserFactory.build(is_company=True)
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     job = JobCreateSchema(
         title="Job title",
@@ -64,7 +64,7 @@ async def test_create(sa_session):
 async def test_create_negative_salary(sa_session):
     user = UserFactory.build(is_company=True)
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     with pytest.raises(ValidationError):
         job = JobCreateSchema(
@@ -82,7 +82,7 @@ async def test_create_negative_salary(sa_session):
 async def test_create_incorrect_salary_range(sa_session):
     user = UserFactory.build(is_company=True)
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     with pytest.raises(ValidationError):
         job = JobCreateSchema(
@@ -100,7 +100,7 @@ async def test_create_incorrect_salary_range(sa_session):
 async def test_create_incorrect_salary_places_after_dot(sa_session):
     user = UserFactory.build(is_company=True)
     sa_session.add(user)
-    sa_session.flush()
+    await sa_session.flush()
 
     with pytest.raises(ValidationError):
         job = JobCreateSchema(
@@ -118,7 +118,7 @@ async def test_create_incorrect_salary_places_after_dot(sa_session):
 async def test_update(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
+    await sa_session.flush()
 
     update_schema = JobUpdateSchema(
         title="Updated title",
@@ -140,7 +140,7 @@ async def test_update(sa_session):
 async def test_update_partial(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
+    await sa_session.flush()
 
     update_schema = JobUpdateSchema(
         title="Just new title"
@@ -154,7 +154,7 @@ async def test_update_partial(sa_session):
 async def test_update_no_both_salary_edges(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
+    await sa_session.flush()
 
     with pytest.raises(ValidationError):
         update_schema = JobUpdateSchema(
@@ -167,8 +167,7 @@ async def test_update_no_both_salary_edges(sa_session):
 async def test_delete(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
-    sa_session.flush()
-
+    await sa_session.flush()
     deleted_job_id = job.id
 
     await job_query.delete(sa_session, job)

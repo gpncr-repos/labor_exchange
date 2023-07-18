@@ -28,12 +28,7 @@ async def sa_session():
     Session = sessionmaker(connection, expire_on_commit=False, class_=AsyncSession)
     session = Session()
 
-    async def mock_delete(instance):
-        session.expunge(instance)
-        return await asyncio.sleep(0)
-
     session.commit = MagicMock(side_effect=session.flush)
-    session.delete = MagicMock(side_effect=mock_delete)
 
     try:
         yield session
