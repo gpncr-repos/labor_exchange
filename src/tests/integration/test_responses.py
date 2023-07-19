@@ -11,7 +11,7 @@ from queries import response as response_query
 async def test_get_all_by_job_id(sa_session):
     response = ResponseFactory.build()
     sa_session.add(response)
-    sa_session.flush()
+    await sa_session.flush()
 
     all_responses = await response_query.get_responses_by_job_id(sa_session, response.job.id)
     assert all_responses
@@ -30,7 +30,7 @@ async def test_response_job(sa_session):
     user = UserFactory.build(is_company=False)
     job = JobFactory.build()
     sa_session.add_all((user, job))
-    sa_session.flush()
+    await sa_session.flush()
 
     response = await response_query.response_job(sa_session, job.id, response_schema, user.id)
     assert response.message == "Hi, this is my response to the job"
