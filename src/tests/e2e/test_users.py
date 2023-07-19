@@ -2,10 +2,12 @@ from datetime import datetime, timedelta
 
 import pytest
 
+URL_PREFIX = "/users"
+
 
 @pytest.mark.asyncio
 async def test_read(client_app):
-    response = await client_app.get("/users")
+    response = await client_app.get(URL_PREFIX)
     assert response.status_code == 200
     assert response.json() == []
 
@@ -19,7 +21,7 @@ async def test_create(client_app):
         "password2": "12345678",
         "is_company": False
     }
-    response = await client_app.post("/users", json=data)
+    response = await client_app.post(URL_PREFIX, json=data)
     assert response.status_code == 200
     result = response.json()
     assert result["name"] == "user"
@@ -40,7 +42,7 @@ async def test_create_pass_mismatch(client_app):
         "password2": "1234567890",
         "is_company": False
     }
-    response = await client_app.post("/users", json=data)
+    response = await client_app.post(URL_PREFIX, json=data)
     assert response.status_code == 422
 
 
@@ -49,7 +51,7 @@ async def test_update_unauthorized(client_app):
     update_data = {
         "name": "updated_name",
     }
-    response = await client_app.put("/users?id=1", json=update_data)
+    response = await client_app.put(f"{URL_PREFIX}?id=1", json=update_data)
     assert response.status_code == 401
 
 
@@ -63,7 +65,7 @@ async def test_update_not_found(client_app, current_user):
     update_data = {
         "name": "updated_name",
     }
-    response = await client_app.put(f"/users?id={current_user.id + 1}", json=update_data)
+    response = await client_app.put(f"{URL_PREFIX}?id={current_user.id + 1}", json=update_data)
     assert response.status_code == 404
 
 
@@ -79,7 +81,7 @@ async def test_update(client_app, current_user):
         "email": "newemail@example.com",
         "is_company": not current_user.is_company
     }
-    response = await client_app.put(f"/users?id={current_user.id}", json=update_data)
+    response = await client_app.put(f"{URL_PREFIX}?id={current_user.id}", json=update_data)
     assert response.status_code == 200
     result = response.json()
     assert result["name"] == update_data["name"]
