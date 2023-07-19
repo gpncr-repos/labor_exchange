@@ -1,22 +1,49 @@
-import asyncio
+from unittest.mock import MagicMock
 
+import pytest_asyncio
+from httpx import AsyncClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from factories.users import UserFactory
+
+from db_settings import SQLALCHEMY_DATABASE_URL
+from dependencies import get_db
 from factories.jobs import JobFactory
 from factories.responses import ResponseFactory
-from fastapi.testclient import TestClient
+from factories.users import UserFactory
 from main import app
-import pytest
-import pytest_asyncio
-from unittest.mock import MagicMock
-from db_settings import SQLALCHEMY_DATABASE_URL
+from core.security import create_access_token
 
 
-@pytest.fixture()
-def client_app():
-    client = TestClient(app)
-    return client
+@pytest_asyncio.fixture()
+async def current_user(sa_session, request):
+    if not hasattr(request, "param") or request.param == "anonymous":
+        return
+    if request.param == "user":
+        user = UserFactory.build(is_company=False)
+    elif request.param == "company":
+        user = UserFactory.build(is_company=True)
+    else:
+        raise ValueError(f"Invalid param ({request.param}) for current_user fixture!")
+    sa_session.add(user)
+    await sa_session.commit()
+    await sa_session.refresh(user)
+    return user
+
+
+@pytest_asyncio.fixture()
+async def auth_token(current_user):
+    if not current_user:
+        return
+    return create_access_token({"sub": current_user.email})
+
+
+@pytest_asyncio.fixture()
+async def client_app(sa_session, auth_token):
+    app.dependency_overrides[get_db] = lambda: sa_session
+
+    headers = {"Authorization": f"Bearer {auth_token}"} if auth_token else {}
+    async with AsyncClient(app=app, base_url="http://test", headers=headers) as client:
+        yield client
 
 
 @pytest_asyncio.fixture()
