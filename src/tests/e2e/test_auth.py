@@ -23,6 +23,19 @@ async def test_login(client_app, sa_session):
 
 
 @pytest.mark.asyncio
+async def test_login_incorrect(client_app, sa_session):
+    password = "very_secure_password"
+    user = UserFactory.build(hashed_password=hash_password(password))
+    sa_session.add(user)
+    await sa_session.flush()
+    data = {"username": user.email, "password": "wrong_pass"}
+    response = await client_app.post(URL_PREFIX, data=data)
+
+    assert response.status_code == 401
+    assert response.json()["detail"] == "Некорректное имя пользователя или пароль"
+
+
+@pytest.mark.asyncio
 async def test_refresh_token(client_app, sa_session):
     password = "very_secure_password"
     user = UserFactory.build(hashed_password=hash_password(password))

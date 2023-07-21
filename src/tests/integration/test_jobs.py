@@ -164,6 +164,20 @@ async def test_update_no_both_salary_edges(sa_session):
 
 
 @pytest.mark.asyncio
+async def test_update_incorrect_salary_range(sa_session):
+    job = JobFactory.build()
+    sa_session.add(job)
+    await sa_session.flush()
+
+    with pytest.raises(ValidationError):
+        update_schema = JobUpdateSchema(
+            salary_from=30_000,
+            salary_to=20_000
+        )
+        await job_query.update(sa_session, job, update_schema)
+
+
+@pytest.mark.asyncio
 async def test_delete(sa_session):
     job = JobFactory.build()
     sa_session.add(job)
