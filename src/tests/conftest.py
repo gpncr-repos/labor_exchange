@@ -11,7 +11,7 @@ from factories.jobs import JobFactory
 from factories.responses import ResponseFactory
 from factories.users import UserFactory
 from main import app
-from core.security import create_access_token
+from core.security import create_token
 
 
 @pytest_asyncio.fixture()
@@ -34,7 +34,7 @@ async def current_user(sa_session, request):
 async def auth_token(current_user):
     if not current_user:
         return
-    return create_access_token({"sub": current_user.email})
+    return create_token({"sub": current_user.email})
 
 
 @pytest_asyncio.fixture()
