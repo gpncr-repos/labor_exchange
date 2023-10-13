@@ -1,18 +1,17 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, constr
+from pydantic import BaseModel, EmailStr, validator, constr, ConfigDict
 
 
 class UserSchema(BaseModel):
-    id: Optional[str] = None
+    model_config = ConfigDict(from_attributes=True)
+
+    id: Optional[int] = None
     name: str
     email: EmailStr
     hashed_password: str
     is_company: bool
     created_at: datetime.datetime
-
-    class Config:
-        orm_mode = True
 
 
 class UserUpdateSchema(BaseModel):
@@ -33,3 +32,5 @@ class UserInSchema(BaseModel):
         if 'password' in values and v != values["password"]:
             raise ValueError("Пароли не совпадают!")
         return True
+
+# TODO Как повесить ограничения целостности на уровне БД(*)
