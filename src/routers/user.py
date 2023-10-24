@@ -26,12 +26,10 @@ async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
 
 @router.put("", response_model=UserSchema)
 async def update_user(
-    id: int,
-    user: UserUpdateSchema,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)):
-
-    old_user = await user_queries.get_by_id(db=db, id=id)
+        user: UserUpdateSchema,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)):
+    old_user = await user_queries.get_by_id(db=db, id=current_user.id)
 
     if old_user is None or old_user.email != current_user.email:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
