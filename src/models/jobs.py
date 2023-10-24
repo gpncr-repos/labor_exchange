@@ -15,7 +15,7 @@ class Job(Base):
     salary_from = sa.Column(sa.DECIMAL, comment="Зарплата от")
     salary_to = sa.Column(sa.DECIMAL, comment="Зарплата до")
     is_active = sa.Column(sa.Boolean, default=False)
-    created_at = sa.Column(sa.DateTime, default=datetime.datetime.utcnow)
+    created_at = sa.Column(sa.DateTime, default=datetime.datetime.utcnow())
 
     user = relationship("User", back_populates="jobs")
     responses = relationship("Response", back_populates="job")

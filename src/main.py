@@ -1,10 +1,11 @@
 from fastapi import FastAPI
-from routers import auth_router, user_router
+from routers import auth_router, user_router, job_router
 import uvicorn
 
 app = FastAPI()
 app.include_router(auth_router)
 app.include_router(user_router)
+app.include_router(job_router)
 
 @app.get("/")
 def hello():
