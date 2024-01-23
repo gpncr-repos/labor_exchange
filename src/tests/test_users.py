@@ -1,8 +1,9 @@
 import pytest
-from queries import user as user_query
-from fixtures.users import UserFactory
-from schemas import UserInSchema
 from pydantic import ValidationError
+
+from fixtures.users import UserFactory
+from queries import user as user_query
+from schemas import UserSchema
 
 
 @pytest.mark.asyncio
@@ -11,7 +12,7 @@ async def test_get_all(sa_session):
     sa_session.add(user)
     sa_session.flush()
 
-    all_users = await user_query.get_all(sa_session)
+    all_users = await user_query.get_all_users(sa_session)
     assert all_users
     assert len(all_users) == 1
     assert all_users[0] == user
@@ -41,12 +42,8 @@ async def test_get_by_email(sa_session):
 
 @pytest.mark.asyncio
 async def test_create(sa_session):
-    user = UserInSchema(
-        name="Uchpochmak",
-        email="bashkort@example.com",
-        password="eshkere!",
-        password2="eshkere!",
-        is_company=False
+    user = UserSchema(
+        name="Uchpochmak", email="bashkort@example.com", password="eshkere!", password2="eshkere!", is_company=False
     )
 
     new_user = await user_query.create(sa_session, user_schema=user)
@@ -58,12 +55,8 @@ async def test_create(sa_session):
 @pytest.mark.asyncio
 async def test_create_password_mismatch(sa_session):
     with pytest.raises(ValidationError):
-        user = UserInSchema(
-            name="Uchpochmak",
-            email="bashkort@example.com",
-            password="eshkere!",
-            password2="eshkero!",
-            is_company=False
+        user = UserSchema(
+            name="Uchpochmak", email="bashkort@example.com", password="eshkere!", password2="eshkero!", is_company=False
         )
         await user_query.create(sa_session, user_schema=user)
 

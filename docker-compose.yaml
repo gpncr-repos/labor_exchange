@@ -3,7 +3,7 @@ version: '3'
 services:
   postgres:
     container_name: postgres-laborexchange
-    image: postgres
+    image: postgres:16.1
     environment:
       POSTGRES_DB: "labor-exchange"
       POSTGRES_USER: "admin"
@@ -12,6 +12,8 @@ services:
     volumes:
        - postgres:/data/postgres
     ports:
-      - "5432:5432"
+    # поменял порт, т.к. если в системе установлен postgres (как у меня), то стандартный порт будет занят
+      - "8503:5432"
+    restart: unless-stopped
 volumes:
     postgres:

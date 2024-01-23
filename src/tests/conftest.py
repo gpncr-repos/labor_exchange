@@ -8,7 +8,7 @@ from main import app
 import pytest
 import pytest_asyncio
 from unittest.mock import MagicMock
-from db_settings import SQLALCHEMY_DATABASE_URL
+from settings.database import SQLALCHEMY_DATABASE_URL
 
 
 @pytest.fixture()

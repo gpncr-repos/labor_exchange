@@ -1,2 +1,2 @@
-from .user import UserInSchema, UserSchema, UserUpdateSchema
 from .auth import LoginSchema, TokenSchema
+from .user import UserSchema, UserUpdateSchema, UserInSchema
