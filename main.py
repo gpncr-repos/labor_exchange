@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from routers import auth_router, user_router
+from app.routers import auth_router, user_router
 import uvicorn
 
 app = FastAPI(title="Labor_Exchange")
