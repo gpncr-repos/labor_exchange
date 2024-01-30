@@ -2,7 +2,7 @@ from fastapi import FastAPI
 from routers import auth_router, user_router
 import uvicorn
 
-app = FastAPI()
+app = FastAPI(title="Labor_Exchange")
 app.include_router(auth_router)
 app.include_router(user_router)
 

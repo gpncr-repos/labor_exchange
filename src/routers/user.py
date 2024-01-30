@@ -1,5 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
+from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
 from schemas import UserSchema, UserInSchema, UserUpdateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -21,7 +22,8 @@ async def read_users(
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
     user = await user_queries.create(db=db, user_schema=user)
-    return UserSchema.from_orm(user)
+    # return UserSchema.from_orm(user)
+    return UserSchema.from_attributes(user)
 
 
 @router.put("", response_model=UserSchema)
@@ -42,4 +44,11 @@ async def update_user(
 
     new_user = await user_queries.update(db=db, user=old_user)
 
-    return UserSchema.from_orm(new_user)
+    # return UserSchema.from_orm(new_user)
+    return UserSchema.from_attributes(new_user)
+
+
+@router.get("/get_env")
+def get_env():
+    response = str(DB_USER + DB_PASS + DB_HOST + DB_NAME)
+    return response
