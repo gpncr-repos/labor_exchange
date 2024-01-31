@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
-from schemas import UserSchema, UserInSchema, UserUpdateSchema
+from app.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
-from queries import user as user_queries
-from models import User
+from applications.queries import user as user_queries
+from domain.models.users import User
 
 
 router = APIRouter(prefix="/users", tags=["users"])
