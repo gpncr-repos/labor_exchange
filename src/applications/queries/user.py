@@ -32,7 +32,7 @@ async def create(db: AsyncSession, user_schema: UserInSchema) -> User:
 
 
 async def update(db: AsyncSession, user: User) -> User:
-    db.add(user)
+    db.merge(User)  # add(user)
     await db.commit()
     await db.refresh(user)
     return user
