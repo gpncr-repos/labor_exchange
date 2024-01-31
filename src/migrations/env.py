@@ -5,10 +5,12 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
-from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, Base
-
 from alembic import context
-from models import *
+
+from db_settings import DB_NAME, DB_HOST, DB_PORT, DB_PASS, DB_USER, Base
+from models.jobs import Job
+from models.users import User
+from models.responses import Response
 
 # this is the Alembic Config object, which provides
 # access to the values within the .ini file in use.
@@ -18,6 +20,7 @@ section = config.config_ini_section
 
 config.set_section_option(section, "DB_USER", DB_USER)
 config.set_section_option(section, "DB_HOST", DB_HOST)
+config.set_section_option(section, "DB_PORT", DB_PORT)
 config.set_section_option(section, "DB_PASS", DB_PASS)
 config.set_section_option(section, "DB_NAME", DB_NAME)
 

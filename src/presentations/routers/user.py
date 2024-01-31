@@ -1,11 +1,11 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
-from app.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
-from dependencies import get_db, get_current_user
+from presentations.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
+from applications.dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from applications.queries import user as user_queries
-from domain.models.users import User
+from models.users import User
 
 
 router = APIRouter(prefix="/users", tags=["users"])
@@ -22,8 +22,8 @@ async def read_users(
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
     user = await user_queries.create(db=db, user_schema=user)
-    # return UserSchema.from_orm(user)
-    return UserSchema.from_attributes(user)
+    return UserSchema.from_orm(user)
+    # return UserSchema.from_attributes(user)
 
 
 @router.put("", response_model=UserSchema)
@@ -48,7 +48,7 @@ async def update_user(
     return UserSchema.from_attributes(new_user)
 
 
-@router.get("/get_env")
+@router.get("/get_env", deprecated=True, summary="probe_endpoint")
 def get_env():
     response = str(DB_USER + DB_PASS + DB_HOST + DB_NAME)
     return response

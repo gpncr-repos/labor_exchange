@@ -9,7 +9,7 @@ import sqlalchemy as sa
 class User(Base):
     __tablename__ = "users"
 
-    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор задачи", unique=True)
+    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор задачи") #, unique=True) ключ, а тем более первичный должен быть уникален
     email = sa.Column(sa.String, comment="Email адрес", unique=True)
     name = sa.Column(sa.String, comment="Имя пользователя")
     hashed_password = sa.Column(sa.String, comment="Зашифрованный пароль")
