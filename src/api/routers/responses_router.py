@@ -19,4 +19,4 @@ async def get_job_responses(
     ):
     # """Возвращает отклики на заданную вакансию"""
     result = await get_responses_by_job_id(db, job_id)
-    return result.json()
+    return result

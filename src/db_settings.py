@@ -1,4 +1,4 @@
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine, async_scoped_session
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker, scoped_session
 import os
@@ -16,5 +16,6 @@ engine = create_async_engine(
 )
 
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession))
+# SessionLocal = async_scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession))
 
 Base = declarative_base()

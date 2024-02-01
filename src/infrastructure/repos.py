@@ -64,10 +64,16 @@ class RepoUser(RepoConcrete):
 class RepoResponse(RepoConcrete):
     """Класс для работы с таблицей отлкликов responses"""
     def __init__(self, db: AsyncSession):
-        super().__init__(self.session, VacancyResponse)
+        super().__init__(db, VacancyResponse)
 
     async def get_responses_by_job_id(self, db: AsyncSession, job_id: int):
         """Возвращает отклики на заданную вакансию"""
         query = select(self.model).where(self.model.job_id==job_id)
         res = await db.execute(query)
         return res.scalars().all_or_none()
+
+async def get_resps_by_job_id(db: AsyncSession, job_id: int):
+    """Возвращает отклики на заданную вакансию"""
+    query = select(VacancyResponse).where(VacancyResponse.job_id==job_id)
+    res = await db.execute(query)
+    return res.scalars().all()

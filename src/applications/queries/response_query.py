@@ -1,7 +1,7 @@
 """Сценарии, работающие с таблице откликов responses"""
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructure.repos import RepoResponse
+from infrastructure.repos import RepoResponse, get_resps_by_job_id
 from models import Job
 from models import Response as ResponseForVacancy
 
@@ -19,7 +19,11 @@ async def respond_to_vacancy(
         job_id=vacancy_response_schema.job_id,
         message=vacancy_response_schema.message,
     )
-    repo_resp.add(apply_for_vacancy)
+    db.add(apply_for_vacancy)
+    await db.commit()
+    await db.refresh(apply_for_vacancy)
+    return apply_for_vacancy.id
+    # await repo_resp.add(apply_for_vacancy)
 
 async def response_job(
     db: AsyncSession,
@@ -42,6 +46,8 @@ async def get_responses_by_job_id(
         job_id: int,
     ) -> list[Job]: # TODO: list or tuple?
     """Возвращает отклики на заданную вакансию"""
-    repo_resp = RepoResponse(db)
-    result = await repo_resp.get_responses_by_job_id(job_id)
-    return result
+    # repo_resp = RepoResponse(db)
+    # result = await repo_resp.get_responses_by_job_id(job_id)
+    # return result
+    res = await get_resps_by_job_id(db, job_id)
+    return res

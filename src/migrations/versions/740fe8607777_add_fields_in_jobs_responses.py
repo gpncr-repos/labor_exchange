@@ -1,8 +1,8 @@
 """add_fields_in_jobs_responses
 
-Revision ID: 6d990886c07a
+Revision ID: 740fe8607777
 Revises: e6b667630d8a
-Create Date: 2024-01-31 08:25:30.569254
+Create Date: 2024-02-01 12:13:47.443066
 
 """
 from alembic import op
@@ -10,7 +10,7 @@ import sqlalchemy as sa
 
 
 # revision identifiers, used by Alembic.
-revision = '6d990886c07a'
+revision = '740fe8607777'
 down_revision = 'e6b667630d8a'
 branch_labels = None
 depends_on = None
