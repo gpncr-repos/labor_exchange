@@ -1,5 +1,5 @@
 from models import User
-from presentations.schemas import UserInSchema
+from api.schemas import UserInSchema
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -32,7 +32,7 @@ async def create(db: AsyncSession, user_schema: UserInSchema) -> User:
 
 
 async def update(db: AsyncSession, user: User) -> User:
-    db.merge(User)  # add(user)
+    await db.merge(User)  # add(user)
     await db.commit()
     await db.refresh(user)
     return user
