@@ -2,8 +2,12 @@ from pydantic import BaseModel, EmailStr
 
 
 class TokenSchema(BaseModel):
-    access_token: str
+    token: str
     token_type: str
+
+class TokenSchemaPair(BaseModel):
+    access_token: TokenSchema
+    refresh_token: TokenSchema
 
 
 class LoginSchema(BaseModel):

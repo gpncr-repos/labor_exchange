@@ -50,3 +50,6 @@ class JWTBearer(HTTPBearer):
             return credentials.credentials
         else:
             raise exp
+
+from fastapi_jwt_auth import AuthJWT
+
