@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
 from jose import jwt, ExpiredSignatureError
-from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, REFRESH_TOKEN_EXPIRE_MINUTES
 
 SIGNATURE_EXPIRED = "Signature has expired"
 
@@ -23,6 +23,10 @@ def create_access_token(data: dict) -> str:
     to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 def decode_access_token(token: str):
     try:
@@ -33,6 +37,15 @@ def decode_access_token(token: str):
         return SIGNATURE_EXPIRED
     return encoded_jwt
 
+def decode_token(token: str):
+    """Декодирует токен"""
+    try:
+        encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
+    except jwt.JWSError:
+        return None
+    except ExpiredSignatureError:
+        return SIGNATURE_EXPIRED
+    return encoded_jwt
 
 class JWTBearer(HTTPBearer):
     def __init__(self, auto_error: bool = True):
@@ -50,6 +63,3 @@ class JWTBearer(HTTPBearer):
             return credentials.credentials
         else:
             raise exp
-
-from fastapi_jwt_auth import AuthJWT
-

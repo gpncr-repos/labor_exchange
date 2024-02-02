@@ -9,7 +9,6 @@ class TokenSchemaPair(BaseModel):
     access_token: TokenSchema
     refresh_token: TokenSchema
 
-
 class LoginSchema(BaseModel):
     email: EmailStr
     password: str
