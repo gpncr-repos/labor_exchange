@@ -1,6 +1,4 @@
 from fastapi import APIRouter, HTTPException, status, Depends, Response, Request
-from fastapi.responses import JSONResponse
-from fastapi_jwt_auth.exceptions import AuthJWTException
 from sqlalchemy.ext.asyncio import AsyncSession
 from applications.queries import user_queries as user_queries
 
