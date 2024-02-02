@@ -1,9 +1,11 @@
 """Сценарии, работающие с базой данных"""
 from decimal import Decimal
 
+from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schemas.job_schemas import SJob
+from applications.command import CommandResult
 from applications.schemas.schemas import JobDO
 from infrastructure.repos import RepoJob
 from models import Job
@@ -45,7 +47,7 @@ async def create_job(db: AsyncSession, job_schema: JobDO):
         msg = "Ошибка при добавлении вакансии %s пользователем %s; %s" %(job_schema.title, job_schema.user_id, e)
         raise Exception()
 
-async def get_all_jobs(self, db: AsyncSession, limit: int = 100, skip: int = 0) -> Job:
+async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Job:
     try:
         repo_job = RepoJob(db)
         result = await repo_job.get_all(limit, skip)
@@ -54,7 +56,7 @@ async def get_all_jobs(self, db: AsyncSession, limit: int = 100, skip: int = 0) 
         msg = "Ошибка при получении списка вакансий; %s" % (str(e))
         raise Exception(msg)
 
-async def get_job_by_id(self, db: AsyncSession, job_id: int):
+async def get_job_by_id(db: AsyncSession, job_id: int):
     try:
         repo_job = RepoJob(db)
         result = await repo_job.get_by_id(job_id)
@@ -62,3 +64,21 @@ async def get_job_by_id(self, db: AsyncSession, job_id: int):
     except Exception as e:
         msg = "Ошибка при получении вакансии по идентификатору %s; %s" % (job_id, str(e))
         raise Exception(msg)
+
+async def delete_job(db: AsyncSession, job_id: int, author_id: int):
+    try:
+        query = select(Job).filter(Job.id==job_id, Job.user_id==author_id).limit(1)
+        res = await db.execute(query)
+        job_to_del = res.scalar()
+        if job_to_del:
+            # del_stmt = delete(Job).filter(Job.id==job_id, Job.user_id==author_id)
+            # await db.execute(del_stmt)
+            # db.delete(res) "Chunked result is not mapped"
+            await db.delete(job_to_del)
+            await db.commit()
+            return CommandResult.success(result="Вакансия %s удалена" % job_id)
+        else:
+            return CommandResult.fail(errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))
+    except Exception as e:
+        msg = "Ошибка при удалении вакансии по идентификатору %s; %s" % (job_id, str(e))
+        return CommandResult.fail(message=msg, exception=str(e))

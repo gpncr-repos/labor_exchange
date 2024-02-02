@@ -21,4 +21,4 @@ class Job(Base):
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, comment="Дата создания записи")
 
     user = relationship("User", back_populates="jobs")
-    responses = relationship("Response", back_populates="job")
+    responses = relationship("Response", back_populates="job") #, cascade="all, delete")

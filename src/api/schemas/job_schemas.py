@@ -29,5 +29,11 @@ class SJob(BaseModel):
                 }
         }
 
-class SJobs(BaseModel):
-    vacancies: Optional[list[SJob]] = Field(default_factory=list, description="Список вакансий")
+# class SJobs(BaseModel):
+#     vacancies: Optional[list[SJob]] = Field(default_factory=list, description="Список вакансий")
+
+class SimpleTextReport(BaseModel):
+    message: Optional[str] = "Запрос выполнен"
+
+class SRemoveJobReport(SimpleTextReport):
+    pass

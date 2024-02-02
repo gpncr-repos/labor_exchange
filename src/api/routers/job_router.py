@@ -1,9 +1,10 @@
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.ext.asyncio import AsyncSession
+from starlette.responses import JSONResponse
 
-from api.schemas.job_schemas import SJob
+from api.schemas.job_schemas import SJob, SRemoveJobReport
 from applications.dependencies import get_current_user, get_db
-from applications.queries.job_queries import create_job, convert_job_schema_to_do
+from applications.queries.job_queries import create_job, convert_job_schema_to_do, delete_job
 from infrastructure.repos import RepoJob
 from models import User
 
@@ -27,3 +28,30 @@ async def place_job(
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail=msg)
+
+@router.delete(
+    "/{job_id}",
+    summary="Удаление вакансии",
+    description="Удаляет вакансию по идентификатору",
+    response_model=SRemoveJobReport,
+)
+async def delet_job(
+        job_id: int,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user),
+    ):
+    if current_user.is_company:
+        res = await delete_job(db, job_id, current_user.id)
+        if res.errors:
+            return JSONResponse(
+                content=str(res.errors),
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            return SRemoveJobReport(message=str(res.result))
+    else:
+        msg = "Пользователь %s не является работодателем, поэтому не может удалять вакансии" % current_user.name
+        return JSONResponse(
+            content=str(msg),
+            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
+        )
