@@ -4,8 +4,10 @@ from typing import Protocol, Any
 
 class Command(Protocol):
     """Абстрактный класс для результатов запросов"""
+    def __dict__(self):
+        return self.__dict__
 
-@dataclasses
+@dataclasses.dataclass
 class CommandResult(Command):
     result: Any = None
     errors: list[Any] = dataclasses.field(default_factory=list)

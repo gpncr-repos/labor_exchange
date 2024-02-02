@@ -2,8 +2,10 @@ import datetime
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
-from jose import jwt
+from jose import jwt, ExpiredSignatureError
 from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+
+SIGNATURE_EXPIRED = "Signature has expired"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -27,6 +29,8 @@ def decode_access_token(token: str):
         encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.JWSError:
         return None
+    except ExpiredSignatureError:
+        return SIGNATURE_EXPIRED
     return encoded_jwt
 
 
@@ -41,6 +45,8 @@ class JWTBearer(HTTPBearer):
             token = decode_access_token(credentials.credentials)
             if token is None:
                 raise exp
+            elif token == SIGNATURE_EXPIRED:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Истек срок действия токена")
             return credentials.credentials
         else:
             raise exp
