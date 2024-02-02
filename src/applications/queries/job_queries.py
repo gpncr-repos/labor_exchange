@@ -43,9 +43,10 @@ async def create_job(db: AsyncSession, job_schema: JobDO):
         await db.commit()
         await db.refresh(job_to_add)
         # result = await repo_job.add(job_to_add)
+        return CommandResult.success(result=job_to_add.id)
     except Exception as e:
         msg = "Ошибка при добавлении вакансии %s пользователем %s; %s" %(job_schema.title, job_schema.user_id, e)
-        raise Exception()
+        return CommandResult.fail(message=msg)
 
 async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Job:
     try:

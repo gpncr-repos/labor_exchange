@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 from starlette.responses import JSONResponse
 
-from api.schemas.job_schemas import SJob, SRemoveJobReport
+from api.schemas.job_schemas import SJob, SRemoveJobReport, SimpleTextReport
 from applications.dependencies import get_current_user, get_db
 from applications.queries.job_queries import create_job, convert_job_schema_to_do, delete_job
 from infrastructure.repos import RepoJob
@@ -23,6 +23,14 @@ async def place_job(
     if current_user.is_company:
         job_schema = convert_job_schema_to_do(current_user.id, job_in_schema)
         result = await create_job(db, job_schema)
+        if result.errors:
+            return JSONResponse(
+                content=str(result.errors),
+                status_code=status.HTTP_400_BAD_REQUEST,
+            )
+        else:
+            msg = "Вакансия %s добавлена с идентификатором %s" % (job_schema.title, str(result.result))
+            return SimpleTextReport(message=msg)
     else:
         msg = "Пользователю %s, не являющемуся компанией, не разрешено создавать вакансии" % current_user.name
         raise HTTPException(
