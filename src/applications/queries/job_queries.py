@@ -39,10 +39,7 @@ async def create_job(db: AsyncSession, job_schema: JobDO):
             salary_to=Decimal(job_schema.salary_to),
             is_active=job_schema.is_active,
         )
-        db.add(job_to_add)
-        await db.commit()
-        await db.refresh(job_to_add)
-        # result = await repo_job.add(job_to_add)
+        await repo_job.add(job_to_add)
         return CommandResult.success(result=job_to_add.id)
     except Exception as e:
         msg = "Ошибка при добавлении вакансии %s пользователем %s; %s" %(job_schema.title, job_schema.user_id, e)
@@ -52,34 +49,41 @@ async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Job
     try:
         repo_job = RepoJob(db)
         result = await repo_job.get_all(limit, skip)
-        return result
+        return CommandResult.success(result=result)
     except Exception as e:
         msg = "Ошибка при получении списка вакансий; %s" % (str(e))
-        raise Exception(msg)
+        return CommandResult.fail(message=msg,exception=str(e))
 
 async def get_job_by_id(db: AsyncSession, job_id: int):
     try:
         repo_job = RepoJob(db)
         result = await repo_job.get_by_id(job_id)
-        return result
+        return CommandResult.success(result=result)
     except Exception as e:
         msg = "Ошибка при получении вакансии по идентификатору %s; %s" % (job_id, str(e))
-        raise Exception(msg)
+        return CommandResult.fail(message=msg,exception=str(e))
 
-async def delete_job(db: AsyncSession, job_id: int, author_id: int):
+async def delete_job_by_id(db: AsyncSession, job_id: int, author_id: int):
     try:
-        query = select(Job).filter(Job.id==job_id, Job.user_id==author_id).limit(1)
-        res = await db.execute(query)
-        job_to_del = res.scalar()
-        if job_to_del:
-            # del_stmt = delete(Job).filter(Job.id==job_id, Job.user_id==author_id)
-            # await db.execute(del_stmt)
-            # db.delete(res) "Chunked result is not mapped"
-            await db.delete(job_to_del)
-            await db.commit()
+        # query = select(Job).filter(Job.id==job_id, Job.user_id==author_id).limit(1)
+        # res = await db.execute(query)
+        # job_to_del = res.scalar()
+        # if job_to_del:
+        #     # del_stmt = delete(Job).filter(Job.id==job_id, Job.user_id==author_id)
+        #     # await db.execute(del_stmt)
+        #     # db.delete(res) "Chunked result is not mapped"
+        #     await db.delete(job_to_del)
+        #     await db.commit()
+        #     return CommandResult.success(result="Вакансия %s удалена" % job_id)
+        # else:
+        #     return CommandResult.fail(errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))
+        repo_job = RepoJob(db)
+        result = await repo_job.del_by_id(job_id, author_id)
+        if result == job_id:
             return CommandResult.success(result="Вакансия %s удалена" % job_id)
         else:
-            return CommandResult.fail(errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))
+            return CommandResult.fail(
+                errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))
     except Exception as e:
         msg = "Ошибка при удалении вакансии по идентификатору %s; %s" % (job_id, str(e))
         return CommandResult.fail(message=msg, exception=str(e))

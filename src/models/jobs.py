@@ -22,3 +22,6 @@ class Job(Base):
 
     user = relationship("User", back_populates="jobs")
     responses = relationship("Response", back_populates="job") #, cascade="all, delete")
+
+    def __str__(self):
+        return "Job(vacancy)"

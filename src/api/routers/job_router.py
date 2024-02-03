@@ -4,7 +4,8 @@ from starlette.responses import JSONResponse
 
 from api.schemas.job_schemas import SJob, SRemoveJobReport, SimpleTextReport
 from applications.dependencies import get_current_user, get_db
-from applications.queries.job_queries import create_job, convert_job_schema_to_do, delete_job
+from applications.queries.job_queries import create_job, convert_job_schema_to_do, get_job_by_id, \
+    delete_job_by_id
 from infrastructure.repos import RepoJob
 from models import User
 
@@ -30,7 +31,7 @@ async def place_job(
             )
         else:
             msg = "Вакансия %s добавлена с идентификатором %s" % (job_schema.title, str(result.result))
-            return SimpleTextReport(message=msg)
+            return SimpleTextReport(id=result.result, message=msg)
     else:
         msg = "Пользователю %s, не являющемуся компанией, не разрешено создавать вакансии" % current_user.name
         raise HTTPException(
@@ -49,14 +50,14 @@ async def delete_job(
         current_user: User = Depends(get_current_user),
     ):
     if current_user.is_company:
-        res = await delete_job(db, job_id, current_user.id)
+        res = await delete_job_by_id(db, job_id, current_user.id)
         if res.errors:
             return JSONResponse(
                 content=str(res.errors),
                 status_code=status.HTTP_400_BAD_REQUEST,
             )
         else:
-            return SRemoveJobReport(message=str(res.result))
+            return SRemoveJobReport(id=job_id, message=str(res.result))
     else:
         msg = "Пользователь %s не является работодателем, поэтому не может удалять вакансии" % current_user.name
         return JSONResponse(

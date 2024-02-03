@@ -16,3 +16,6 @@ class Response(Base):
 
     user = relationship("User", back_populates="responses")
     job = relationship("Job", back_populates="responses")
+
+    def __str__(self):
+        return "Reponse"

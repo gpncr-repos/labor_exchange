@@ -1,6 +1,8 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
+from starlette.responses import JSONResponse
 
+from api.schemas.job_schemas import SimpleTextReport
 from api.schemas.response_schema import SResponseForJob
 from applications.queries.response_query import respond_to_vacancy
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
@@ -24,8 +26,13 @@ async def read_users(
 
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
-    user = await user_queries.create(db=db, user_schema=user)
-    return UserSchema.from_orm(user)
+    res = await user_queries.create(db=db, user_schema=user)
+    if res.errors:
+        return JSONResponse(
+            content=str(res.errors),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    return UserSchema.from_orm(res.result)
     # return UserSchema.from_attributes(user)
 
 
@@ -46,10 +53,15 @@ async def update_user(
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
-    new_user = await user_queries.update(db=db, user=old_user)
+    result = await user_queries.update(db=db, user=old_user)
 
-    # return UserSchema.from_orm(new_user)
-    return UserSchema.from_attributes(new_user)
+    if result.errors:
+        return JSONResponse(
+            content=str(result.errors),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    new_user = result.result
+    return UserSchema.from_orm(new_user)
 
 @router.patch("/{job_id}", summary="Откликнуться на вакансию")    # add response model
 async def response_vacancy(
@@ -60,9 +72,9 @@ async def response_vacancy(
     ):
     if current_user.is_company:
         msg = "Пользователь %s является компанией-работодателем, поэтому не может откликаться на вакансии" % current_user.name
-        raise HTTPException(
+        return JSONResponse(
+            content=msg,
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail=msg,
         )
     else:
         try:
@@ -71,12 +83,18 @@ async def response_vacancy(
                 user_id=current_user.id,
                 message=message,
             )
-            await respond_to_vacancy(db, job_resp_schema)
+            res = await respond_to_vacancy(db, job_resp_schema)
+            if res.errors:
+                return JSONResponse(
+                    content=str(res.errors),
+                    status_code=status.HTTP_409_CONFLICT,
+                )
+            return SimpleTextReport(id=job_id, message="Добавлен отклик на вакансию %s" % job_id)
         except Exception as e:
-            msg = "Ошибка при создании отклика на вакансию %s" % (job_id)
-            raise HTTPException(
+            msg = "Ошибка при создании отклика на вакансию %s; %s" % (job_id, str(e))
+            return JSONResponse(
+                content=msg,
                 status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
             )
 
 

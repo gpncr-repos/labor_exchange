@@ -33,6 +33,7 @@ class SJob(BaseModel):
 #     vacancies: Optional[list[SJob]] = Field(default_factory=list, description="Список вакансий")
 
 class SimpleTextReport(BaseModel):
+    id: Optional[int] = None
     message: Optional[str] = "Запрос выполнен"
 
 class SRemoveJobReport(SimpleTextReport):

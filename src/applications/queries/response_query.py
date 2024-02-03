@@ -1,7 +1,8 @@
 """Сценарии, работающие с таблице откликов responses"""
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from infrastructure.repos import RepoResponse, get_resps_by_job_id
+from applications.command import CommandResult
+from infrastructure.repos import RepoResponse, get_resps_by_job_id, RepoJob
 from models import Job
 from models import Response as ResponseForVacancy
 
@@ -13,17 +14,27 @@ async def respond_to_vacancy(
     vacancy_response_schema: SResponseForJob,
     ):
     """Записывает в базу отклик на указанную вакансию"""
-    repo_resp = RepoResponse(db)
-    apply_for_vacancy = ResponseForVacancy(
-        user_id=vacancy_response_schema.user_id,
-        job_id=vacancy_response_schema.job_id,
-        message=vacancy_response_schema.message,
-    )
-    db.add(apply_for_vacancy)
-    await db.commit()
-    await db.refresh(apply_for_vacancy)
-    return apply_for_vacancy.id
-    # await repo_resp.add(apply_for_vacancy)
+    try:
+        repo_resp = RepoResponse(db)
+        repo_job = RepoJob(db)
+        job = await repo_job.get_by_id(vacancy_response_schema.job_id)
+        if not job:
+            msg = "Вакансия с идентификатором %s не найдена в базе" % vacancy_response_schema.job_id
+            return CommandResult.fail(message=msg)
+
+        apply_for_vacancy = ResponseForVacancy(
+            user_id=vacancy_response_schema.user_id,
+            job_id=vacancy_response_schema.job_id,
+            message=vacancy_response_schema.message,
+        )
+        # db.add(apply_for_vacancy)
+        # await db.commit()
+        # await db.refresh(apply_for_vacancy)
+        # return apply_for_vacancy.id
+        await repo_resp.add(apply_for_vacancy)
+    except Exception as e:
+        msg = "Ошибка при создании отклика на вакансию"
+        return CommandResult.fail(message=msg, exception=str(e))
 
 async def response_job(
     db: AsyncSession,
