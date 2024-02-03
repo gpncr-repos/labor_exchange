@@ -51,6 +51,23 @@ async def update(db: AsyncSession, user: User) -> CommandResult:    # User:
         msg = "Ошибка в ходе редактирования пользователя %s, %s" % (user.id, user.name)
         return CommandResult.fail(message=msg, exception=str(e))
 
+async def update_current_user(
+        id: int,
+        user: User,
+        db: AsyncSession,
+        current_user: User) -> CommandResult:
+    old_user = await get_by_id(db=db, id=id)
+
+    if old_user is None or old_user.email != current_user.email:
+        msg= "Пользователь не найден"
+        return CommandResult.fail(message=msg)
+
+    old_user.name = user.name if user.name is not None else old_user.name
+    old_user.email = user.email if user.email is not None else old_user.email
+    old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
+
+    result = await update(db=db, user=old_user)
+    return result
 
 async def get_by_email(db: AsyncSession, email: str) -> User:
     query = select(User).where(User.email == email).limit(1)

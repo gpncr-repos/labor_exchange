@@ -5,6 +5,7 @@ from starlette.responses import JSONResponse
 from api.schemas.job_schemas import SimpleTextReport
 from api.schemas.response_schema import SResponseForJob
 from applications.queries.response_query import respond_to_vacancy
+from applications.queries.user_queries import update_current_user
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
 from api.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
 from applications.dependencies import get_db, get_current_user
@@ -44,16 +45,7 @@ async def update_user(
     current_user: User = Depends(get_current_user),
 ):
 
-    old_user = await user_queries.get_by_id(db=db, id=id)
-
-    if old_user is None or old_user.email != current_user.email:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
-
-    old_user.name = user.name if user.name is not None else old_user.name
-    old_user.email = user.email if user.email is not None else old_user.email
-    old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
-
-    result = await user_queries.update(db=db, user=old_user)
+    result = await update_current_user(id, user, db, current_user)
 
     if result.errors:
         return JSONResponse(
