@@ -17,8 +17,8 @@ class User(Base):
     is_company = sa.Column(sa.Boolean, comment="Флаг компании")
     created_at = sa.Column(sa.DateTime, comment="Время создания записи", default=datetime.datetime.utcnow)
 
-    jobs = relationship("Job", back_populates="user")
-    responses = relationship("Response", back_populates="user")
+    jobs = relationship("Job", back_populates="user", cascade="all, delete, delete-orphan")
+    responses = relationship("Response", back_populates="user", cascade="all, delete, delete-orphan")
 
     def __str__(self):
         return "User"

@@ -10,7 +10,7 @@ class Job(Base):
     # __table_args__ = {"extend_existing": True}
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор вакансии")
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), comment="Идентификатор пользователя")
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id', ondelete="CASCADE"), comment="Идентификатор пользователя")
 
     # добавьте ваши колонки сюда
     title = sa.Column(sa.String, default="", comment="Название вакансии", nullable=True)
@@ -21,7 +21,7 @@ class Job(Base):
     created_at = sa.Column(sa.DateTime, default=datetime.utcnow, comment="Дата создания записи")
 
     user = relationship("User", back_populates="jobs")
-    responses = relationship("Response", back_populates="job") #, cascade="all, delete")
+    responses = relationship("Response", back_populates="job")  # , cascade="all, delete, delete-orphan")
 
     def __str__(self):
         return "Job(vacancy)"

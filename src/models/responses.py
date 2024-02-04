@@ -8,8 +8,8 @@ class Response(Base):
     # __table_args__ = {"extend_existing": True}
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор отклика")
-    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), comment="Идентификатор пользователя")
-    job_id = sa.Column(sa.Integer, sa.ForeignKey('jobs.id'), comment="Идентификатор вакансии")
+    user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id', ondelete="CASCADE"), comment="Идентификатор пользователя")
+    job_id = sa.Column(sa.Integer, sa.ForeignKey('jobs.id', ondelete="CASCADE"), comment="Идентификатор вакансии")
 
     # добавьте ваши колонки сюда
     message = sa.Column(sa.String(2000), default="", comment="Сопроводительное письмо", nullable=True)
