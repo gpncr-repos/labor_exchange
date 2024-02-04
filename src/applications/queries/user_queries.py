@@ -1,3 +1,5 @@
+from pydantic import EmailStr
+
 from applications.command import CommandResult
 from infrastructure.repos import RepoUser
 from models import User
@@ -8,16 +10,29 @@ from sqlalchemy import select
 from core.security import hash_password
 
 
-async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:
-    query = select(User).limit(limit).offset(skip)
-    res = await db.execute(query)
-    return res.scalars().all()
+async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> CommandResult:  # List[User]:
+    try:
+        repo_user = RepoUser(db)
+        res = await repo_user.get_all(limit, skip)
+        return CommandResult.success(result = res)
+    except Exception as e:
+        msg = "Ошибка при получении списка пользователей"
+        return CommandResult.fail(message=msg, exception=str(e))
+
+
 
 
 async def get_by_id(db: AsyncSession, id: int) -> Optional[User]:
-    query = select(User).where(User.id == id).limit(1)
-    res = await db.execute(query)
-    return res.scalars().first()
+    # query = select(User).where(User.id == id).limit(1)
+    # res = await db.execute(query)
+    # return res.scalars().first()
+    try:
+        repo_user = RepoUser(db)
+        res = await repo_user.get_by_id(id)
+        return CommandResult.success(result = res)
+    except Exception as e:
+        msg = "Ошибка при получении пользователя по идентификатору %s" % id
+        return CommandResult.fail(message=msg, exception=str(e))
 
 
 async def create(db: AsyncSession, user_schema: UserInSchema) -> CommandResult:
@@ -56,7 +71,14 @@ async def update_current_user(
         user: User,
         db: AsyncSession,
         current_user: User) -> CommandResult:
-    old_user = await get_by_id(db=db, id=id)
+
+    repo_user = RepoUser(db)
+    try:
+        # old_user = await get_by_id(db=db, id=id)
+        old_user = await repo_user.get_by_id(id)
+    except Exception as e:
+        msg = "Ошибка при получении редактируемой записи о пользователе"
+        return CommandResult.fail(message=msg, exception=str(e))
 
     if old_user is None or old_user.email != current_user.email:
         msg= "Пользователь не найден"
@@ -66,11 +88,22 @@ async def update_current_user(
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
-    result = await update(db=db, user=old_user)
-    return result
+    # result = await update(db=db, user=old_user)
+    try:
+        result = await repo_user.update(old_user)
+    except Exception as e:
+        msg = "Ошибка при редактировании записи о пользователе"
+        return CommandResult.fail(message=msg, exception=str(e))
+    return CommandResult(result=result)
 
-async def get_by_email(db: AsyncSession, email: str) -> User:
-    query = select(User).where(User.email == email).limit(1)
-    res = await db.execute(query)
-    user = res.scalars().first()
-    return user
+async def get_by_email(db: AsyncSession, email: EmailStr) -> User:
+    # query = select(User).where(User.email == email).limit(1)
+    # res = await db.execute(query)
+    # user = res.scalars().first()
+    # return user
+    try:
+        repo_user = RepoUser(db)
+        res = await repo_user.get_by_email(email)
+        return res
+    except:
+        return None

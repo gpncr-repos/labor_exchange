@@ -11,6 +11,7 @@ from api.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
 from applications.dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from applications.queries import user_queries as user_queries
+from infrastructure.repos import RepoUser
 from models import User
 
 
@@ -22,7 +23,13 @@ async def read_users(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
     skip: int = 0):
-    return await user_queries.get_all(db=db, limit=limit, skip=skip)
+    res = await user_queries.get_all(db=db, limit=limit, skip=skip)
+    if res.errors:
+        return JSONResponse(
+            content=str(res.errors),
+            status_code=status.HTTP_400_BAD_REQUEST,
+        )
+    return res.result
 
 
 @router.post("", response_model=UserSchema)
@@ -56,7 +63,7 @@ async def update_user(
     return UserSchema.from_orm(new_user)
 
 @router.patch("/{job_id}", summary="Откликнуться на вакансию")    # add response model
-async def response_vacancy(
+async def respond_vacancy(
         job_id: int = Path(description="Идентификатор (записи о) вакансии"),
         message: str = Query(description="Текст сопроводительного письма", max_length=2000),
         db: AsyncSession = Depends(get_db),
@@ -81,7 +88,7 @@ async def response_vacancy(
                     content=str(res.errors),
                     status_code=status.HTTP_409_CONFLICT,
                 )
-            return SimpleTextReport(id=job_id, message="Добавлен отклик на вакансию %s" % job_id)
+            return SimpleTextReport(id=res.result.id, message="Добавлен отклик %s на вакансию %s" % (res.result.id, job_id))
         except Exception as e:
             msg = "Ошибка при создании отклика на вакансию %s; %s" % (job_id, str(e))
             return JSONResponse(

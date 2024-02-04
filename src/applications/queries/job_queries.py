@@ -68,7 +68,6 @@ async def delete_job_by_id(db: AsyncSession, job_id: int, author_id: int):
         # query = select(Job).filter(Job.id==job_id, Job.user_id==author_id).limit(1)
         # res = await db.execute(query)
         # job_to_del = res.scalar()
-        # if job_to_del:
         #     # del_stmt = delete(Job).filter(Job.id==job_id, Job.user_id==author_id)
         #     # await db.execute(del_stmt)
         #     # db.delete(res) "Chunked result is not mapped"
@@ -78,9 +77,14 @@ async def delete_job_by_id(db: AsyncSession, job_id: int, author_id: int):
         # else:
         #     return CommandResult.fail(errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))
         repo_job = RepoJob(db)
-        result = await repo_job.del_by_id(job_id, author_id)
-        if result == job_id:
-            return CommandResult.success(result="Вакансия %s удалена" % job_id)
+        job_to_del = await repo_job.get_by_id(job_id)
+        if job_to_del and job_to_del.user_id == author_id:
+            result = await repo_job.del_by_id(job_id)
+            if result == job_id:
+                return CommandResult.success(result="Вакансия %s удалена" % job_id)
+
+            else:
+                return CommandResult.fail(result="Вакансия %s не была удалена" % job_id)
         else:
             return CommandResult.fail(
                 errors="Вакансия %s не найдена или пользователь %s не является ее автором" % (job_id, author_id))

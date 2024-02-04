@@ -2,7 +2,7 @@
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from applications.command import CommandResult
-from infrastructure.repos import RepoResponse, get_resps_by_job_id, RepoJob
+from infrastructure.repos import RepoResponse, RepoJob
 from models import Job
 from models import Response as ResponseForVacancy
 
@@ -12,7 +12,7 @@ from api.schemas.response_schema import SResponseForJob
 async def respond_to_vacancy(
     db: AsyncSession,
     vacancy_response_schema: SResponseForJob,
-    ):
+    ) -> CommandResult:
     """Записывает в базу отклик на указанную вакансию"""
     try:
         repo_resp = RepoResponse(db)
@@ -31,7 +31,9 @@ async def respond_to_vacancy(
         # await db.commit()
         # await db.refresh(apply_for_vacancy)
         # return apply_for_vacancy.id
-        await repo_resp.add(apply_for_vacancy)
+        new_resp = await repo_resp.add(apply_for_vacancy)
+        return CommandResult.success(result=new_resp)
+
     except Exception as e:
         msg = "Ошибка при создании отклика на вакансию"
         return CommandResult.fail(message=msg, exception=str(e))
@@ -57,8 +59,8 @@ async def get_responses_by_job_id(
         job_id: int,
     ) -> list[Job]: # TODO: list or tuple?
     """Возвращает отклики на заданную вакансию"""
-    # repo_resp = RepoResponse(db)
+    repo_resp = RepoResponse(db)
     # result = await repo_resp.get_responses_by_job_id(job_id)
     # return result
-    res = await get_resps_by_job_id(db, job_id)
+    res = await repo_resp.get_resps_by_job_id(db, job_id)
     return res
