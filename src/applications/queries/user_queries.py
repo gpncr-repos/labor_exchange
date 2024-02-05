@@ -20,7 +20,7 @@ async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> CommandR
         return CommandResult.fail(message=msg, exception=str(e))
 
 
-async def get_by_id(db: AsyncSession, id: int) -> Optional[User]:
+async def get_by_id(db: AsyncSession, id: int) -> CommandResult:    # Optional[User]:
     try:
         repo_user = RepoUser(db)
         res = await repo_user.get_by_id(id)

@@ -1,14 +1,23 @@
 import asyncio
+import os
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from fixtures.users import UserFactory
+from tests.fixtures.users import UserFactory
 from fastapi.testclient import TestClient
 from main import app
 import pytest
 import pytest_asyncio
 from unittest.mock import MagicMock
 from db_settings import SQLALCHEMY_DATABASE_URL
+
+DB_T_USER = os.environ.get("DB_USER", "admin")
+DB_T_PASS = os.environ.get("DB_PASS", "admin")
+DB_T_HOST = os.environ.get("DB_HOST", "localhost")
+DB_T_PORT = os.environ.get("DB_PORT", "5434")
+DB_T_NAME = os.environ.get("DB_NAME", "labor-exchange")
+
+SQLALCHEMY_TEST_DATABASE_URL = f"postgresql+asyncpg://{DB_T_USER}:{DB_T_PASS}@{DB_T_HOST}:{DB_T_PORT}/{DB_T_NAME}"
 
 
 @pytest.fixture()
@@ -19,7 +28,8 @@ def client_app():
 
 @pytest_asyncio.fixture()
 async def sa_session():
-    engine = create_async_engine(SQLALCHEMY_DATABASE_URL) # You must provide your database URL.
+    # engine = create_async_engine(SQLALCHEMY_DATABASE_URL) # You must provide your database URL.
+    engine = create_async_engine(SQLALCHEMY_TEST_DATABASE_URL)  # You must provide your database URL.
     connection = await engine.connect()
     trans = await connection.begin()
 

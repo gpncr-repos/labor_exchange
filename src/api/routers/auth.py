@@ -34,7 +34,7 @@ async def login(response: Response, login: LoginSchema, db: AsyncSession = Depen
 
     access_token = create_access_token({"sub":user.email})
     refresh_token = create_refresh_token({"sub":user.email})
-    response.set_cookie("access_token", access_token, httponly=True)
+    # response.set_cookie("access_token", access_token, httponly=True)
     return TokenSchemaPair(
         access_token=TokenSchema(token=access_token,
                     token_type="Bearer"),
@@ -49,7 +49,7 @@ async def refresh(refresh_token: str = Depends(JWTBearer()), db: AsyncSession = 
     r_token = decode_token(refresh_token)
 
     if r_token is None:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid refresh token")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Невалидный refresh токен")
     elif r_token == SIGNATURE_EXPIRED:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Истек срок действия refresh токена; перерегистрируйтесь")
     else:
