@@ -14,22 +14,17 @@ async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> CommandR
     try:
         repo_user = RepoUser(db)
         res = await repo_user.get_all(limit, skip)
-        return CommandResult.success(result = res)
+        return CommandResult.success(result=res)
     except Exception as e:
         msg = "Ошибка при получении списка пользователей"
         return CommandResult.fail(message=msg, exception=str(e))
 
 
-
-
 async def get_by_id(db: AsyncSession, id: int) -> Optional[User]:
-    # query = select(User).where(User.id == id).limit(1)
-    # res = await db.execute(query)
-    # return res.scalars().first()
     try:
         repo_user = RepoUser(db)
         res = await repo_user.get_by_id(id)
-        return CommandResult.success(result = res)
+        return CommandResult.success(result=res)
     except Exception as e:
         msg = "Ошибка при получении пользователя по идентификатору %s" % id
         return CommandResult.fail(message=msg, exception=str(e))
@@ -50,45 +45,38 @@ async def create(db: AsyncSession, user_schema: UserInSchema) -> CommandResult:
         msg = "Ошибка при добавлении объекта user"
         return CommandResult.fail(message=msg, exception=str(e))
 
-    # db.add(user)
-    # await db.commit()
-    # await db.refresh(user)
 
-
-async def update(db: AsyncSession, user: User) -> CommandResult:    # User:
+async def update(db: AsyncSession, user: User) -> CommandResult:  # User:
     try:
         await db.merge(user)  # add(user) # TODO: check, debug
         await db.commit()
-        # await db.flush(user)
         await db.refresh(user)
         return CommandResult.success(result=user)
     except Exception as e:
         msg = "Ошибка в ходе редактирования пользователя %s, %s" % (user.id, user.name)
         return CommandResult.fail(message=msg, exception=str(e))
 
+
 async def update_current_user(
         id: int,
         user: User,
         db: AsyncSession,
         current_user: User) -> CommandResult:
-
     repo_user = RepoUser(db)
     try:
-        # old_user = await get_by_id(db=db, id=id)
         old_user = await repo_user.get_by_id(id)
     except Exception as e:
         msg = "Ошибка при получении редактируемой записи о пользователе"
         return CommandResult.fail(message=msg, exception=str(e))
 
     if old_user is None or old_user.email != current_user.email:
-        msg= "Пользователь не найден"
+        msg = "Пользователь не найден"
         return CommandResult.fail(message=msg)
 
     old_user.name = user.name if user.name is not None else old_user.name
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
-    # result = await update(db=db, user=old_user)
     try:
         result = await repo_user.update(old_user)
     except Exception as e:
@@ -96,11 +84,8 @@ async def update_current_user(
         return CommandResult.fail(message=msg, exception=str(e))
     return CommandResult(result=result)
 
+
 async def get_by_email(db: AsyncSession, email: EmailStr) -> User:
-    # query = select(User).where(User.email == email).limit(1)
-    # res = await db.execute(query)
-    # user = res.scalars().first()
-    # return user
     try:
         repo_user = RepoUser(db)
         res = await repo_user.get_by_email(email)
