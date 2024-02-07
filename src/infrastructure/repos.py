@@ -1,5 +1,6 @@
 """Классы для работы с таблицами в базе"""
 from abc import ABC, abstractmethod
+from datetime import datetime
 from typing import Optional
 
 from dataclass_factory import Factory
@@ -7,6 +8,7 @@ from sqlalchemy import select, delete
 from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import EmailStr
 
+from core.security import hash_password
 from domain.do_schemas import DOJob, DOUser, DOResponse
 from models import Job, Response as VacancyResponse, User
 
@@ -99,14 +101,15 @@ class RepoUser(RepoAbs):
         user = User(
             name=obj_to_add.name,
             email=obj_to_add.email,
-            hashed_password=obj_to_add.hashed_password,
-            is_company=obj_to_add.is_company
+            hashed_password=hash_password(obj_to_add.password),
+            is_company=obj_to_add.is_company,
+            # created_at=datetime.utcnow(),
         )
         self.session.add(user)
         await self.session.commit()
         await self.session.refresh(user)
-        obj_to_add.id = user.id
-        return obj_to_add
+        # obj_to_add.id = user.id
+        return user
 
     async def get_by_id(self, model_id: int):
         query = select(User).where(User.id==model_id).limit(1)
@@ -125,19 +128,8 @@ class RepoUser(RepoAbs):
     async def get_all(self, limit: int = RECORDS_NUM, skip: int = ZERO):
         query = select(User).limit(limit).offset(skip)
         res = await self.session.execute(query)
-        sa_objs = res.scalars().all()
-        result = list()
-        for sa_obj in sa_objs:
-            dm_obj = DOUser(
-                id=sa_obj.id,
-                email=sa_obj.email,
-                name=sa_obj.name,
-                hashed_password=sa_obj.hashed_password,
-                is_company=sa_obj.is_company,
-                created_at=sa_obj.created_at,
-            )
-            result.append(dm_obj)
-        return result
+        orm_objs = res.scalars().all()
+        return orm_objs
 
     async def update(self, user: DOUser):  # User:
         orm_user = User(
@@ -161,19 +153,19 @@ class RepoUser(RepoAbs):
         )
         return user
 
-    async def get_by_email(self, email: EmailStr) -> DOUser:
+    async def get_by_email(self, email: EmailStr) -> User:
         stmt = select(User).where(User.email==email).limit(1)
         res = await self.session.execute(stmt)
-        sa_obj = res.scalars().first()
-        dm_obj = DOUser(
-            id=sa_obj.id,
-            email=sa_obj.email,
-            name=sa_obj.name,
-            hashed_password=sa_obj.hashed_password,
-            is_company=sa_obj.is_company,
-            created_at=sa_obj.created_at,
-        )
-        return dm_obj
+        orm_obj = res.scalars().first()
+        # dm_obj = DOUser(
+        #     id=orm_obj_obj.id,
+        #     email=orm_obj.email,
+        #     name=orm_obj.name,
+        #     hashed_password=orm_obj.hashed_password,
+        #     is_company=orm_obj.is_company,
+        #     created_at=orm_obj.created_at,
+        # )
+        return orm_obj
 
 class RepoResponse(RepoAbs):
     """Класс для работы с таблицей откликов responses"""
@@ -228,17 +220,8 @@ class RepoResponse(RepoAbs):
         """Возвращает отклики на заданную вакансию"""
         query = select(VacancyResponse).where(VacancyResponse.job_id==job_id)
         res = await db.execute(query)
-        sa_objs = res.scalars().all()
-        result = list()
-        for sa_obj in sa_objs:
-            dm_obj = DOResponse(
-                id=sa_obj.id,
-                user_id=sa_obj.user_id,
-                job_id=sa_obj.job_id,
-                message=sa_obj.message,
-            )
-            result.append(dm_obj)
-        return result
+        orm_objs = res.scalars().all()
+        return orm_objs
 
 # async def get_resps_by_job_id(db: AsyncSession, job_id: int):
 #     """Возвращает отклики на заданную вакансию"""

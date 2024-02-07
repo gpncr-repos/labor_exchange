@@ -15,11 +15,12 @@ router = APIRouter(
     tags=["vacancies"],
 )
 
-@router.post("", summary="Разместить вакансию") # TODO: add response_model
+@router.post("",
+             summary="Разместить вакансию",
+             response_model=SimpleTextReport) # TODO: add response_model
 async def place_job(
         job_in_schema: SJob = Body(description="Характеристики вакансии"),
-        # job_schema: SJob,   # TODO: solve a problem with this parameter
-        current_user: DOUser = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
     ):
     if current_user.is_company:
@@ -48,7 +49,7 @@ async def place_job(
 async def delete_job(
         job_id: int,
         db: AsyncSession = Depends(get_db),
-        current_user: DOUser = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
     ):
     if current_user.is_company:
         res = await delete_job_by_id(db, job_id, current_user.id)

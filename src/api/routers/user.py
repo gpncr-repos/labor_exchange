@@ -1,11 +1,12 @@
+from datetime import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 from starlette.responses import JSONResponse
 
 from api.schemas.job_schemas import SimpleTextReport
 from api.schemas.response_schema import SResponseForJob
-from applications.queries.response_query import respond_to_vacancy
-from applications.queries.user_queries import update_current_user
+from applications.queries.user_queries import update_current_user, respond_to_vacancy
+from core.security import hash_password
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
 from api.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
 from applications.dependencies import get_db, get_current_user
@@ -24,34 +25,30 @@ async def read_users(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
     skip: int = 0):
-    res = await user_queries.get_all(db=db, limit=limit, skip=skip)
-    if res.errors:
-        return JSONResponse(
-            content=str(res.errors),
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    return res.result
+    """Возвращает список пользователей"""
+    repo_user = RepoUser(db)
+    orm_objs = await repo_user.get_all(limit, skip)
+    users = [UserSchema.from_orm(orm_obj) for orm_obj in orm_objs]
+    return users
 
 
 @router.post("", response_model=UserSchema)
-async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
-    res = await user_queries.create(db=db, user_schema=user)
-    if res.errors:
-        return JSONResponse(
-            content=str(res.errors),
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    result = UserSchema(
-        id=res.result.id,
-        name=res.result.name,
-        email=res.result.email,
-        hashed_password=res.result.hashed_password,
-        is_company=res.result.is_company,
-        created_at=res.result.created_at,
-    )
-    return result
-    # return UserSchema.from_orm(res.result)
-    # return UserSchema.from_attributes(user)
+async def create_user(
+        user_schema: UserInSchema,
+        db: AsyncSession = Depends(get_db),
+    ):
+    #
+    # user = User(
+    #     name=user_schema.name,
+    #     email=user_schema.email,
+    #     hashed_password=hash_password(user_schema.password),
+    #     is_company=user_schema.is_company,
+    #     # created_at=datetime.utcnow(),
+    # )
+    repo_user = RepoUser(db)
+    user_orm = await repo_user.add(user_schema)
+    user_s = UserSchema.from_orm(user_orm)
+    return user_s
 
 
 @router.put("", response_model=UserSchema)
@@ -59,7 +56,7 @@ async def update_user(
     id: int,
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
-    current_user: DOUser = Depends(get_current_user),
+    current_user: User = Depends(get_current_user),
 ):
 
     result = await update_current_user(id, user, db, current_user)
@@ -77,7 +74,7 @@ async def respond_vacancy(
         job_id: int = Path(description="Идентификатор (записи о) вакансии"),
         message: str = Query(description="Текст сопроводительного письма", max_length=2000),
         db: AsyncSession = Depends(get_db),
-        current_user: DOUser = Depends(get_current_user),
+        current_user: User = Depends(get_current_user),
     ):
     if current_user.is_company:
         msg = "Пользователь %s является компанией-работодателем, поэтому не может откликаться на вакансии" % current_user.name
