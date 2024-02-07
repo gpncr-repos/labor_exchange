@@ -7,15 +7,16 @@ from pydantic import BaseModel, Field
 
 
 class SJob(BaseModel):
-    # user_id: int = Field(description="Идентифкатор работодателя")
+    user_id: Optional[int] = Field(None, description="Идентифкатор работодателя")
     title: Optional[str] = Field(description="Наименование вакансии")
     description: Optional[str] = Field(description="Описание вакансии")
     salary_from: Optional[Decimal] = Field(description="Зарплата от", ge=0.)
     salary_to: Optional[Decimal] = Field(description="Зарплата до", ge=0.)
     is_active: Optional[bool] = Field(default=True,description="Активна ли вакансия")
-    # created_at: Optional[str] = Field(default=datetime.strftime(datetime.utcnow(), "%Y-%m-%d %H-%M-%S"), description="Наименование вакансии")
+    created_at: Optional[datetime] = Field(None, description="Дата создани вакансии")
 
     class Config:
+        orm_mode = True
         schema_extra = {
             "example":
                 {

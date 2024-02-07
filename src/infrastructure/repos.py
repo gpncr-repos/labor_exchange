@@ -69,19 +69,24 @@ class RepoJob(RepoAbs):
     async def get_by_id(self, model_id: int):
         query = select(Job).where(Job.id==model_id).limit(1)
         res = await self.session.execute(query)
-        sa_obj = res.scalars().first()
+        orm_obj = res.scalars().first()
         # dm_obj = factory.load(sa_obj, DOJob)
-        dm_obj = DOJob(
-            user_id=sa_obj.user_id,
-            title=sa_obj.title,
-            description=sa_obj.description,
-            salary_from=sa_obj.salary_from,
-            salary_to=sa_obj.salary_to,
-            is_active=sa_obj.is_active,
-            created_at=sa_obj.created_at,
-        )
-        return dm_obj
+        # dm_obj = DOJob(
+        #     user_id=orm_obj.user_id,
+        #     title=orm_obj.title,
+        #     description=orm_obj.description,
+        #     salary_from=orm_obj.salary_from,
+        #     salary_to=orm_obj.salary_to,
+        #     is_active=orm_obj.is_active,
+        #     created_at=orm_obj.created_at,
+        # )
+        return orm_obj
 
+    async def update(self, job_to_update: Job) -> Job:
+        await self.session.merge(job_to_update)
+        await self.session.commit()
+        await self.session.refresh(job_to_update)
+        return job_to_update
 
     async def del_by_id(self, obj_to_del_id: int):
         query = select(Job).filter(Job.id==obj_to_del_id).limit(1)

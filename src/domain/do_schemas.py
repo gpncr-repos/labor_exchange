@@ -15,6 +15,14 @@ class DOJob:
     created_at: Optional[datetime] = None
 
 @dataclass
+class DOJobEdit:
+    title: Optional[str] = field(default_factory=str)
+    description: Optional[str] = field(default_factory=str)
+    salary_from: Optional[Decimal] = field(default_factory=Decimal)
+    salary_to: Optional[Decimal] = field(default_factory=Decimal)
+    is_active: Optional[bool] = field(default=True)
+
+@dataclass
 class DOResponse:
     id: Optional[int] = field(default_factory=int)
     user_id: Optional[int] = field(default_factory=int)
