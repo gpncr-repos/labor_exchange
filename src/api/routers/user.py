@@ -76,8 +76,8 @@ async def respond_vacancy(
     ):
     if current_user.is_company:
         msg = "Пользователь %s является компанией-работодателем, поэтому не может откликаться на вакансии" % current_user.name
-        return JSONResponse(
-            content=msg,
+        raise HTTPException(
+            detail=msg,
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
         )
     else:
@@ -88,17 +88,12 @@ async def respond_vacancy(
                 message=message,
             )
             res = await respond_to_vacancy(db, job_resp_schema)
-            if res.errors:
-                return JSONResponse(
-                    content=str(res.errors),
-                    status_code=status.HTTP_409_CONFLICT,
-                )
-            return SimpleTextReport(id=res.result.id, message="Добавлен отклик %s на вакансию %s" % (res.result.id, job_id))
+            return SResponseForJob.from_orm(res)
         except Exception as e:
             msg = "Ошибка при создании отклика на вакансию %s; %s" % (job_id, str(e))
-            return JSONResponse(
-                content=msg,
+            raise HTTPException(
                 status_code=status.HTTP_400_BAD_REQUEST,
+                detail=msg,
             )
 
 

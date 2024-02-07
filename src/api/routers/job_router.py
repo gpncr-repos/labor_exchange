@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter, Depends, HTTPException, status, Body
 from sqlalchemy.ext.asyncio import AsyncSession
 
@@ -33,6 +35,19 @@ async def place_job(
         raise HTTPException(
             status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
             detail=msg)
+
+@router.get("/jobs",
+            summary="Получние списка вакансий",
+            response_model=List[SJob],
+            )
+async def read_vacancies(
+        db: AsyncSession = Depends(get_db),
+    ):
+    repo_job = RepoJob(db)
+    orm_objs = await repo_job.get_all()
+    result = [SJob.from_orm(orm_obj) for orm_obj in orm_objs]
+    return result
+
 
 @router.put("/{job_id}",
             summary="Редактирование вакансии",

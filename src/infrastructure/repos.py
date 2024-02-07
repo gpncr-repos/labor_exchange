@@ -50,20 +50,20 @@ class RepoJob(RepoAbs):
         query = select(Job).limit(limit).offset(skip)
         res = await self.session.execute(query)
         sa_objs = res.scalars().all()
-        result = list()
-        for sa_obj in sa_objs:
-            dm_obj = DOJob(
-                user_id=sa_obj.user_id,
-                title=sa_obj.title,
-                description=sa_obj.description,
-                salary_from=sa_obj.salary_from,
-                salary_to=sa_obj.salary_to,
-                is_active=sa_obj.is_active,
-                created_at=sa_obj.created_at,
-            )
-            result.append(dm_obj)
+        # result = list()
+        # for sa_obj in sa_objs:
+        #     dm_obj = DOJob(
+        #         user_id=sa_obj.user_id,
+        #         title=sa_obj.title,
+        #         description=sa_obj.description,
+        #         salary_from=sa_obj.salary_from,
+        #         salary_to=sa_obj.salary_to,
+        #         is_active=sa_obj.is_active,
+        #         created_at=sa_obj.created_at,
+        #     )
+        #     result.append(dm_obj)
 
-        return result
+        return sa_objs
 
 
     async def get_by_id(self, model_id: int):
