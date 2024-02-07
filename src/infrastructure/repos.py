@@ -119,16 +119,16 @@ class RepoUser(RepoAbs):
     async def get_by_id(self, model_id: int):
         query = select(User).where(User.id==model_id).limit(1)
         res = await self.session.execute(query)
-        sa_obj = res.scalars().first()
-        dm_obj = DOUser(
-            id=sa_obj.id,
-            email=sa_obj.email,
-            name=sa_obj.name,
-            hashed_password=sa_obj.hashed_password,
-            is_company=sa_obj.is_company,
-            created_at=sa_obj.created_at,
-        )
-        return dm_obj
+        orm_obj = res.scalars().first()
+        # dm_obj = DOUser(
+        #     id=sa_obj.id,
+        #     email=sa_obj.email,
+        #     name=sa_obj.name,
+        #     hashed_password=sa_obj.hashed_password,
+        #     is_company=sa_obj.is_company,
+        #     created_at=sa_obj.created_at,
+        # )
+        return orm_obj
 
     async def get_all(self, limit: int = RECORDS_NUM, skip: int = ZERO):
         query = select(User).limit(limit).offset(skip)
@@ -136,8 +136,11 @@ class RepoUser(RepoAbs):
         orm_objs = res.scalars().all()
         return orm_objs
 
-    async def update(self, user: DOUser):  # User:
-        orm_user = User(
+    async def update(self, user: User) -> DOUser:  # User:
+        await self.session.merge(user)
+        await self.session.commit()
+        await self.session.refresh(user)
+        user_do = DOUser(
             id=user.id,
             email=user.email,
             name=user.name,
@@ -145,18 +148,7 @@ class RepoUser(RepoAbs):
             is_company=user.is_company,
             created_at=user.created_at,
         )
-        await self.session.merge(orm_user)
-        await self.session.commit()
-        # await self.session.refresh(orm_user); приходит уже измененный пользователь
-        user = DOUser(
-            id=orm_user.id,
-            email=orm_user.email,
-            name=orm_user.name,
-            hashed_password=orm_user.hashed_password,
-            is_company=orm_user.is_company,
-            created_at=orm_user.created_at,
-        )
-        return user
+        return user_do
 
     async def get_by_email(self, email: EmailStr) -> User:
         stmt = select(User).where(User.email==email).limit(1)

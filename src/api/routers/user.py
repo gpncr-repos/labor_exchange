@@ -59,15 +59,13 @@ async def update_user(
     current_user: User = Depends(get_current_user),
 ):
 
-    result = await update_current_user(id, user, db, current_user)
-
-    if result.errors:
-        return JSONResponse(
-            content=str(result.errors),
-            status_code=status.HTTP_400_BAD_REQUEST,
-        )
-    new_user = result.result
-    return UserSchema.from_orm(new_user)
+    user_do = DOUser(
+        name=user.name,
+        email=user.email,
+        is_company=user.is_company,
+    )
+    updated_user = await update_current_user(id, user_do, db, current_user.email)
+    return UserSchema.from_orm(updated_user)
 
 @router.patch("/{job_id}", summary="Откликнуться на вакансию")    # add response model
 async def respond_vacancy(

@@ -56,17 +56,13 @@ async def create(db: AsyncSession, user_schema: UserInSchema) -> CommandResult:
 
 async def update_current_user(
         id: int,
-        user: User,
+        user: DOUser,
         db: AsyncSession,
-        current_user: User) -> CommandResult:
+        current_user_mail: str) -> CommandResult:
     repo_user = RepoUser(db)
-    try:
-        old_user = await repo_user.get_by_id(id)
-    except Exception as e:
-        msg = "Ошибка при получении редактируемой записи о пользователе"
-        return CommandResult.fail(message=msg, exception=str(e))
+    old_user = await repo_user.get_by_id(id)
 
-    if old_user is None or old_user.email != current_user.email:
+    if old_user is None or old_user.email != current_user_mail:
         msg = "Пользователь не найден или пытается редактировать не свои данные"
         return CommandResult.fail(message=msg)
 
@@ -74,12 +70,8 @@ async def update_current_user(
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
-    try:
-        result = await repo_user.update(old_user)
-    except Exception as e:
-        msg = "Ошибка при редактировании записи о пользователе"
-        return CommandResult.fail(message=msg, exception=str(e))
-    return CommandResult(result=result)
+    result = await repo_user.update(old_user)
+    return result
 
 
 async def get_by_email(db: AsyncSession, email: EmailStr) -> DOUser:
