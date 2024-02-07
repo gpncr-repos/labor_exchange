@@ -1,7 +1,5 @@
 """Классы для работы с таблицами в базе"""
 from abc import ABC, abstractmethod
-from datetime import datetime
-from typing import Optional
 
 from dataclass_factory import Factory
 from sqlalchemy import select, delete
@@ -9,7 +7,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from pydantic import EmailStr
 
 from core.security import hash_password
-from domain.do_schemas import DOJob, DOUser, DOResponse
+from domain.do_schemas import DOUser, DOResponse
 from models import Job, Response as VacancyResponse, User
 
 RECORDS_NUM = 100
@@ -219,9 +217,3 @@ class RepoResponse(RepoAbs):
         res = await db.execute(query)
         orm_objs = res.scalars().all()
         return orm_objs
-
-# async def get_resps_by_job_id(db: AsyncSession, job_id: int):
-#     """Возвращает отклики на заданную вакансию"""
-#     query = select(VacancyResponse).where(VacancyResponse.job_id==job_id)
-#     res = await db.execute(query)
-#     return res.scalars().all()

@@ -7,7 +7,7 @@ from api.schemas.job_schemas import SJob, SRemoveJobReport, SimpleTextReport
 from applications.dependencies import get_current_user, get_db
 from applications.queries.job_queries import create_job, convert_job_schema_to_do, \
     delete_job_by_id, update_job
-from domain.do_schemas import DOUser, DOJob, DOJobEdit
+from domain.do_schemas import DOJobEdit
 from infrastructure.repos import RepoJob
 from models import User
 
@@ -89,16 +89,4 @@ async def delete_job(
                 status_code=status.HTTP_400_BAD_REQUEST,
                 detail=str(e)
             )
-    #     if res.errors:
-    #         return JSONResponse(
-    #             content=str(res.errors),
-    #             status_code=status.HTTP_400_BAD_REQUEST,
-    #         )
-    #     else:
-    #         return SRemoveJobReport(id=job_id, message=str(res.result))
-    # else:
-    #     msg = "Пользователь %s не является работодателем, поэтому не может удалять вакансии" % current_user.name
-    #     return JSONResponse(
-    #         content=str(msg),
-    #         status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-    #     )
+

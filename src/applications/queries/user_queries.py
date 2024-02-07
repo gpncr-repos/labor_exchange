@@ -8,47 +8,6 @@ from models import User, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 
-# async def get_by_id(db: AsyncSession, id: int) -> CommandResult:    # Optional[User]:
-#     """uses only in tests"""
-#     try:
-#         repo_user = RepoUser(db)
-#         res = await repo_user.get_by_id(id)
-#         return CommandResult.success(result=res)
-#     except Exception as e:
-#         msg = "Ошибка при получении пользователя по идентификатору %s" % id
-#         return CommandResult.fail(message=msg, exception=str(e))
-
-
-# async def create(db: AsyncSession, user_schema: UserInSchema) -> CommandResult:
-#     # uses only in tests
-#     user_do = DOUser(
-#         name=user_schema.name,
-#         email=user_schema.email,
-#         hashed_password=hash_password(user_schema.password),
-#         is_company=user_schema.is_company,
-#         created_at=datetime.utcnow(),
-#     )
-#     repo_user = RepoUser(db)
-#     try:
-#         res = await repo_user.add(user_do)
-#         return CommandResult.success(result=res)
-#     except Exception as e:
-#         msg = "Ошибка при добавлении объекта user"
-#         return CommandResult.fail(message=msg, exception=str(e))
-
-
-# async def update(db: AsyncSession, user: User) -> CommandResult:  # User:
-#     """only used in test"""
-#     try:
-#         await db.merge(user)  # add(user) # TODO: check, debug
-#         await db.commit()
-#         await db.refresh(user)
-#         return CommandResult.success(result=user)
-#     except Exception as e:
-#         msg = "Ошибка в ходе редактирования пользователя %s, %s" % (user.id, user.name)
-#         return CommandResult.fail(message=msg, exception=str(e))
-
-
 async def update_current_user(
         id: int,
         user: DOUser,
@@ -80,26 +39,11 @@ async def get_by_email(db: AsyncSession, email: EmailStr) -> DOUser:
     except:
         return None
 
-# async def response_job(
-#     db: AsyncSession,
-#     job_id: int,
-#     ):
-#     """Записывает в базу отклик на указанную вакансию
-#
-#     По ТЗ требовалась реализация метода с такой сигнатурой.
-#     Но странно фиксировать отклики, не указывая, кто откликнулся"""
-#     repo_resp = RepoResponse(db)
-#     apply_for_vacancy = DOResponse(
-#         user_id=None,
-#         job_id=job_id,
-#         message=None,
-#     )
-#     repo_resp.add(apply_for_vacancy)
 
 async def respond_to_vacancy(
-    db: AsyncSession,
-    vacancy_response_schema: SResponseForJob,
-    ) -> Response:
+        db: AsyncSession,
+        vacancy_response_schema: SResponseForJob,
+) -> Response:
     """Записывает в базу отклик на указанную вакансию"""
     try:
         repo_resp = RepoResponse(db)

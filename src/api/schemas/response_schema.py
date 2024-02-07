@@ -1,6 +1,6 @@
 from typing import Optional
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel  #, Field
 
 
 class SResponseForJob(BaseModel):
@@ -11,4 +11,3 @@ class SResponseForJob(BaseModel):
 
     class Config:
         orm_mode = True
-
