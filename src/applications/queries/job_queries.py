@@ -1,29 +1,30 @@
 """Сценарии, работающие с базой данных"""
+from datetime import datetime
 from decimal import Decimal
 
-from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schemas.job_schemas import SJob
 from applications.command import CommandResult
-from applications.schemas.schemas import JobDO
+from domain.do_schemas import DOJob
 from infrastructure.repos import RepoJob
 from models import Job
 
 
-def convert_job_schema_to_do(user_id: int, job_schema: SJob) -> JobDO:
+def convert_job_schema_to_do(user_id: int, job_schema: SJob) -> DOJob:
     """Преобразует данные для создания записи в DO"""
-    result = JobDO(
+    result = DOJob(
         user_id=user_id,
         title=job_schema.title,
         description=job_schema.description,
         salary_from=job_schema.salary_from,
         salary_to=job_schema.salary_to,
         is_active=job_schema.is_active,
+        created_at=datetime.utcnow()
     )
     return result
 
-async def create_job(db: AsyncSession, job_schema: JobDO):
+async def create_job(db: AsyncSession, job_schema: DOJob):
     """Добавляет запись в таблицу jobs
 
     param: db: AsyncSession - объект сессия подключения к базе данных

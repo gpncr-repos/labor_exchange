@@ -6,6 +6,7 @@ from api.schemas.job_schemas import SJob, SRemoveJobReport, SimpleTextReport
 from applications.dependencies import get_current_user, get_db
 from applications.queries.job_queries import create_job, convert_job_schema_to_do, get_job_by_id, \
     delete_job_by_id
+from domain.do_schemas import DOUser
 from infrastructure.repos import RepoJob
 from models import User
 
@@ -18,7 +19,7 @@ router = APIRouter(
 async def place_job(
         job_in_schema: SJob = Body(description="Характеристики вакансии"),
         # job_schema: SJob,   # TODO: solve a problem with this parameter
-        current_user: User = Depends(get_current_user),
+        current_user: DOUser = Depends(get_current_user),
         db: AsyncSession = Depends(get_db),
     ):
     if current_user.is_company:
@@ -47,7 +48,7 @@ async def place_job(
 async def delete_job(
         job_id: int,
         db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        current_user: DOUser = Depends(get_current_user),
     ):
     if current_user.is_company:
         res = await delete_job_by_id(db, job_id, current_user.id)

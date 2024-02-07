@@ -11,6 +11,7 @@ from api.schemas.user import UserSchema, UserInSchema, UserUpdateSchema
 from applications.dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from applications.queries import user_queries as user_queries
+from domain.do_schemas import DOUser, DOResponse
 from infrastructure.repos import RepoUser
 from models import User
 
@@ -40,7 +41,16 @@ async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
             content=str(res.errors),
             status_code=status.HTTP_400_BAD_REQUEST,
         )
-    return UserSchema.from_orm(res.result)
+    result = UserSchema(
+        id=res.result.id,
+        name=res.result.name,
+        email=res.result.email,
+        hashed_password=res.result.hashed_password,
+        is_company=res.result.is_company,
+        created_at=res.result.created_at,
+    )
+    return result
+    # return UserSchema.from_orm(res.result)
     # return UserSchema.from_attributes(user)
 
 
@@ -49,7 +59,7 @@ async def update_user(
     id: int,
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user),
+    current_user: DOUser = Depends(get_current_user),
 ):
 
     result = await update_current_user(id, user, db, current_user)
@@ -67,7 +77,7 @@ async def respond_vacancy(
         job_id: int = Path(description="Идентификатор (записи о) вакансии"),
         message: str = Query(description="Текст сопроводительного письма", max_length=2000),
         db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        current_user: DOUser = Depends(get_current_user),
     ):
     if current_user.is_company:
         msg = "Пользователь %s является компанией-работодателем, поэтому не может откликаться на вакансии" % current_user.name
@@ -77,7 +87,7 @@ async def respond_vacancy(
         )
     else:
         try:
-            job_resp_schema = SResponseForJob(
+            job_resp_schema = DOResponse(
                 job_id=job_id,
                 user_id=current_user.id,
                 message=message,

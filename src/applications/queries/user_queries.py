@@ -1,6 +1,10 @@
+from datetime import datetime
+
+from dataclass_factory import Factory
 from pydantic import EmailStr
 
 from applications.command import CommandResult
+from domain.do_schemas import DOUser
 from infrastructure.repos import RepoUser
 from models import User
 from api.schemas import UserInSchema
@@ -31,30 +35,32 @@ async def get_by_id(db: AsyncSession, id: int) -> CommandResult:    # Optional[U
 
 
 async def create(db: AsyncSession, user_schema: UserInSchema) -> CommandResult:
-    user = User(
+    user_do = DOUser(
         name=user_schema.name,
         email=user_schema.email,
         hashed_password=hash_password(user_schema.password),
-        is_company=user_schema.is_company
+        is_company=user_schema.is_company,
+        created_at=datetime.utcnow(),
     )
     repo_user = RepoUser(db)
     try:
-        res = await repo_user.add(user)
+        res = await repo_user.add(user_do)
         return CommandResult.success(result=res)
     except Exception as e:
         msg = "Ошибка при добавлении объекта user"
         return CommandResult.fail(message=msg, exception=str(e))
 
 
-async def update(db: AsyncSession, user: User) -> CommandResult:  # User:
-    try:
-        await db.merge(user)  # add(user) # TODO: check, debug
-        await db.commit()
-        await db.refresh(user)
-        return CommandResult.success(result=user)
-    except Exception as e:
-        msg = "Ошибка в ходе редактирования пользователя %s, %s" % (user.id, user.name)
-        return CommandResult.fail(message=msg, exception=str(e))
+# async def update(db: AsyncSession, user: User) -> CommandResult:  # User:
+#     """only used in test"""
+#     try:
+#         await db.merge(user)  # add(user) # TODO: check, debug
+#         await db.commit()
+#         await db.refresh(user)
+#         return CommandResult.success(result=user)
+#     except Exception as e:
+#         msg = "Ошибка в ходе редактирования пользователя %s, %s" % (user.id, user.name)
+#         return CommandResult.fail(message=msg, exception=str(e))
 
 
 async def update_current_user(
@@ -70,7 +76,7 @@ async def update_current_user(
         return CommandResult.fail(message=msg, exception=str(e))
 
     if old_user is None or old_user.email != current_user.email:
-        msg = "Пользователь не найден"
+        msg = "Пользователь не найден или пытается редактировать не свои данные"
         return CommandResult.fail(message=msg)
 
     old_user.name = user.name if user.name is not None else old_user.name
@@ -85,7 +91,7 @@ async def update_current_user(
     return CommandResult(result=result)
 
 
-async def get_by_email(db: AsyncSession, email: EmailStr) -> User:
+async def get_by_email(db: AsyncSession, email: EmailStr) -> DOUser:
     try:
         repo_user = RepoUser(db)
         res = await repo_user.get_by_email(email)

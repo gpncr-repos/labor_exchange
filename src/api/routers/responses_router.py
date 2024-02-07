@@ -3,6 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from applications.dependencies import get_db
 from applications.queries.response_query import get_responses_by_job_id
+from domain.do_schemas import DOResponse
 
 router = APIRouter(
     prefix="/response",
@@ -12,7 +13,7 @@ router = APIRouter(
 @router.get(
     "/{job_id}",
     summary="Получить список откликов на выбранную вакансию",
-    ) # TODO: add, response_model=)
+    response_model=list[DOResponse])
 async def get_job_responses(
     job_id: int,
     db: AsyncSession = Depends(get_db),
