@@ -7,7 +7,6 @@ from fastapi import status
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schemas.job_schemas import SJob
-from applications.command import CommandResult
 from domain.do_schemas import DOJob, DOJobEdit
 from infrastructure.repos import RepoJob
 from models import Job, User
@@ -51,23 +50,23 @@ async def create_job(db: AsyncSession, job_schema: DOJob) -> Job:
             detail=msg,
         )
 
-async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Job:
-    try:
-        repo_job = RepoJob(db)
-        result = await repo_job.get_all(limit, skip)
-        return CommandResult.success(result=result)
-    except Exception as e:
-        msg = "Ошибка при получении списка вакансий; %s" % (str(e))
-        return CommandResult.fail(message=msg,exception=str(e))
-
-async def get_job_by_id(db: AsyncSession, job_id: int):
-    try:
-        repo_job = RepoJob(db)
-        result = await repo_job.get_by_id(job_id)
-        return CommandResult.success(result=result)
-    except Exception as e:
-        msg = "Ошибка при получении вакансии по идентификатору %s; %s" % (job_id, str(e))
-        return CommandResult.fail(message=msg,exception=str(e))
+# async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Job:
+#     try:
+#         repo_job = RepoJob(db)
+#         result = await repo_job.get_all(limit, skip)
+#         return CommandResult.success(result=result)
+#     except Exception as e:
+#         msg = "Ошибка при получении списка вакансий; %s" % (str(e))
+#         return CommandResult.fail(message=msg,exception=str(e))
+#
+# async def get_job_by_id(db: AsyncSession, job_id: int):
+#     try:
+#         repo_job = RepoJob(db)
+#         result = await repo_job.get_by_id(job_id)
+#         return CommandResult.success(result=result)
+#     except Exception as e:
+#         msg = "Ошибка при получении вакансии по идентификатору %s; %s" % (job_id, str(e))
+#         return CommandResult.fail(message=msg,exception=str(e))
 #
 # async def delete_job_by_id(db: AsyncSession, job_id: int, author_id: int):
 #     try:

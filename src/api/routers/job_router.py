@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schemas.job_schemas import SJob, SRemoveJobReport, SimpleTextReport
 from applications.dependencies import get_current_user, get_db
-from applications.queries.job_queries import create_job, convert_job_schema_to_do, get_job_by_id, \
+from applications.queries.job_queries import create_job, convert_job_schema_to_do, \
     delete_job_by_id, update_job
 from domain.do_schemas import DOUser, DOJob, DOJobEdit
 from infrastructure.repos import RepoJob

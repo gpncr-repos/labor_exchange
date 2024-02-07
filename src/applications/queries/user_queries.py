@@ -1,19 +1,11 @@
-from datetime import datetime
-
 import fastapi
-from dataclass_factory import Factory
 from pydantic import EmailStr
 
 from api.schemas.response_schema import SResponseForJob
-from applications.command import CommandResult
 from domain.do_schemas import DOUser, DOResponse
 from infrastructure.repos import RepoUser, RepoResponse, RepoJob
 from models import User, Response
-from api.schemas import UserInSchema
-from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
-from core.security import hash_password
 
 
 # async def get_by_id(db: AsyncSession, id: int) -> CommandResult:    # Optional[User]:
@@ -61,13 +53,16 @@ async def update_current_user(
         id: int,
         user: DOUser,
         db: AsyncSession,
-        current_user_mail: str) -> CommandResult:
+        current_user_mail: str) -> User:
     repo_user = RepoUser(db)
     old_user = await repo_user.get_by_id(id)
 
     if old_user is None or old_user.email != current_user_mail:
         msg = "Пользователь не найден или пытается редактировать не свои данные"
-        return CommandResult.fail(message=msg)
+        raise fastapi.HTTPException(
+            status_code=fastapi.status.HTTP_400_BAD_REQUEST,
+            detail=msg,
+        )
 
     old_user.name = user.name if user.name is not None else old_user.name
     old_user.email = user.email if user.email is not None else old_user.email
@@ -112,7 +107,6 @@ async def respond_to_vacancy(
         job = await repo_job.get_by_id(vacancy_response_schema.job_id)
         if not job:
             msg = "Вакансия с идентификатором %s не найдена в базе" % vacancy_response_schema.job_id
-            # return CommandResult.fail(message=msg)
             raise fastapi.HTTPException(
                 status_code=fastapi.status.HTTP_400_BAD_REQUEST,
                 detail=msg,
