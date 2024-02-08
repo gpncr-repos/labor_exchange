@@ -5,6 +5,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from api.schemas.job_schemas import SJob, SRemoveJobReport
 from applications.dependencies import get_current_user, get_db
+from applications.dependencies.db import get_repo_job
+from applications.dependencies.user import get_current_employer
 from applications.queries.job_queries import convert_job_schema_to_dm
 from domain.dm_schemas import DMJob
 from infrastructure.repos import RepoJob
@@ -20,44 +22,36 @@ router = APIRouter(
              response_model=SJob)
 async def place_job(
         job_in_schema: SJob = Body(description="Характеристики вакансии"),
-        current_user: User = Depends(get_current_user),
-        db: AsyncSession = Depends(get_db),
+        current_employer: User = Depends(get_current_employer),
+        repo_job: RepoJob= Depends(get_repo_job),
     ):
     """
     Добавляет в таблицу jobs запись-вакансию  с переданными параметрами по запросу пользователя-работодателя
 
     :param job_in_schema: SJob объект параметры вакансии
-    :param current_user: User объект пользователь автор вакансии
-    :param db: AsyncSession объект сессия для работы с базой данных
+    :param current_employer: User объект пользователь автор вакансии
+    :param repo_job: RepoJob репозиторий для работы с базой данных
     :returns: пары поле:значение добавленной записи
     :rtype: SJob
     """
-    if current_user.is_company:
-        job_dm = convert_job_schema_to_dm(current_user.id, job_in_schema)
-        repo_job = RepoJob(db)
-        res = await repo_job.add(job_dm)
-        return SJob.from_orm(res)
-    else:
-        msg = "Пользователю %s, не являющемуся компанией, не разрешено создавать вакансии" % current_user.name
-        raise HTTPException(
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-            detail=msg)
+    job_dm = convert_job_schema_to_dm(current_employer.id, job_in_schema)
+    res = await repo_job.add(job_dm)
+    return SJob.from_orm(res)
 
 @router.get("/jobs",
             summary="Получние списка вакансий",
             response_model=List[SJob],
             )
 async def read_vacancies(
-        db: AsyncSession = Depends(get_db),
+        repo_job: RepoJob= Depends(get_repo_job),
     ):
     """
     Возвращает список вакансий из таблицы jobs
 
-    :param db: AsyncSession объект сессия для работы с базой данных
+    :param repo_job: RepoJob репозиторий для работы с базой данных
     :returs: список записей с их полями и значениями полей
     :rtype: List[SJob]
     """
-    repo_job = RepoJob(db)
     orm_objs = await repo_job.get_all()
     result = [SJob.from_orm(orm_obj) for orm_obj in orm_objs]
     return result
@@ -70,7 +64,7 @@ async def read_vacancies(
 async def edit_job(
         job_id: int,
         job_in_schema: SJob,
-        db: AsyncSession = Depends(get_db),
+        repo_job: RepoJob= Depends(get_repo_job),
         current_user: User = Depends(get_current_user),
     ):
     """
@@ -78,12 +72,11 @@ async def edit_job(
 
     :param job_id: int идентификатор вакансии
     :param job_in_schema: SJob объект с новыми параметрами
-    :param db: AsyncSession объект сессия для работы с базой данных
+    :param repo_job: RepoJob репозиторий для работы с базой данных
     :param current_user: User объект пользователь
     :returns: пары поле:значение добавленной записи
     :rtype: SJob
     """
-    repo_job = RepoJob(db)
     job_to_edit = await repo_job.get_by_id(job_id)
     if job_to_edit.user_id == current_user.id:
         job_schema = DMJob(
@@ -112,25 +105,24 @@ async def edit_job(
 )
 async def delete_job(
         job_id: int,
-        db: AsyncSession = Depends(get_db),
-        current_user: User = Depends(get_current_user),
+        repo_job: RepoJob= Depends(get_repo_job),
+        current_employer: User = Depends(get_current_employer),
     ):
     """
     Удаляет вакансию по запросу автора
 
     :param job_id: int идентификатор вакансии
-    :param db: AsyncSession объект сессия для работы с базой данных
-    :param current_user: User объект пользователь
+    :param repo_job: RepoJob репозиторий для работы с базой данных
+    :param current_employer: User объект пользователь
     :returns: сообщение об удалении вакансии
     :rtype: SRemoveJobReport
     """
-    repo_job = RepoJob(db)
     job_to_del = await repo_job.get_by_id(job_id)
-    if current_user.is_company and job_to_del.user_id == current_user.id:
+    if job_to_del.user_id == current_employer.id:
         result = await repo_job.del_by_id(job_id)
         return SRemoveJobReport(id=job_id, message="Вакансия %s удалена" % result)
     else:
-        msg = "Вакансия %s не была удалена; либо она не найдена, либо удаляющий пользователь %s не является ее автором" % (job_id,current_user.name)
+        msg = "Вакансия %s не была удалена; удаляющий пользователь %s не является ее автором" % (job_id, current_employer.name)
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=msg

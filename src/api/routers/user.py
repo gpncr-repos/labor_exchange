@@ -3,6 +3,7 @@ from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status, Query, Path
 
 from api.schemas.response_schema import SResponseForJob
+from applications.dependencies.user import get_current_worker
 from applications.queries.user_queries import update_current_user, respond_to_vacancy
 from core.security import hash_password
 from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER
@@ -107,7 +108,7 @@ async def respond_vacancy(
         job_id: int = Path(description="Идентификатор (записи о) вакансии"),
         message: str = Query(description="Текст сопроводительного письма", max_length=2000),
         db: AsyncSession = Depends(get_db),
-        current_user: DMUser = Depends(get_current_user),
+        current_worker: DMUser = Depends(get_current_worker),
 ):
     """
     Добавляет запись в таблицу responses - отклик пользователя на вакансию
@@ -115,28 +116,14 @@ async def respond_vacancy(
     :param job_id: int идентификатор вакансии
     :param message: str текст сопроводительного письма
     :param db: AsyncSession объект сессия для работы с базой данных
-    :param current_user: User объект пользователь, откликающийся на вакансию
+    :param current_worker: User объект пользователь, откликающийся на вакансию
     :returns: пары поле:значение добавленной записи
     :rtype: SResponseForJob
     """
-    if current_user.is_company:
-        msg = "Пользователь %s является компанией-работодателем, поэтому не может откликаться на вакансии" % current_user.name
-        raise HTTPException(
-            detail=msg,
-            status_code=status.HTTP_405_METHOD_NOT_ALLOWED,
-        )
-    else:
-        try:
-            job_resp_schema = DMResponse(
-                job_id=job_id,
-                user_id=current_user.id,
-                message=message,
-            )
-            res = await respond_to_vacancy(db, job_resp_schema)
-            return SResponseForJob.from_orm(res)
-        except Exception as e:
-            msg = "Ошибка при создании отклика на вакансию %s; %s" % (job_id, str(e))
-            raise HTTPException(
-                status_code=status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+    job_resp_schema = DMResponse(
+        job_id=job_id,
+        user_id=current_worker.id,
+        message=message,
+    )
+    res = await respond_to_vacancy(db, job_resp_schema)
+    return SResponseForJob.from_orm(res)
