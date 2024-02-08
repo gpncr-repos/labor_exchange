@@ -2,7 +2,7 @@ import fastapi
 from pydantic import EmailStr
 
 from api.schemas.response_schema import SResponseForJob
-from domain.do_schemas import DOUser, DOResponse
+from domain.dm_schemas import DMUser, DMResponse
 from infrastructure.repos import RepoUser, RepoResponse, RepoJob
 from models import User, Response
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,9 +10,11 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 async def update_current_user(
         id: int,
-        user: DOUser,
+        user: DMUser,
         db: AsyncSession,
-        current_user_mail: str) -> User:
+        current_user_mail: str,
+) -> DMUser:
+    """Меняет параметры пользователя на переданные по запросу пользователя"""
     repo_user = RepoUser(db)
     old_user = await repo_user.get_by_id(id)
 
@@ -31,42 +33,34 @@ async def update_current_user(
     return result
 
 
-async def get_by_email(db: AsyncSession, email: EmailStr) -> DOUser:
-    try:
-        repo_user = RepoUser(db)
-        res = await repo_user.get_by_email(email)
-        return res
-    except:
-        return None
+async def get_by_email(db: AsyncSession, email: EmailStr) -> DMUser:
+    repo_user = RepoUser(db)
+    res = await repo_user.get_by_email(email)
+    return res
 
 
 async def respond_to_vacancy(
         db: AsyncSession,
         vacancy_response_schema: SResponseForJob,
-) -> Response:
-    """Записывает в базу отклик на указанную вакансию"""
-    try:
-        repo_resp = RepoResponse(db)
-        repo_job = RepoJob(db)
-        job = await repo_job.get_by_id(vacancy_response_schema.job_id)
-        if not job:
-            msg = "Вакансия с идентификатором %s не найдена в базе" % vacancy_response_schema.job_id
-            raise fastapi.HTTPException(
-                status_code=fastapi.status.HTTP_400_BAD_REQUEST,
-                detail=msg,
-            )
+) -> DMResponse:
+    """
+    Записывает в базу отклик на указанную вакансию
+    """
+    repo_resp = RepoResponse(db)
+    repo_job = RepoJob(db)
+    job = await repo_job.get_by_id(vacancy_response_schema.job_id)
 
-        apply_for_vacancy = DOResponse(
-            user_id=vacancy_response_schema.user_id,
-            job_id=vacancy_response_schema.job_id,
-            message=vacancy_response_schema.message,
-        )
-        new_resp = await repo_resp.add(apply_for_vacancy)
-        return new_resp
-
-    except Exception as e:
-        msg = "Ошибка при создании отклика на вакансию"
+    if not job:
+        msg = "Вакансия с идентификатором %s не найдена в базе" % vacancy_response_schema.job_id
         raise fastapi.HTTPException(
             status_code=fastapi.status.HTTP_400_BAD_REQUEST,
             detail=msg,
         )
+
+    apply_for_vacancy = DMResponse(
+        user_id=vacancy_response_schema.user_id,
+        job_id=vacancy_response_schema.job_id,
+        message=vacancy_response_schema.message,
+    )
+    new_resp = await repo_resp.add(apply_for_vacancy)
+    return new_resp

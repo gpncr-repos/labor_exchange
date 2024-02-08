@@ -17,6 +17,5 @@ engine = create_async_engine(
 )
 
 SessionLocal = scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession))
-# SessionLocal = async_scoped_session(sessionmaker(autocommit=False, autoflush=False, bind=engine, class_=AsyncSession))
 
 Base = declarative_base()

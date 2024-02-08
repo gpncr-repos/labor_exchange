@@ -4,6 +4,7 @@ from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class UserSchema(BaseModel):
+    """Класс, содержащий параметры пользователя, возвращаемый в результате запросов на создание, редактирование"""
     id: Optional[str] = None
     name: str
     email: EmailStr
@@ -13,16 +14,17 @@ class UserSchema(BaseModel):
 
     class Config:
         orm_mode = True
-        # from_attributes = True
 
 
 class UserUpdateSchema(BaseModel):
+    """Класс, содержащий параметры пользователя, передаваемый при редактировании"""
     name: Optional[str] = None
     email: Optional[EmailStr] = None
     is_company: Optional[bool] = None
 
 
 class UserInSchema(BaseModel):
+    """Класс, содержащий параметры пользователя, передаваемый при создании"""
     name: str
     email: EmailStr
     password: constr(min_length=8)

@@ -14,15 +14,22 @@ router = APIRouter(
 
 @router.get(
     "/{job_id}",
-    summary="Получить список откликов на выбранную вакансию",
+    summary="Получение списка откликов на выбранную вакансию",
     response_model=List[SResponseForJob],
 )
 async def get_job_responses(
     job_id: int,
     db: AsyncSession = Depends(get_db),
     ):
-    # """Возвращает отклики на заданную вакансию"""
+    """
+    Возвращает отклики на заданную вакансию
+
+    :param job_id: int идентификатор вакансии, отклики на которую запрашиваются
+    :param db: AsyncSession объект сессия для работы с базой данных
+    :returns: список записей с их полями и значениями полей
+    :rtype: List[SResponseForJob]
+    """
     repo_resp = RepoResponse(db)
-    orm_objs = await repo_resp.get_resps_by_job_id(db, job_id)
+    orm_objs = await repo_resp.get_resps_by_job_id(job_id)
     result = [SResponseForJob.from_orm(orm_obj) for orm_obj in orm_objs]
     return result

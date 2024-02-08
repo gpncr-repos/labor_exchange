@@ -7,6 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class SJob(BaseModel):
+    """Схема вакансии, получаемая и возвращаемая"""
     user_id: Optional[int] = Field(None, description="Идентифкатор работодателя")
     title: Optional[str] = Field(description="Наименование вакансии")
     description: Optional[str] = Field(description="Описание вакансии")
@@ -30,12 +31,12 @@ class SJob(BaseModel):
                 }
         }
 
-# class SJobs(BaseModel):
-#     vacancies: Optional[list[SJob]] = Field(default_factory=list, description="Список вакансий")
 
 class SimpleTextReport(BaseModel):
+    """Короткое текстовое сообщение, ответ о простом действии с базой"""
     id: Optional[int] = None
     message: Optional[str] = "Запрос выполнен"
 
 class SRemoveJobReport(SimpleTextReport):
+    """Сообщение об удалении вакансии"""
     pass

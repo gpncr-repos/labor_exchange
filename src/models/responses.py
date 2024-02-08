@@ -5,7 +5,7 @@ from sqlalchemy.orm import relationship
 
 class Response(Base):
     __tablename__ = "responses"
-    # __table_args__ = {"extend_existing": True}
+    __table_args__ = {"comment": "Отклики пользователей на вакансии"}
 
     id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор отклика")
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id', ondelete="CASCADE"), comment="Идентификатор пользователя")

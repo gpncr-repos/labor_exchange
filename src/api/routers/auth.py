@@ -11,7 +11,16 @@ from applications.dependencies import get_db
 router = APIRouter(prefix="/auth", tags=["auth"])
 
 @router.post("", response_model=TokenSchemaPair, summary="Зарегистрироваться и получить пару токенов access, refresh")
-async def login(response: Response, login: LoginSchema, db: AsyncSession = Depends(get_db)):
+async def login(login: LoginSchema, db: AsyncSession = Depends(get_db)):
+    """
+    Создает и возвращает пару access и refresh токенов для пользователя, на основе его учетных данных (логина и пароля)
+
+    :param login: LoginSchema пара логин-пароль авторизующегося пользователя
+    :param db: AsyncSession объект сессия для работы с базой данных
+    :raises: HTTPException: пользователь отсутствует в базе
+    :returns: объект, содержащий access_token и refresh_token
+    :rtype: TokenSchemaPair
+    """
     user = await user_queries.get_by_email(db=db, email=login.email)
 
     if user is None or not verify_password(login.password, user.hashed_password):
@@ -19,7 +28,6 @@ async def login(response: Response, login: LoginSchema, db: AsyncSession = Depen
 
     access_token = create_access_token({"sub":user.email})
     refresh_token = create_refresh_token({"sub":user.email})
-    # response.set_cookie("access_token", access_token, httponly=True)
     return TokenSchemaPair(
         access_token=TokenSchema(token=access_token,
                     token_type="Bearer"),
@@ -30,7 +38,15 @@ async def login(response: Response, login: LoginSchema, db: AsyncSession = Depen
 @router.post("/refresh", response_model=TokenSchema, summary="Получить новый access_token на основе refresh_token")
 # async def login(refresh_token: RefreshSchema, db: AsyncSession = Depends(get_db)):
 async def refresh(refresh_token: str = Depends(JWTBearer()), db: AsyncSession = Depends(get_db)):
+    """
+    Проверяет, что срок действия переданного refresh_token еще не истек.
 
+    Генерирует и возвращает access_token на основе пользовательских данных из refresh_token
+    :param refresh_token: str токен длительного действия
+    :raises: HTTPException: токен на получен или просрочен
+    :returns: access_token
+    :rtype: TokenSchema
+    """
     r_token = decode_token(refresh_token)
 
     if r_token is None:
