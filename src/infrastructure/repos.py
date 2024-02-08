@@ -321,7 +321,7 @@ class RepoResponse(RepoAbs):
     async def get_resps_by_job_id(self, job_id: int) -> List[DMResponse]:
         """Возвращает из таблицы responses записи с заданным значением job_id"""
         query = select(VacancyResponse).where(VacancyResponse.job_id==job_id)
-        res = await db.execute(query)
+        res = await self.session.execute(query)
         orm_objs = res.scalars().all()
         dm_objs = list()
         for orm_obj in orm_objs:
