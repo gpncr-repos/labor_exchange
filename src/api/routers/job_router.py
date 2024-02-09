@@ -7,7 +7,6 @@ from api.schemas.job_schemas import SJob, SRemoveJobReport
 from applications.dependencies import get_current_user, get_db
 from applications.dependencies.db import get_repo_job
 from applications.dependencies.user import get_current_employer
-from applications.queries.job_queries import convert_job_schema_to_dm
 from domain.dm_schemas import DMJob
 from infrastructure.repos import RepoJob
 from models import User
@@ -34,7 +33,15 @@ async def place_job(
     :returns: пары поле:значение добавленной записи
     :rtype: SJob
     """
-    job_dm = convert_job_schema_to_dm(current_employer.id, job_in_schema)
+    job_dm = DMJob(
+        user_id=current_employer.id,
+        title=job_in_schema.title,
+        description=job_in_schema.description,
+        salary_from=job_in_schema.salary_from,
+        salary_to=job_in_schema.salary_to,
+        is_active=job_in_schema.is_active,
+        created_at=job_in_schema.utcnow()
+    )
     res = await repo_job.add(job_dm)
     return SJob.from_orm(res)
 
