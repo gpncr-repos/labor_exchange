@@ -31,6 +31,17 @@ class SJob(BaseModel):
                 }
         }
 
+    def toJSON(self):
+        # return self.__dict__
+        # return json.dumps(self, default=lambda o: o.__dict__)
+        result = dict()
+        for attr, val in self.__dict__.items():
+            # if isinstance(val, Decimal):
+            if "salary" in attr:
+                result[attr] = float(val)
+            else:
+                result[attr] = str(val)
+        return result
 
 class SimpleTextReport(BaseModel):
     """Короткое текстовое сообщение, ответ о простом действии с базой"""

@@ -209,7 +209,7 @@ class RepoUser(RepoAbs):
                 created_at=orm_obj.created_at,
             )
             dm_objs.append(dm_obj)
-        return orm_objs
+        return dm_objs
 
     async def update(self, user: DMUser) -> DMUser:  # User:
         """Заменяет параметры записи в таблице users на переданные"""

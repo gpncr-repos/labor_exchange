@@ -19,7 +19,7 @@ async def update_current_user(
     old_user = await repo_user.get_by_id(id)
 
     if old_user is None or old_user.email != current_user_mail:
-        msg = "Пользователь не найден или пытается редактировать не свои данные"
+        msg = "Пользователь не найден или пытается редактировать чужие данные"
         raise fastapi.HTTPException(
             status_code=fastapi.status.HTTP_400_BAD_REQUEST,
             detail=msg,

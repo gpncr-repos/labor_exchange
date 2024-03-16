@@ -40,7 +40,7 @@ async def place_job(
         salary_from=job_in_schema.salary_from,
         salary_to=job_in_schema.salary_to,
         is_active=job_in_schema.is_active,
-        created_at=job_in_schema.utcnow()
+        created_at=job_in_schema.created_at,
     )
     res = await repo_job.add(job_dm)
     return SJob.from_orm(res)
