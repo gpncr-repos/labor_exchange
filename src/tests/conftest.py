@@ -79,33 +79,6 @@ async def current_user(sa_session: AsyncSession):
 
     return new_user
 
-# @pytest_asyncio.fixture()
-# async def current_employer(sa_session: AsyncSession):
-#     """
-#     current_user'а оказалось недостаточно,
-#
-#     т.к. размещать вакансию может только работодатель, а значит
-#     нужны наперед заданные работник и работодатель
-#     """
-#     new_user = EmployerFactory.build()
-#     sa_session.add(new_user)
-#
-#     await sa_session.commit()
-#     await sa_session.refresh(new_user)
-#
-#     return new_user
-#
-#
-# @pytest_asyncio.fixture()
-# async def current_employee(sa_session: AsyncSession):
-#     new_user = EmployeeFactory.build()
-#     sa_session.add(new_user)
-#
-#     await sa_session.commit()
-#     await sa_session.refresh(new_user)
-#
-#     return new_user
-
 
 @pytest_asyncio.fixture()
 async def access_token(current_user):
@@ -134,19 +107,3 @@ async def client_app(sa_session: AsyncSession, access_token: TokenSchema):
     async with AsyncClient(app=app, base_url="http://test") as client:
         client.headers["Authorization"] = f"Bearer {access_token.token}"
         yield client
-
-# @pytest_asyncio.fixture()
-# async def client_employee_app(sa_session: AsyncSession, employee_token: TokenSchema):
-#     app.dependency_overrides[get_db] = lambda: sa_session
-#
-#     async with AsyncClient(app=app, base_url="http://test") as client:
-#         client.headers["Authorization"] = f"Bearer {employee_token.token}"
-#         yield client
-#
-# @pytest_asyncio.fixture()
-# async def client_employer_app(sa_session: AsyncSession, employer_token: TokenSchema):
-#     app.dependency_overrides[get_db] = lambda: sa_session
-#
-#     async with AsyncClient(app=app, base_url="http://test") as client:
-#         client.headers["Authorization"] = f"Bearer {employer_token.token}"
-#         yield client
