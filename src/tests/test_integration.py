@@ -113,16 +113,8 @@ async def test_add_job(client_app, sa_session, current_user):
 
 
 @pytest.mark.asyncio
-async def test_respond_vacancy(client_app, sa_session, current_user):
+async def test_respond_vacancy(client_app, sa_session, current_user, test_job):
     # ARRANGE
-    test_job = models.Job(
-        user_id=current_user.id,
-        title="job_to_respond",
-        description="job_to_test_respond_job_endpoint",
-        salary_from=1.0,
-        salary_to=2.0,
-        is_active=True,
-    )
     sa_session.add(test_job)
     sa_session.flush()
     await sa_session.commit()
@@ -140,16 +132,8 @@ async def test_respond_vacancy(client_app, sa_session, current_user):
 
 
 @pytest.mark.asyncio
-async def test_read_vacancies(client_app, sa_session, current_user):
+async def test_read_vacancies(client_app, sa_session, current_user, test_job):
     # ARRANGE
-    test_job = models.Job(
-        user_id=current_user.id,
-        title="job_to_read",
-        description="job_to_test_job_read_endpoint",
-        salary_from=1.0,
-        salary_to=2.0,
-        is_active=True,
-    )
     sa_session.add(test_job)
     sa_session.flush()
     await sa_session.commit()
@@ -160,18 +144,10 @@ async def test_read_vacancies(client_app, sa_session, current_user):
 
 
 @pytest.mark.asyncio
-async def test_edit_job(client_app, sa_session, current_user):
+async def test_edit_job(client_app, sa_session, current_user, test_job):
     # ARRANGE
-    test_job = models.Job(
-        user_id=current_user.id,
-        title="job_to_update",
-        description="job_to_test_job_update_endpoint",
-        salary_from=1.0,
-        salary_to=2.0,
-        is_active=True,
-    )
-    sa_session.add(test_job)
-    sa_session.flush()
+    test_job.user_id = current_user.id
+    await sa_session.merge(test_job)
     await sa_session.commit()
 
     edited_job = {
@@ -189,20 +165,12 @@ async def test_edit_job(client_app, sa_session, current_user):
 
 
 @pytest.mark.asyncio
-async def test_delete_job(client_app, sa_session, current_user):
+async def test_delete_job(client_app, sa_session, current_user, test_job):
     # ARRANGE
     current_user.is_company = True
     await sa_session.merge(current_user)
-    test_job = models.Job(
-        user_id=current_user.id,
-        title="job_to_delete",
-        description="job_to_test_job_delete_endpoint",
-        salary_from=1.0,
-        salary_to=2.0,
-        is_active=True,
-    )
-    sa_session.add(test_job)
-    sa_session.flush()
+    test_job.user_id=current_user.id
+    await sa_session.merge(test_job)
     await sa_session.commit()
     # ACT
     delete_response = await client_app.delete(url=f"/job/{test_job.id}")
@@ -210,20 +178,11 @@ async def test_delete_job(client_app, sa_session, current_user):
     assert delete_response.status_code == 200, "Ошибка при удалении вакансии %" % 0
 
 @pytest.mark.asyncio
-async def test_get_responses(client_app, sa_session, current_user):
+async def test_get_responses(client_app, sa_session, current_user, test_job):
     # ARRANGE
-    test_job = models.Job(
-        user_id=current_user.id,
-        title="job_to_read_reasponses",
-        description="job_to_test_job_read_reasponses_endpoint",
-        salary_from=1.0,
-        salary_to=2.0,
-        is_active=True,
-    )
     sa_session.add(test_job)
     sa_session.flush()
     await sa_session.commit()
-
     # Response for the test job
     job_response = models.Response(
         user_id=current_user.id,

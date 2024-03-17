@@ -8,6 +8,7 @@ from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 from httpx import AsyncClient
 
+import models
 from api.schemas import TokenSchema
 from applications.dependencies import get_db
 from applications.dependencies.db import get_repo_job
@@ -87,6 +88,14 @@ async def access_token(current_user):
         token_type="Bearer"
     )
     return token
+
+@pytest_asyncio.fixture()
+async def test_job(sa_session: AsyncSession, current_user: models.User):
+    test_job = JobFactory.build()
+    sa_session.add(current_user)
+    sa_session.flush()
+    sa_session.commit()
+    return test_job
 
 
 # регистрация фабрик
