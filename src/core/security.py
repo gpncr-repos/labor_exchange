@@ -2,45 +2,73 @@ import datetime
 from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
-from jose import jwt
-from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from jose import jwt, ExpiredSignatureError
+from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM, REFRESH_TOKEN_EXPIRE_MINUTES
+
+SIGNATURE_EXPIRED = "Signature has expired"
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
+    """Возвращает hash переданной строки"""
     return pwd_context.hash(password)
 
 
 def verify_password(password: str, hash: str) -> bool:
+    """
+    Сопоставляет переданные пароль и hash; определяет их соответствие друг другу
+
+    :param password: str пароль
+    :param hash: str хэшированный пароль
+    :returns: True, если хашированный пароль и полученный хэш совпадают; иначе False
+    :rtype: bool
+    """
     return pwd_context.verify(password, hash)
 
 
 def create_access_token(data: dict) -> str:
+    """Создает и возвращает токен на основе переданных данных и констант"""
     to_encode = data.copy()
     to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
+def create_refresh_token(data: dict) -> str:
+    """Создает и возвращает токен на основе переданных данных и констант"""
+    to_encode = data.copy()
+    to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)})
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
-def decode_access_token(token: str):
+def decode_token(token: str):
+    """Декодирует токен"""
     try:
         encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.JWSError:
         return None
+    except ExpiredSignatureError:
+        return SIGNATURE_EXPIRED
     return encoded_jwt
 
-
 class JWTBearer(HTTPBearer):
+    """Класс для проверки валидности токена при авторизации"""
     def __init__(self, auto_error: bool = True):
         super(JWTBearer, self).__init__(auto_error=auto_error)
 
     async def __call__(self, request: Request):
+        """
+        Получает из запроса токен, декодирует его и проверяет, что срок действия токена еще не истек
+
+        :returns: токен, строку символов
+        :rtype: str
+        """
         credentials = await super(JWTBearer, self).__call__(request)
         exp = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token")
         if credentials:
-            token = decode_access_token(credentials.credentials)
+            token = decode_token(credentials.credentials)
             if token is None:
                 raise exp
+            elif token == SIGNATURE_EXPIRED:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Истек срок действия токена")
             return credentials.credentials
         else:
             raise exp
