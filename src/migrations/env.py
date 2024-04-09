@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
-from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, Base
+from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, DB_PORT, Base
 
 from alembic import context
 from models import *
@@ -20,6 +20,7 @@ config.set_section_option(section, "DB_USER", DB_USER)
 config.set_section_option(section, "DB_HOST", DB_HOST)
 config.set_section_option(section, "DB_PASS", DB_PASS)
 config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, "DB_PORT", DB_PORT)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
