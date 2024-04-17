@@ -49,6 +49,7 @@ class JobUpdateSchema(BaseModel):
     description: Optional[str] = None
     salary_from: Optional[float] = None
     salary_to: Optional[float] = None
+    is_active: Optional[bool] = None
 
     @validator("title", "description")
     def check_not_empty(cls, v):
