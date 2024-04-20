@@ -1,10 +1,11 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, constr
+
+from pydantic import BaseModel, EmailStr, constr, validator
 
 
 class UserSchema(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     name: str
     email: EmailStr
     hashed_password: str
@@ -30,6 +31,6 @@ class UserInSchema(BaseModel):
 
     @validator("password2")
     def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values["password"]:
+        if "password" in values and v != values["password"]:
             raise ValueError("Пароли не совпадают!")
         return True
