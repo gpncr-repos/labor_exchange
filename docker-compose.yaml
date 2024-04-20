@@ -10,8 +10,23 @@ services:
       POSTGRES_PASSWORD: "admin"
       PGDATA: /data/postgres
     volumes:
-       - postgres:/data/postgres
+      - postgres_data:/data/postgres
     ports:
-      - "5432:5432"
+      - "5433:5432"
+
+  postgres_test:
+    container_name: postgres-laborexchange-test
+    image: postgres
+    environment:
+      POSTGRES_DB: "labor-exchange-test"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+      PGDATA: /data/postgres_test
+    volumes:
+      - postgres_test_data:/data/postgres_test
+    ports:
+      - "5434:5432"
+
 volumes:
-    postgres:
+  postgres_data:
+  postgres_test_data:
