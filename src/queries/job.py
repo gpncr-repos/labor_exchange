@@ -1,14 +1,15 @@
 from models import Job
-from schemas import JobInSchema
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
+
+from schemas.job import JobInSchema
 
 
 async def create_job(db: AsyncSession, job_schema: JobInSchema) -> Job:
     job = Job(
         title=job_schema.title,
-        email=job_schema.description,
+        description=job_schema.description,
         salary_from=job_schema.salary_from,
         salary_to=job_schema.salary_to,
         is_active=job_schema.is_active,

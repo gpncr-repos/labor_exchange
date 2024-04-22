@@ -6,15 +6,14 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from queries import user as user_queries
 from models import User
 
-
 router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("", response_model=List[UserSchema])
 async def read_users(
-    db: AsyncSession = Depends(get_db),
-    limit: int = 100,
-    skip: int = 0):
+        db: AsyncSession = Depends(get_db),
+        limit: int = 100,
+        skip: int = 0):
     return await user_queries.get_all(db=db, limit=limit, skip=skip)
 
 
@@ -26,11 +25,10 @@ async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
 
 @router.put("", response_model=UserSchema)
 async def update_user(
-    id: int,
-    user: UserUpdateSchema,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)):
-
+        id: int,
+        user: UserUpdateSchema,
+        db: AsyncSession = Depends(get_db),
+        current_user: User = Depends(get_current_user)):
     old_user = await user_queries.get_by_id(db=db, id=id)
 
     if old_user is None or old_user.email != current_user.email:
