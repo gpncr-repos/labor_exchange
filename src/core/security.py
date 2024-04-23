@@ -1,9 +1,12 @@
 import datetime
-from fastapi import Request, HTTPException, status
+
+from fastapi import HTTPException, Request, status
 from fastapi.security import HTTPBearer
-from passlib.context import CryptContext
 from jose import jwt
-from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from passlib.context import CryptContext
+
+from .config import (ACCESS_TOKEN_EXPIRE_MINUTES, ALGORITHM,
+                     REFRESH_TOKEN_EXPIRE_MINUTES, SECRET_KEY)
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
@@ -18,15 +21,37 @@ def verify_password(password: str, hash: str) -> bool:
 
 def create_access_token(data: dict) -> str:
     to_encode = data.copy()
-    to_encode.update({"exp": datetime.datetime.utcnow() + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)})
+    to_encode.update(
+        {
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES),
+            "type": "access",
+        }
+    )
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
 
 
-def decode_access_token(token: str):
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    to_encode.update(
+        {
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES),
+            "type": "refresh",
+        }
+    )
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def decode_token(token: str):
     try:
         encoded_jwt = jwt.decode(token, SECRET_KEY, algorithms=[ALGORITHM])
     except jwt.JWSError:
         return None
+    except jwt.ExpiredSignatureError:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN, detail="Истек срок жизни токена"
+        )
     return encoded_jwt
 
 
@@ -36,11 +61,17 @@ class JWTBearer(HTTPBearer):
 
     async def __call__(self, request: Request):
         credentials = await super(JWTBearer, self).__call__(request)
-        exp = HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token")
         if credentials:
-            token = decode_access_token(credentials.credentials)
-            if token is None:
-                raise exp
+            token = decode_token(credentials.credentials)
+            if token is None or (
+                token.get("type") != "access" and request.url.path != "/auth/refresh"
+            ):
+                raise HTTPException(
+                    status_code=status.HTTP_403_FORBIDDEN,
+                    detail="Invalid or inappropriate auth token",
+                )
             return credentials.credentials
         else:
-            raise exp
+            raise HTTPException(
+                status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token"
+            )

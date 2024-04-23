@@ -1,7 +1,7 @@
 from fastapi import Depends, HTTPException, status
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from core.security import JWTBearer, decode_access_token
+from core.security import JWTBearer, decode_token
 from dependencies.db import get_db
 from models import User
 from queries import user as user_queries
@@ -13,7 +13,7 @@ async def get_current_user(
     cred_exception = HTTPException(
         status_code=status.HTTP_403_FORBIDDEN, detail="Credentials are not valid"
     )
-    payload = decode_access_token(token)
+    payload = decode_token(token)
     if payload is None:
         raise cred_exception
     email: str = payload.get("sub")

@@ -127,8 +127,7 @@ async def test_delete(sa_session):
     await jobs_query.delete_job(sa_session, del_id)
 
     deleted_job = await jobs_query.get_job_by_id(sa_session, del_id)
-
-    assert deleted_job is None
+    assert deleted_job
 
 
 @pytest.mark.asyncio

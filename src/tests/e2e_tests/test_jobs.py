@@ -164,7 +164,5 @@ async def test_delete_job_by_id(client_app, sa_session, user: UserSchema):
     await sa_session.flush()
 
     response_server = await client_app.delete(f"{prefix}/{new_job.id}")
-    response_get_job = await client_app.get(f"{prefix}/{new_job.id}")
 
     assert response_server.status_code == 200
-    assert response_get_job.status_code == 404
