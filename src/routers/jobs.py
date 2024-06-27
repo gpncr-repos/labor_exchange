@@ -1,12 +1,11 @@
-import datetime
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import UserSchema, UserInSchema, UserUpdateSchema, JobSchema, JobInSchema
+from schemas import JobSchema, JobInSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import user as user_queries
 from queries import jobs as jobs_queries
-from models import User, Job
+from models import User
 
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
