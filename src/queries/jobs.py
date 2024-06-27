@@ -1,6 +1,7 @@
 import datetime
 
 from models import Job
+from schemas import JobInSchema
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -44,17 +45,13 @@ async def get_recent_jobs(db: AsyncSession, time: datetime.datetime = (1, 0, 0, 
     return res.scalars().all()
 
 
-async def create_job(db: AsyncSession, job_schema: Job) -> Job:
-    pass
+async def create_job(db: AsyncSession, job_schema: JobInSchema) -> Job:
     job = Job(
-        id=job_schema.id,
-        user_id=job_schema.user_id,
         title=job_schema.title,
         description=job_schema.description,
         salary_from=job_schema.salary_from,
         salary_to=job_schema.salary_to,
         is_active=job_schema.is_active,
-        created_at=job_schema.salary_from
     )
     db.add(job)
     await db.commit()
