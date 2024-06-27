@@ -1,7 +1,6 @@
 import datetime
 from typing import Optional
-from pydantic import StringConstraints, BaseModel, EmailStr, field_validator, ConfigDict
-from typing_extensions import Annotated
+from pydantic import BaseModel, field_validator, ConfigDict
 
 
 class JobSchema(BaseModel):
