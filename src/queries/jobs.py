@@ -45,8 +45,9 @@ async def get_recent_jobs(db: AsyncSession, time: datetime.datetime = (1, 0, 0, 
     return res.scalars().all()
 
 
-async def create_job(db: AsyncSession, job_schema: JobInSchema) -> Job:
+async def create_job(db: AsyncSession, job_schema: JobInSchema, user_id: int) -> Job:
     job = Job(
+        user_id=user_id,
         title=job_schema.title,
         description=job_schema.description,
         salary_from=job_schema.salary_from,
