@@ -22,10 +22,11 @@ async def get_response_by_job_id(db: AsyncSession, job_id: int) -> Sequence[Resp
     return res.scalars().all()
 
 
-async def response_job(db: AsyncSession, job_id: int, message: str):
+async def response_job(db: AsyncSession, user_id: int, job_id: int, message: str):
     response = Response(
+        user_id=user_id,
         job_id=job_id,
-        message_id=message
+        message=message
     )
     db.add(response)
     await db.commit()
