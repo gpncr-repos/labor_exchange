@@ -1,6 +1,7 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, constr, ConfigDict
+from pydantic import StringConstraints, BaseModel, EmailStr, field_validator, ConfigDict
+from typing_extensions import Annotated
 
 
 class UserSchema(BaseModel):
@@ -23,12 +24,12 @@ class UserUpdateSchema(BaseModel):
 class UserInSchema(BaseModel):
     name: str
     email: EmailStr
-    password: constr(min_length=8)
+    password: Annotated[str, StringConstraints(min_length=8)]
     password2: str
     is_company: bool = False
 
-    @validator("password2")
-    def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values["password"]:
+    @field_validator("password2")
+    def password_match(cls, v, values, **kwargs) -> str:
+        if 'password' in values.data and v != values.data["password"]:
             raise ValueError("Пароли не совпадают!")
-        return True
+        return v
