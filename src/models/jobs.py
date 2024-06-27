@@ -12,8 +12,8 @@ class Job(Base):
     user_id = sa.Column(sa.Integer, sa.ForeignKey('users.id'), comment="Идентификатор пользователя")
 
     # добавьте ваши колонки сюда
-    title = sa.Column(sa.VARCHAR(256), comment="Название вакансии")
-    description = sa.Column(sa.VARCHAR(256), comment="Описание вакансии")
+    title = sa.Column(sa.String, comment="Название вакансии")
+    description = sa.Column(sa.String, comment="Описание вакансии")
     salary_from = sa.Column(sa.Integer, comment="Зарплата от")
     salary_to = sa.Column(sa.Integer, comment="Зарплата до")
     is_active = sa.Column(sa.Boolean, comment="Активна ли вакансия")
