@@ -1,10 +1,11 @@
 import datetime
+import enum
 
 from models import Job
 from schemas import JobInSchema
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy import select
+from sqlalchemy import select, desc, asc
 from typing import Sequence
 
 
@@ -20,6 +21,12 @@ async def get_job_by_id(db: AsyncSession, job_id: int) -> Optional[Job]:
     return res.scalars().first()
 
 
+async def get_all_jobs_by_user_id(db: AsyncSession, user_id: int, limit: int = 100) -> Sequence[Job]:
+    query = select(Job).where(Job.user_id == user_id).limit(limit)
+    res = await db.execute(query)
+    return res.scalars().all()
+
+
 async def get_all_jobs_by_min_salary(db: AsyncSession, limit: int = 100, salary: int = 0) -> Sequence[Job]:
     query = select(Job).where(Job.salary_from == salary).limit(limit)
     res = await db.execute(query)
@@ -32,15 +39,18 @@ async def get_all_jobs_by_max_salary(db: AsyncSession, limit: int = 100, salary:
     return res.scalars().all()
 
 
-async def get_active_jobs(db: AsyncSession, limit: int = 100) -> Sequence[Job]:
-    query = select(Job).where(Job.is_active == True).limit(limit)
-    res = await db.execute(query)
-    return res.scalars().all()
+class OrderBy(str, enum.Enum):
+    ASC = 1
+    DESC = 2
 
 
-async def get_recent_jobs(db: AsyncSession, time: datetime.datetime = (1, 0, 0, 0, 0, 0, 0, None), limit: int = 100) \
-        -> Sequence[Job]:
-    query = select(Job).where(datetime.datetime.today()-Job.created_at <= time).limit(limit)
+async def get_active_jobs(db: AsyncSession, order_by: Optional[OrderBy] = None, limit: int = 100) -> Sequence[Job]:
+    query = select(Job).where(Job.is_active is True).limit(limit)
+    if order_by is not None:
+        if order_by == OrderBy.ASC:
+            query = query.order_by(asc(Job.created_at))
+        if order_by == OrderBy.DESC:
+            query = query.order_by(desc(Job.created_at))
     res = await db.execute(query)
     return res.scalars().all()
 

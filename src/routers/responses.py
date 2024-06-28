@@ -13,31 +13,28 @@ router = APIRouter(prefix="/responses", tags=["responses"])
 
 
 @router.get("", response_model=List[ResponseSchema])
-async def read_all_responses(
+async def read_all_my_responses(
     db: AsyncSession = Depends(get_db),
-    limit: int = 100,
-    skip: int = 0):
-    return await responses_queries.get_all_responses(db=db, limit=limit, skip=skip)
+    current_user: User = Depends(get_current_user)):
 
+    if current_user.is_company is True:
+        return await responses_queries.get_response_by_employer_id(db=db, user_id=current_user.id)
+    return await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id)
 
 @router.post("", response_model=ResponseSchema)
-async def create_job(
-    user_id: int,
+async def response_job(
     job_id: int,
     message: str,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
 
-    old_user = await user_queries.get_by_id(db=db, id=user_id)
-
-    if old_user is None or old_user.email != current_user.email:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
-    if old_user.is_company == True:
+    if current_user.is_company is True:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы работодатель. Вам нельзя откликаться на вакансии")
 
-    old_job = await jobs_queries.get_job_by_id(db=db, job_id=job_id)
-    if old_job is None:
+    job = await jobs_queries.get_job_by_id(db=db, job_id=job_id)
+    if job is None:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Работа не найдена")
-
-    new_response = await responses_queries.response_job(db=db, user_id=user_id, job_id=job_id, message=message)
+    if job.is_active is False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вакансия не является активной")
+    new_response = await responses_queries.response_job(db=db, user_id=current_user.id, job_id=job_id, message=message)
     return ResponseSchema.from_orm(new_response)
