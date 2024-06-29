@@ -55,6 +55,13 @@ async def get_active_jobs(db: AsyncSession, order_by: Optional[OrderBy] = None, 
     return res.scalars().all()
 
 
+async def update(db: AsyncSession, job: Job) -> Job:
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+    return job
+
+
 async def create_job(db: AsyncSession, job_schema: JobInSchema, user_id: int) -> Job:
     job = Job(
         user_id=user_id,
