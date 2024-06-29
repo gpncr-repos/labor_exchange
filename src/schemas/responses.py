@@ -10,3 +10,8 @@ class ResponseSchema(BaseModel):
     job_id: int
     message: str
 
+
+class ResponseUpdateSchema(BaseModel):
+    job_id: Optional[int] = None
+    message: Optional[str] = None
+

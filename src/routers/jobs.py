@@ -51,6 +51,20 @@ async def read_my_jobs(
 
     return await jobs_queries.get_all_jobs_by_user_id(db=db, user_id=current_user.id)
 
+
+@router.post("", response_model=JobSchema)
+async def create_job(
+    job: JobInSchema,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+
+    if current_user.is_company is False:
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вам нельзя нанимать сотрудников")
+
+    new_job = await jobs_queries.create_job(db=db, job_schema=job, user_id=current_user.id)
+    return JobSchema.from_orm(new_job)
+
+
 @router.put("", response_model=JobSchema)
 async def update_job(
     id: int,
@@ -73,17 +87,4 @@ async def update_job(
 
     new_job = await user_queries.update(db=db, user=old_job)
 
-    return JobSchema.from_orm(new_job)
-
-
-@router.post("", response_model=JobSchema)
-async def create_job(
-    job: JobInSchema,
-    db: AsyncSession = Depends(get_db),
-    current_user: User = Depends(get_current_user)):
-
-    if current_user.is_company is False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вам нельзя нанимать сотрудников")
-
-    new_job = await jobs_queries.create_job(db=db, job_schema=job, user_id=current_user.id)
     return JobSchema.from_orm(new_job)
