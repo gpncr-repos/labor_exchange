@@ -10,8 +10,10 @@ async def get_response_by_id(db: AsyncSession, id: int) -> Optional[Response]:
     return res.scalars().first()
 
 
-async def get_response_by_user_id(db: AsyncSession, user_id: int) -> Sequence[Response]:
-    query = select(Response).where(Response.user_id == user_id).where(Response.job_id == Job.id).where(Job.is_active == True)
+async def get_response_by_user_id(db: AsyncSession, user_id: int, flag: int) -> Sequence[Response]:
+    query = select(Response).where(Response.user_id == user_id).where(Response.job_id == Job.id)
+    if flag == 1:
+        query = query.where(Job.is_active == True)
     res = await db.execute(query)
     return res.scalars().all()
 
@@ -31,7 +33,7 @@ async def delete_some_responses(db: AsyncSession, responses: Sequence[Response])
 
 async def get_response_by_employer_id(db: AsyncSession, user_id: int, flag: int) -> Sequence[Response]:
     query = select(Response).where(Response.job_id == Job.id).where(Job.user_id == user_id)
-    if (flag == 1):
+    if flag == 1:
         query = query.where(Job.is_active == True)
     res = await db.execute(query)
     return res.scalars().all()

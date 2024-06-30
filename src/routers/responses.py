@@ -19,7 +19,7 @@ async def read_all_my_responses(
 
     if current_user.is_company is True:
         return await responses_queries.get_response_by_employer_id(db=db, user_id=current_user.id, flag=1)
-    return await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id)
+    return await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id, flag=1)
 
 @router.post("", response_model=ResponseSchema)
 async def response_job(
