@@ -5,6 +5,7 @@ from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import user as user_queries
 from queries import jobs as jobs_queries
+from queries import responses as responses_queries
 from models import User
 
 
@@ -87,4 +88,27 @@ async def update_job(
 
     new_job = await user_queries.update(db=db, user=old_job)
 
+    return JobSchema.from_orm(new_job)
+
+
+@router.delete("", response_model=JobSchema)
+async def delete_job(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+
+    old_job = await jobs_queries.get_job_by_id(db=db, job_id=id)
+
+    if old_job is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия не найдена")
+    if old_job.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Это не ваша вакансия")
+    old_responses = await responses_queries.get_response_by_job_id(db=db, job_id=id)
+    deleted_responses = await responses_queries.delete_some_responses(db=db, responses=old_responses)
+    old_job.description = "Вакансия удалена"
+    if len(deleted_responses) > 0:
+        old_job.description += ". Список id удалённых откликов:"
+        for i in deleted_responses:
+            old_job.description += " " + str(i.id)
+    new_job = await jobs_queries.delete_job(db=db, job=old_job)
     return JobSchema.from_orm(new_job)

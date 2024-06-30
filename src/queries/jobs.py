@@ -75,3 +75,9 @@ async def create_job(db: AsyncSession, job_schema: JobInSchema, user_id: int) ->
     await db.commit()
     await db.refresh(job)
     return job
+
+
+async def delete_job(db: AsyncSession, job: Job) -> Job:
+    await db.delete(job)
+    await db.commit()
+    return job
