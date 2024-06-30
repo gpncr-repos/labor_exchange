@@ -22,14 +22,14 @@ async def get_response_by_employer_id(db: AsyncSession, user_id: int) -> Sequenc
     return res.scalars().all()
 
 
-async def update(db: AsyncSession, response: Response) -> Response:
+async def update_response(db: AsyncSession, response: Response) -> Response:
     db.add(response)
     await db.commit()
     await db.refresh(response)
     return response
 
 
-async def response_job(db: AsyncSession, user_id: int, job_id: int, message: str):
+async def response_job(db: AsyncSession, user_id: int, job_id: int, message: str) -> Response:
     response = Response(
         user_id=user_id,
         job_id=job_id,
@@ -38,4 +38,10 @@ async def response_job(db: AsyncSession, user_id: int, job_id: int, message: str
     db.add(response)
     await db.commit()
     await db.refresh(response)
+    return response
+
+
+async def delete_response(db: AsyncSession, response: Response) -> Response:
+    await db.delete(response)
+    await db.commit()
     return response

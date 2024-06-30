@@ -61,6 +61,25 @@ async def update_response(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Работа не найдена")
     if job.is_active is False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вакансия не является активной")
-    new_response = await responses_queries.update(db=db, response=old_response)
+    new_response = await responses_queries.update_response(db=db, response=old_response)
+
+    return ResponseSchema.from_orm(new_response)
+
+
+@router.delete("", response_model=ResponseSchema)
+async def delete_response(
+    id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+
+    old_response = await responses_queries.get_response_by_id(db=db, id=id)
+
+    if old_response is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Отклик не найден")
+    if old_response.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Это не ваш отклик")
+
+    old_response.message = "Отклик удалён"
+    new_response = await responses_queries.delete_response(db=db, response=old_response)
 
     return ResponseSchema.from_orm(new_response)
