@@ -12,7 +12,7 @@ from models import User
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
-@router.get("/query1", response_model=List[JobSchema])
+@router.get("/get-queries/1", response_model=List[JobSchema])
 async def read_jobs(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
@@ -20,7 +20,7 @@ async def read_jobs(
     return await jobs_queries.get_all_jobs(db=db, limit=limit, skip=skip)
 
 
-@router.get("/query2", response_model=List[JobSchema])
+@router.get("/get-queries/2", response_model=List[JobSchema])
 async def read_jobs_with_min_salary(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
@@ -28,7 +28,7 @@ async def read_jobs_with_min_salary(
     return await jobs_queries.get_all_jobs_by_min_salary(db=db, limit=limit, salary=salary)
 
 
-@router.get("/query3", response_model=List[JobSchema])
+@router.get("/get-queries/3", response_model=List[JobSchema])
 async def read_jobs_with_max_salary(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
@@ -36,14 +36,14 @@ async def read_jobs_with_max_salary(
     return await jobs_queries.get_all_jobs_by_max_salary(db=db, limit=limit, salary=salary)
 
 
-@router.get("/query4", response_model=List[JobSchema])
+@router.get("/get-queries/4", response_model=List[JobSchema])
 async def read_active_jobs(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
     order_by: Optional[jobs_queries.OrderBy] = None):
     return await jobs_queries.get_active_jobs(db=db, order_by=order_by, limit=limit)
 
-@router.get("/query5", response_model=List[JobSchema])
+@router.get("/get-queries/5", response_model=List[JobSchema])
 async def read_my_jobs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
