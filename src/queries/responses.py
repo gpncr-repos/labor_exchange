@@ -11,7 +11,7 @@ async def get_response_by_id(db: AsyncSession, id: int) -> Optional[Response]:
 
 
 async def get_response_by_user_id(db: AsyncSession, user_id: int) -> Sequence[Response]:
-    query = select(Response).where(Response.user_id == user_id)
+    query = select(Response).where(Response.user_id == user_id).where(Response.job_id == Job.id).where(Job.is_active == True)
     res = await db.execute(query)
     return res.scalars().all()
 
