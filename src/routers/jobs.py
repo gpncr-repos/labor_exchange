@@ -1,5 +1,5 @@
-from typing import List, Optional
-from fastapi import APIRouter, Depends, HTTPException, status
+from typing import List, Optional, Annotated
+from fastapi import APIRouter, Depends, HTTPException, status, Path
 from schemas import JobSchema, JobInSchema, JobUpdateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,15 +12,16 @@ from models import User
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
-@router.get("/get-queries/1", response_model=List[JobSchema])
+@router.get("/simple-reader", response_model=List[JobSchema])
 async def read_jobs(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
     skip: int = 0):
+    item_id = 1
     return await jobs_queries.get_all_jobs(db=db, limit=limit, skip=skip)
 
 
-@router.get("/get-queries/2", response_model=List[JobSchema])
+@router.get("/reader-by-salary", response_model=List[JobSchema])
 async def read_jobs_by_min_or_max_salary(
     filter_by: jobs_queries.FilterBy,
     db: AsyncSession = Depends(get_db),
@@ -29,14 +30,14 @@ async def read_jobs_by_min_or_max_salary(
     return await jobs_queries.get_all_jobs_by_salary(db=db, filter_by=filter_by, limit=limit, salary=salary)
 
 
-@router.get("/get-queries/3", response_model=List[JobSchema])
+@router.get("/reader-by-activeness", response_model=List[JobSchema])
 async def read_active_jobs(
     order_by: Optional[jobs_queries.OrderBy] = None,
     db: AsyncSession = Depends(get_db),
     limit: int = 100):
     return await jobs_queries.get_active_jobs(db=db, order_by=order_by, limit=limit)
 
-@router.get("/get-queries/4", response_model=List[JobSchema])
+@router.get("/reader-by-company", response_model=List[JobSchema])
 async def read_my_jobs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
