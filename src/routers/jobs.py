@@ -60,7 +60,7 @@ async def create_job(
     current_user: User = Depends(get_current_user)):
 
     if current_user.is_company is False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вам нельзя нанимать сотрудников")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вакансии создаются компаниям")
 
     new_job = await jobs_queries.create_job(db=db, job_schema=job, user_id=current_user.id)
     return JobSchema.from_orm(new_job)
