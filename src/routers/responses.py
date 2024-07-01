@@ -79,7 +79,6 @@ async def delete_response(
     if old_response.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Это не ваш отклик")
 
-    old_response.message = "Отклик удалён"
     new_response = await responses_queries.delete_response(db=db, response=old_response)
 
     return ResponseSchema.from_orm(new_response)
