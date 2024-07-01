@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, asc
 from typing import Sequence
-from utils import OrderBy
+from .utils import OrderBy
 
 
 async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Sequence[Job]:

@@ -44,7 +44,7 @@ async def update_user(
     old_user.email = user.email if user.email is not None else old_user.email
     old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
     jobs = await jobs_queries.get_all_jobs_by_user_id(db=db, user_id=current_user.id)
-    responses = await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id, flag=0)
+    responses = await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id, choice=1)
     if old_user.is_company is True and flag_of_company is False and len(responses) > 0:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Удалите все свои отклики")
     if old_user.is_company is False and flag_of_company is True and len(jobs) > 0:
