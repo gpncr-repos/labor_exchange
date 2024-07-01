@@ -14,8 +14,8 @@ class Job(Base):
     # добавьте ваши колонки сюда
     title = sa.Column(sa.String, comment="Название вакансии")
     description = sa.Column(sa.String, comment="Описание вакансии")
-    salary_from = sa.Column(sa.Integer, comment="Зарплата от")
-    salary_to = sa.Column(sa.Integer, comment="Зарплата до")
+    salary_from = sa.Column(sa.DECIMAL, comment="Зарплата от")
+    salary_to = sa.Column(sa.DECIMAL, comment="Зарплата до")
     is_active = sa.Column(sa.Boolean, comment="Активна ли вакансия")
     created_at = sa.Column(sa.DateTime, comment="Дата создания вакансии", default=datetime.datetime.utcnow)
 
