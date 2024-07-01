@@ -104,11 +104,6 @@ async def delete_job(
     if old_job.user_id != current_user.id:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Это не ваша вакансия")
     old_responses = await responses_queries.get_response_by_job_id(db=db, job_id=id)
-    deleted_responses = await responses_queries.delete_some_responses(db=db, responses=old_responses)
-    old_job.description = "Вакансия удалена"
-    if len(deleted_responses) > 0:
-        old_job.description += ". Список id удалённых откликов:"
-        for i in deleted_responses:
-            old_job.description += " " + str(i.id)
+    await responses_queries.delete_some_responses(db=db, responses=old_responses)
     new_job = await jobs_queries.delete_job(db=db, job=old_job)
     return JobSchema.from_orm(new_job)
