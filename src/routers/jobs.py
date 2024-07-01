@@ -48,7 +48,7 @@ async def read_my_jobs(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
     if current_user.is_company is False:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вы не создавали новые места")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вакансии создаются компаниями")
 
     return await jobs_queries.get_all_jobs_by_user_id(db=db, user_id=current_user.id)
 
