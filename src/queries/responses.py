@@ -2,7 +2,6 @@ from models import Response, Job
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from typing import Sequence, Optional
-from .utils import IdentifiedUser
 
 
 async def get_response_by_id(db: AsyncSession, id: int) -> Optional[Response]:

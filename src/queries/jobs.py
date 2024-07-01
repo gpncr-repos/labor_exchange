@@ -4,7 +4,7 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, asc
 from typing import Sequence
-from .utils import OrderBy
+from .utils import OrderBy, FilterBy
 
 
 async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Sequence[Job]:
@@ -25,14 +25,12 @@ async def get_all_jobs_by_user_id(db: AsyncSession, user_id: int, limit: int = 1
     return res.scalars().all()
 
 
-async def get_all_jobs_by_min_salary(db: AsyncSession, limit: int = 100, salary: int = 0) -> Sequence[Job]:
+async def get_all_jobs_by_salary(db: AsyncSession, filter_by: FilterBy, limit: int = 100, salary: float = 0) -> Sequence[Job]:
     query = select(Job).where(Job.salary_from == salary).limit(limit)
-    res = await db.execute(query)
-    return res.scalars().all()
-
-
-async def get_all_jobs_by_max_salary(db: AsyncSession, limit: int = 100, salary: int = 0) -> Sequence[Job]:
-    query = select(Job).where(Job.salary_to == salary).limit(limit)
+    if filter_by == FilterBy.MIN:
+        query = select(Job).where(Job.salary_from == salary).limit(limit)
+    if filter_by == FilterBy.MAX:
+        query = select(Job).where(Job.salary_to == salary).limit(limit)
     res = await db.execute(query)
     return res.scalars().all()
 
