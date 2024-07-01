@@ -6,7 +6,7 @@ from typing import Sequence, Optional
 
 async def get_response_by_id(db: AsyncSession, id: int) -> Optional[Response]:
     query = select(Response).where(Response.id == id).limit(1)
-    res = await db.delete(query)
+    res = await db.execute(query)
     return res.scalars().first()
 
 
