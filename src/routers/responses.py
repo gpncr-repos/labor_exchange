@@ -29,7 +29,7 @@ async def response_job(
     current_user: User = Depends(get_current_user)):
 
     if current_user.is_company is True:
-        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы работодатель. Вам нельзя откликаться на вакансии")
+        raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы работодатель. На вакансии откликаются соискатели")
 
     job = await jobs_queries.get_job_by_id(db=db, job_id=job_id)
     if job is None:
