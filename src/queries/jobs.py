@@ -1,12 +1,10 @@
-import datetime
-import enum
-
 from models import Job
 from schemas import JobInSchema
 from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, asc
 from typing import Sequence
+from utils import OrderBy
 
 
 async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Sequence[Job]:
@@ -37,11 +35,6 @@ async def get_all_jobs_by_max_salary(db: AsyncSession, limit: int = 100, salary:
     query = select(Job).where(Job.salary_to == salary).limit(limit)
     res = await db.execute(query)
     return res.scalars().all()
-
-
-class OrderBy(str, enum.Enum):
-    ASC = 1
-    DESC = 2
 
 
 async def get_active_jobs(db: AsyncSession, order_by: Optional[OrderBy] = None, limit: int = 100) -> Sequence[Job]:
