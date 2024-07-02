@@ -4,11 +4,23 @@ from typing import Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select, desc, asc
 from typing import Sequence
-from .utils import OrderBy, FilterBy
+from .utils import OrderBy, FilterBySalary, FilterByActiveness
 
 
-async def get_all_jobs(db: AsyncSession, limit: int = 100, skip: int = 0) -> Sequence[Job]:
-    query = select(Job).limit(limit).offset(skip)
+async def get_all_jobs(db: AsyncSession, filter_by_salary: FilterBySalary, filter_by_activeness: FilterByActiveness, order_by: OrderBy, limit: int = 100, skip: int = 0, salary: float = 0) -> Sequence[Job]:
+    query = select(Job)
+    if filter_by_salary == FilterBySalary.MIN:
+        query = query.where(Job.salary_from == salary)
+    elif filter_by_salary == FilterBySalary.MAX:
+        query = query.where(Job.salary_to == salary)
+    if filter_by_activeness == FilterByActiveness.YES:
+        query = query.where(Job.is_active == True)
+    if order_by is not order_by.NO:
+        if order_by == OrderBy.ASC:
+            query = query.order_by(asc(Job.created_at))
+        if order_by == OrderBy.DESC:
+            query = query.order_by(desc(Job.created_at))
+    query = query.limit(limit).offset(skip)
     res = await db.execute(query)
     return res.scalars().all()
 
@@ -21,27 +33,6 @@ async def get_job_by_id(db: AsyncSession, job_id: int) -> Optional[Job]:
 
 async def get_all_jobs_by_user_id(db: AsyncSession, user_id: int, limit: int = 100) -> Sequence[Job]:
     query = select(Job).where(Job.user_id == user_id).limit(limit)
-    res = await db.execute(query)
-    return res.scalars().all()
-
-
-async def get_all_jobs_by_salary(db: AsyncSession, filter_by: FilterBy, limit: int = 100, salary: float = 0) -> Sequence[Job]:
-    query = select(Job).where(Job.salary_from == salary).limit(limit)
-    if filter_by == FilterBy.MIN:
-        query = select(Job).where(Job.salary_from == salary).limit(limit)
-    if filter_by == FilterBy.MAX:
-        query = select(Job).where(Job.salary_to == salary).limit(limit)
-    res = await db.execute(query)
-    return res.scalars().all()
-
-
-async def get_active_jobs(db: AsyncSession, order_by: Optional[OrderBy] = None, limit: int = 100) -> Sequence[Job]:
-    query = select(Job).where(Job.is_active is True).limit(limit)
-    if order_by is not None:
-        if order_by == OrderBy.ASC:
-            query = query.order_by(asc(Job.created_at))
-        if order_by == OrderBy.DESC:
-            query = query.order_by(desc(Job.created_at))
     res = await db.execute(query)
     return res.scalars().all()
 

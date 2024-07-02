@@ -1,5 +1,5 @@
 from typing import List, Optional, Annotated
-from fastapi import APIRouter, Depends, HTTPException, status, Path
+from fastapi import APIRouter, Depends, HTTPException, status, Query
 from schemas import JobSchema, JobInSchema, JobUpdateSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -12,35 +12,24 @@ from models import User
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
 
-@router.get("/simple-reader", response_model=List[JobSchema])
+@router.get("", response_model=List[JobSchema])
 async def read_jobs(
     db: AsyncSession = Depends(get_db),
+    filter_by_salary: jobs_queries.FilterBySalary = Query(description="Фильтр по зарплате"),
+    filter_by_activeness: jobs_queries.FilterByActiveness = Query(description="Фильтр по активности"),
+    order_by: jobs_queries.OrderBy = Query(description="Сортировка по времени"),
     limit: int = 100,
-    skip: int = 0):
-    item_id = 1
-    return await jobs_queries.get_all_jobs(db=db, limit=limit, skip=skip)
-
-
-@router.get("/reader-by-salary", response_model=List[JobSchema])
-async def read_jobs_by_min_or_max_salary(
-    filter_by: jobs_queries.FilterBy,
-    db: AsyncSession = Depends(get_db),
-    limit: int = 100,
+    skip: int = 0,
     salary: float = 0):
-    return await jobs_queries.get_all_jobs_by_salary(db=db, filter_by=filter_by, limit=limit, salary=salary)
+    item_id = 1
+    return await jobs_queries.get_all_jobs(db=db, filter_by_salary=filter_by_salary, filter_by_activeness=filter_by_activeness, order_by=order_by, limit=limit, skip=skip, salary=salary)
 
-
-@router.get("/reader-by-activeness", response_model=List[JobSchema])
-async def read_active_jobs(
-    order_by: Optional[jobs_queries.OrderBy] = None,
-    db: AsyncSession = Depends(get_db),
-    limit: int = 100):
-    return await jobs_queries.get_active_jobs(db=db, order_by=order_by, limit=limit)
-
-@router.get("/reader-by-company", response_model=List[JobSchema])
+@router.get("/{id}", response_model=List[JobSchema])
 async def read_my_jobs(
+    id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
+    id = current_user.id
     if current_user.is_company is False:
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Вы соискатель. Вакансии создаются компаниями")
 
