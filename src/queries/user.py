@@ -6,7 +6,7 @@ from sqlalchemy import select
 from core.security import hash_password
 
 
-async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:
+async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:  #todo зачем лимит?
     query = select(User).limit(limit).offset(skip)
     res = await db.execute(query)
     return res.scalars().all()
@@ -41,5 +41,5 @@ async def update(db: AsyncSession, user: User) -> User:
 async def get_by_email(db: AsyncSession, email: str) -> User:
     query = select(User).where(User.email == email).limit(1)
     res = await db.execute(query)
-    user = res.scalars().first()
+    user = res.scalars().first()                                                             #хммм scalars
     return user
