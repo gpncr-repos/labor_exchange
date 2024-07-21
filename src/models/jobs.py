@@ -15,7 +15,10 @@ class Job(Base):
     salary_to = sa.Column(sa.Integer, comment="Зарплата до")
     is_active = sa.Column(sa.Boolean, comment="Активна ли вакансия")
     created_at = sa.Column(sa.DateTime, comment="Дата создания записи", default=datetime.datetime.utcnow)
-    
-    user = relationship("User", back_populates="jobs")
+
+    user = relationship("User", back_populates="job")
     responses = relationship("Response", back_populates="job")
-    CheckConstraint(salary_to>=salary_from,name="check_salary")
+
+    __table_args__=(
+        CheckConstraint(salary_to>=salary_from,name="check_salary"),
+    )

@@ -41,5 +41,5 @@ async def update(db: AsyncSession, user: User) -> User:
 async def get_by_email(db: AsyncSession, email: str) -> User:
     query = select(User).where(User.email == email)
     res = await db.execute(query)
-    user = res.scalars().all()                                            #хммм scalars
+    user = res.scalars().first()                                     
     return user
