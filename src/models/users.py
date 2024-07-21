@@ -13,8 +13,8 @@ class User(Base):
     email = sa.Column(sa.String, comment="Email адрес", unique=True)
     name = sa.Column(sa.String, comment="Имя пользователя")
     hashed_password = sa.Column(sa.String, comment="Зашифрованный пароль", unique=True)
-    is_company = sa.Column(sa.Boolean, comment="Флаг компании")
-    created_at = sa.Column(sa.DateTime, comment="Время создания записи", default=datetime.datetime.utcnow)
+    is_company = sa.Column(sa.Boolean, comment="Флаг компании(является ли пользователь компанией)")
+    created_at = sa.Column(sa.DateTime, comment="Дата создания строки", default=datetime.datetime.utcnow)
 
     jobs = relationship("Job", back_populates="user")
     responses = relationship("Response", back_populates="user")
