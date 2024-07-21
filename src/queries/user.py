@@ -12,8 +12,8 @@ async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Use
     return res.scalars().all()
 
 
-async def get_by_id(db: AsyncSession, id: int) -> Optional[User]:
-    query = select(User).where(User.id == id).limit(1)
+async def get_by_id(db: AsyncSession, id: int) -> User:
+    query = select(User).where(User.id == id)
     res = await db.execute(query)
     return res.scalars().first()
 
@@ -39,7 +39,7 @@ async def update(db: AsyncSession, user: User) -> User:
 
 
 async def get_by_email(db: AsyncSession, email: str) -> User:
-    query = select(User).where(User.email == email).limit(1)
+    query = select(User).where(User.email == email)
     res = await db.execute(query)
-    user = res.scalars().first()                                                             #хммм scalars
+    user = res.scalars().all()                                            #хммм scalars
     return user

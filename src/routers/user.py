@@ -15,11 +15,39 @@ async def read_users(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
     skip: int = 0):
-    return await user_queries.get_all(db=db, limit=limit, skip=skip)
+    """
+    Выдача пользователей по limit штук от skip:
+    db: коннект к базе данных
+    limit: кол-во записей для вывода,
+    skip: от какой записи начинать вывод):
+    """
+    res=await user_queries.get_all(db=db, limit=limit, skip=skip)
+    if len(res)==0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="В базе данных нет пользователей")
+    return res
 
+@router.get("/{user_id}", response_model=UserSchema)
+async def read_users(
+    user_id: int,
+    db: AsyncSession = Depends(get_db)
+    ):
+    """
+    Выдача пользователя по ID:
+    user_id: ID пользователя
+    db: коннект к базе данных
+    """
+    res=await user_queries.get_by_id(db=db, id=user_id)
+    if res is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не найден")
+    return res
 
 @router.post("", response_model=UserSchema)
 async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
+    """
+    Создание пользователя:
+    user: данные для создания пользователя согласно схемы UserInSchema
+    db: коннект к базе данных
+    """
     user = await user_queries.create(db=db, user_schema=user)
     return UserSchema.from_orm(user)
 
@@ -30,7 +58,13 @@ async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
-
+    """
+    Обновление пользователя:
+    id: ID пользователя, которого будем исправлять
+    user: данные для создания пользователя согласно схемы UserUpdateSchema
+    db: коннект к базе данных
+    current_user: проверка существующего юзера
+    """
     old_user = await user_queries.get_by_id(db=db, id=id)
 
     if old_user is None or old_user.email != current_user.email:
