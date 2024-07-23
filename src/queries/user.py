@@ -6,7 +6,7 @@ from sqlalchemy import select
 from core.security import hash_password
 
 
-async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:  #todo зачем лимит?
+async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:
     query = select(User).limit(limit).offset(skip)
     res = await db.execute(query)
     return res.scalars().all()

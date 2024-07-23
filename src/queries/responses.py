@@ -6,7 +6,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
 
-async def get_response_by_job_id(db: AsyncSession, job_id: int) -> ResponsesSchema:
+async def get_response_by_job_id(db: AsyncSession, job_id: int) -> list[ResponsesSchema]:
     query = select(Response).where(Response.job_id==job_id)
     res = await db.execute(query)
     return res.scalars().all()
