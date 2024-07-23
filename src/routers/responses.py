@@ -35,6 +35,8 @@ async def create_response(
     """
     if current_user.is_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь является компанией")
+    if len(responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=response_pr.job_id,user_id=current_user.id))!=0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Отклик уже есть")
     try:
         res = await responses_queries.response_create(db=db, response_schema=response_pr,user_id=current_user.id)
     except Exception as e:
