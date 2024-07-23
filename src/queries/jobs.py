@@ -18,9 +18,9 @@ async def get_by_id(db: AsyncSession, id: int) -> JobSchema:
     return res.scalars().first()
 
 
-async def create(db: AsyncSession, job_schema: JobtoSchema) -> Job:
+async def create(db: AsyncSession, job_schema: JobtoSchema,curent_user_id) -> Job:
     job = Job(
-        user_id=job_schema.user_id,
+        user_id=curent_user_id,
         title=job_schema.title,
         discription=job_schema.discription,
         salary_from=job_schema.salary_from,

@@ -4,7 +4,7 @@ from schemas import JobSchema,JobtoSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import jobs as jobs_queries
-from models import Job
+from models import User
 
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
@@ -46,11 +46,14 @@ async def get_all_jobs(
 @router.post("", response_model=JobtoSchema)
 async def create_job(
     job:JobtoSchema,
-    db: AsyncSession = Depends(get_db)):
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
     """
     Создание вакансии:
     job: данные для создания вакансии согласно схемы JobfromSchema
     db: коннект к базе данных
     """
-    job = await jobs_queries.create(db=db, job_schema=job)
-    return JobtoSchema.from_orm(job)
+    if not current_user.is_company:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не является компанией")
+    res = await jobs_queries.create(db=db, job_schema=job,curent_user_id=current_user.id)
+    return JobtoSchema.from_orm(res)

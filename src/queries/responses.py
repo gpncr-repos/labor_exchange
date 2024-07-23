@@ -11,9 +11,9 @@ async def get_response_by_job_id(db: AsyncSession, job_id: int) -> ResponsesSche
     res = await db.execute(query)
     return res.scalars().all()
 
-async def response_create(db: AsyncSession, response_schema: ResponsestoSchema) -> Response:
+async def response_create(db: AsyncSession, response_schema: ResponsestoSchema, user_id: int) -> Response:
     response_el = Response(
-        user_id=response_schema.user_id,
+        user_id=user_id,
         job_id=response_schema.job_id,
         massage=response_schema.massage,
     )

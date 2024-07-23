@@ -20,3 +20,10 @@ class ResponsestoSchema(BaseModel):
     
     class Config:
         orm_mode = True
+
+class ResponsesinSchema(BaseModel):
+    job_id: int
+    massage: str
+    
+    class Config:
+        orm_mode = True

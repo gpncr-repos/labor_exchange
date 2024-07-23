@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import UserSchema, UserInSchema, UserUpdateSchema
+from schemas import UserSchema, UserInSchema, UserUpdateSchema,UserGetSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import user as user_queries
@@ -10,7 +10,7 @@ from models import User
 router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get("", response_model=List[UserSchema])
+@router.get("", response_model=List[UserGetSchema])
 async def read_users(
     db: AsyncSession = Depends(get_db),
     limit: int = 100,
@@ -48,11 +48,11 @@ async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
     user: данные для создания пользователя согласно схемы UserInSchema
     db: коннект к базе данных
     """
-    user = await user_queries.create(db=db, user_schema=user)
-    return UserSchema.from_orm(user)
+    res = await user_queries.create(db=db, user_schema=user)
+    return UserSchema.from_orm(res)
 
 
-@router.put("", response_model=UserSchema)
+@router.put("", response_model=UserUpdateSchema)
 async def update_user(
     id: int,
     user: UserUpdateSchema,
@@ -76,4 +76,4 @@ async def update_user(
 
     new_user = await user_queries.update(db=db, user=old_user)
 
-    return UserSchema.from_orm(new_user)
+    return UserUpdateSchema.from_orm(new_user)

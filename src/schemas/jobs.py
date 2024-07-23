@@ -17,7 +17,6 @@ class JobSchema(BaseModel):
         orm_mode = True
 
 class JobtoSchema(BaseModel):
-    user_id: int
     title: str
     discription: str
     salary_from: int
