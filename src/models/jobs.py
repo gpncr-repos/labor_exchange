@@ -16,9 +16,10 @@ class Job(Base):
     is_active = sa.Column(sa.Boolean, comment="Активна ли вакансия")
     created_at = sa.Column(sa.DateTime, comment="Дата создания записи", default=datetime.datetime.utcnow)
 
-    user = relationship("User", back_populates="job")
-    responses = relationship("Response", back_populates="job")
-
+    users = relationship("User", back_populates="jobs")
+    responses = relationship("Response", back_populates="jobs")
+    
+    #TODO Сделать связь по зарплате, зависимость на создание по FK.is_company (создавать вакансию может только организация) 
     __table_args__=(
         CheckConstraint(salary_to>=salary_from,name="check_salary"),
     )

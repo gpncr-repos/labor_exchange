@@ -11,5 +11,5 @@ class Response(Base):
     job_id = sa.Column(sa.Integer, sa.ForeignKey('jobs.id'), comment="Идентификатор вакансии")
     massage=sa.Column(sa.String,comment="Сопроводительное письмо")
 
-    user = relationship("User", back_populates="responses")
-    job = relationship("Job", back_populates="responses")
+    users = relationship("User", back_populates="responses")
+    jobs = relationship("Job", back_populates="responses")
