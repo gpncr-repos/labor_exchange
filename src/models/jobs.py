@@ -20,6 +20,6 @@ class Job(Base):
     responses = relationship("Response", back_populates="jobs")
     
     #TODO Сделать связь по зарплате, зависимость на создание по FK.is_company (создавать вакансию может только организация) 
-    __table_args__=(
-        CheckConstraint(salary_to>=salary_from,name="check_salary"),
-    )
+    #__table_args__=(
+    #    CheckConstraint(salary_to>=salary_from,name="check_salary"),
+    #)

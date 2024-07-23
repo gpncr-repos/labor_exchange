@@ -53,6 +53,8 @@ async def create_job(
     job: данные для создания вакансии согласно схемы JobfromSchema
     db: коннект к базе данных
     """
+    if job.salary_from>job.salary_to:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Некорректные данные по зарплате: зарплата до {job.salary_from} меньше чем после {job.salary_to}")
     if not current_user.is_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не является компанией")
     res = await jobs_queries.create(db=db, job_schema=job,curent_user_id=current_user.id)
