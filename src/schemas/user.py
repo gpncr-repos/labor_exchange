@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class UserSchema(BaseModel):
-    id: Optional[int] = None
+    id: int = None
     name: str
     email: EmailStr
     hashed_password: str
@@ -24,7 +24,7 @@ class UserUpdateSchema(BaseModel):
 class UserInSchema(BaseModel):
     name: str
     email: EmailStr
-    password: constr(min_length=8)
+    password: constr(min_length=8) #todo момент из сопровождения фастапи, можно по другому задавать
     password2: str
     is_company: bool = False
 

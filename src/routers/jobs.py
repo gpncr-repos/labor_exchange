@@ -1,6 +1,6 @@
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import JobSchema,JobfromSchema
+from schemas import JobSchema,JobtoSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import jobs as jobs_queries
@@ -43,9 +43,9 @@ async def get_all_jobs(
     return res
 
 
-@router.post("", response_model=JobfromSchema)
+@router.post("", response_model=JobtoSchema)
 async def create_job(
-    job:JobfromSchema,
+    job:JobtoSchema,
     db: AsyncSession = Depends(get_db)):
     """
     Создание вакансии:
@@ -53,4 +53,4 @@ async def create_job(
     db: коннект к базе данных
     """
     job = await jobs_queries.create(db=db, job_schema=job)
-    return JobfromSchema.from_orm(job)
+    return JobtoSchema.from_orm(job)

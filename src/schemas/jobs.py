@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class JobSchema(BaseModel):
-    id: Optional[str] = None
+    id: str 
     user_id: int
     title: str
     discription: str
@@ -16,7 +16,7 @@ class JobSchema(BaseModel):
     class Config: #уточнить
         orm_mode = True
 
-class JobfromSchema(BaseModel):
+class JobtoSchema(BaseModel):
     user_id: int
     title: str
     discription: str
@@ -24,5 +24,5 @@ class JobfromSchema(BaseModel):
     salary_to: int
     is_active: bool
     
-    class Config: #уточнить
+    class Config:
         orm_mode = True

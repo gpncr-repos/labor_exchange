@@ -1,6 +1,6 @@
 from models import Job
 from fastapi import APIRouter, Depends, HTTPException, status
-from schemas import JobSchema,JobfromSchema
+from schemas import JobSchema,JobtoSchema
 from typing import List, Optional
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
@@ -18,7 +18,7 @@ async def get_by_id(db: AsyncSession, id: int) -> JobSchema:
     return res.scalars().first()
 
 
-async def create(db: AsyncSession, job_schema: JobfromSchema) -> Job:
+async def create(db: AsyncSession, job_schema: JobtoSchema) -> Job:
     job = Job(
         user_id=job_schema.user_id,
         title=job_schema.title,
