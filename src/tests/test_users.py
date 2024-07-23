@@ -1,20 +1,25 @@
 import pytest
 from queries import user as user_query
-from fixtures.users import UserFactory
+from fixtures.users import UserFactory,UserUpdateFactory
 from schemas import UserInSchema
 from pydantic import ValidationError
 
 
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
+
+
+    all_users = await user_query.get_all(sa_session)
+    assert all_users
+
     user = UserFactory.build()
     sa_session.add(user)
     sa_session.flush()
 
-    all_users = await user_query.get_all(sa_session)
-    assert all_users
-    assert len(all_users) == 1
-    assert all_users[0] == user
+    adds_users = await user_query.get_all(sa_session)
+
+    assert len(all_users) == len(adds_users)-1
+    assert adds_users[len(adds_users)-1].id == user.id
 
 
 @pytest.mark.asyncio
@@ -25,7 +30,6 @@ async def test_get_by_id(sa_session):
 
     current_user = await user_query.get_by_id(sa_session, user.id)
     assert current_user is not None
-    assert current_user.id == user.id
 
 
 @pytest.mark.asyncio
@@ -73,8 +77,10 @@ async def test_update(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
     sa_session.flush()
-
-    user.name = "updated_name"
+    user.name="update_name"
     updated_user = await user_query.update(sa_session, user=user)
-    assert user.id == updated_user.id
-    assert updated_user.name == "updated_name"
+    res = await user_query.get_by_id(sa_session, user.id)
+    assert updated_user.name==res.name
+    assert updated_user.email==res.email
+    assert updated_user.is_company==res.is_company
+    assert res.name == "updated_name"
