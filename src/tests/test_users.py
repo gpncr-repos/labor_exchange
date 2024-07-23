@@ -10,11 +10,13 @@ async def test_get_all(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
     sa_session.flush()
-
+    user = UserFactory.build()
+    sa_session.add(user)
+    sa_session.flush()
     all_users = await user_query.get_all(sa_session)
-    assert all_users
-    assert len(all_users) == 1
-    assert all_users[0] == user
+
+    assert len(all_users) == 2
+    assert all_users[1] == user
 
 
 @pytest.mark.asyncio
@@ -62,7 +64,7 @@ async def test_create_password_mismatch(sa_session):
             name="Uchpochmak",
             email="bashkort@example.com",
             password="eshkere!",
-            password2="eshkero!",
+            password2="eshkero",
             is_company=False
         )
         await user_query.create(sa_session, user_schema=user)
