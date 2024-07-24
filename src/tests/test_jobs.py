@@ -60,6 +60,6 @@ async def test_create(sa_session):
         is_active=True
     )
 
-    new_job = await job_query.create(sa_session, job_schema=job,user_id=user.user_id)
+    new_job = await job_query.create(sa_session, job_schema=job,curent_user_id=user.id)
     assert new_job is not None
     assert new_job.title == "Naneika_Uchpochmak"

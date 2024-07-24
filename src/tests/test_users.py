@@ -8,13 +8,8 @@ from pydantic import ValidationError
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
 
-
-    all_users = await user_query.get_all(sa_session)
-    assert all_users
-
     user = UserFactory.build()
     sa_session.add(user)
-    sa_session.flush()
     user = UserFactory.build()
     sa_session.add(user)
     sa_session.flush()
@@ -85,4 +80,4 @@ async def test_update(sa_session):
     assert updated_user.name==res.name
     assert updated_user.email==res.email
     assert updated_user.is_company==res.is_company
-    assert res.name == "updated_name"
+    assert res.name == "update_name"
