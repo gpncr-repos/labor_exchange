@@ -43,7 +43,7 @@ async def get_all_jobs(
     return res
 
 
-@router.post("/post_job", response_model=JobtoSchema)
+@router.post("/post_job", response_model=JobSchema)
 async def create_job(
     job:JobtoSchema,
     db: AsyncSession = Depends(get_db),
@@ -58,14 +58,15 @@ async def create_job(
     if not current_user.is_company:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не является компанией")
     res = await jobs_queries.create(db=db, job_schema=job,curent_user_id=current_user.id)
-    return JobtoSchema.from_orm(res)
+    return JobSchema.from_orm(res)
 
-@router.patch("/patch_job/{job_id}", response_model=JobSchema)
-async def patch_job(
+@router.patch("/patch_job/{job_id}", response_model=JobtoSchema)
+async def patch_of_job(
     job_id:int,
-    JobPatch=JobtoSchema,
+    JobPatch:JobtoSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
+
     """
     Обновление вакансии:
     job_id: id вакансии для изменения
@@ -73,7 +74,7 @@ async def patch_job(
     db: коннект к базе данных
     """
     job=JobSchema
-    job=get_job_by_id(job_id=job_id,db=db)
+    job=await jobs_queries.get_by_id(db=db, id=job_id)
     if current_user.id!=job.user_id:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не относится к текущему пользователю")
     newjob=JobSchema
@@ -86,3 +87,22 @@ async def patch_job(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Некорректные данные по зарплате: зарплата до {newjob.salary_from} меньше чем после {newjob.salary_to}")
     job = await jobs_queries.update(db=db, job=newjob)
     return JobSchema.from_orm(job)
+
+@router.delete("/delete/{job_id}")
+async def delete_job(
+    job_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+    ):
+    """
+    Удаление вакансии:
+    job_id: ID вакансии
+    db: коннект к базе данных
+    """
+    res=await jobs_queries.get_by_id(db=db, id=job_id)
+    if res is None:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Вакансия не найдена")
+    if current_user.id!=res.user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вы не можете удалить чужую вакансию")
+    res=await jobs_queries.delete(db=db,job=res)
+    return res

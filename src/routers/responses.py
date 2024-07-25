@@ -23,13 +23,13 @@ async def get_responses_by_job_id(
     if current_user.is_company:
         res=await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
     else:
-        res=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
+        res=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
     if len(res)==0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Окликов нет")
     return res
 
 @router.get("/responses_user_id/{user_id}", response_model=list[ResponsesSchema])
-async def get_responses_by_job_id(
+async def get_responses_by_user_id(
     user_id: int,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)
@@ -59,22 +59,21 @@ async def create_response(
     """
     if current_user.is_company:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователь является компанией")
-    is_double_responce=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=response.job_id,user_id=current_user.id)
+    is_double_responce=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=response.job_id,user_id=current_user.id)
     if is_double_responce:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклик уже есть")
-    is_active_job=(jobs_queries.get_by_id(db=db,job_id=response.job_id)).is_active
-    if not is_active_job:
+    is_active_job=await jobs_queries.get_by_id(db=db,id=response.job_id)
+    if not is_active_job.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
-    
     try:
         res = await responses_queries.response_create(db=db, response_schema=response,user_id=current_user.id)
-    except Exception as e:
+    except Exception:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Нет такого пользователя или вакансии")
 
     return ResponsestoSchema.from_orm(res)
 
-@router.patch("/patch_job/{job_id}", response_model=ResponsesSchema)
-async def create_response(
+@router.patch("/patch_response/{job_id}", response_model=ResponsesSchema)
+async def patch_response(
     job_id:int,
     response:ResponsesinSchema,
     db: AsyncSession = Depends(get_db),
@@ -85,10 +84,10 @@ async def create_response(
     response: данные для создания отклика согласно схемы ResponsesSchema
     db: коннект к базе данных
     """
-    responce_from_db=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
+    responce_from_db=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
     if not responce_from_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика от текущего пользователя на эту вакансию нет")
-    is_active_job=(jobs_queries.get_by_id(db=db,job_id=job_id)).is_active
+    is_active_job=(await jobs_queries.get_by_id(db=db,id=job_id)).is_active
     if is_active_job==False:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
 

@@ -4,7 +4,7 @@ from pydantic import BaseModel
 
 
 class JobSchema(BaseModel):
-    id: str 
+    id: int 
     user_id: int
     title: str
     discription: str

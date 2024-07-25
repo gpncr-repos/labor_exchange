@@ -48,8 +48,7 @@ async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
     user: данные для создания пользователя согласно схемы UserInSchema
     db: коннект к базе данных
     """
-    if user.password!=user.password2:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пароли не совпадают")
+
     res = await user_queries.create(db=db, user_schema=user)
     return UserSchema.from_orm(res)
 
