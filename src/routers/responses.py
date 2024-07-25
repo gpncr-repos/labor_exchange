@@ -4,28 +4,52 @@ from schemas import ResponsesSchema,ResponsestoSchema,ResponsesinSchema
 from dependencies import get_db, get_current_user
 from sqlalchemy.ext.asyncio import AsyncSession
 from queries import responses as responses_queries
+from queries import jobs as jobs_queries
 from models import User
 router = APIRouter(prefix="/responses", tags=["responses"])
 
-@router.get("/job_id/{job_id}", response_model=list[ResponsesSchema])
+@router.get("/responses_job_id/{job_id}", response_model=list[ResponsesSchema])
 async def get_responses_by_job_id(
     job_id: int,
-    db: AsyncSession = Depends(get_db)
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
     ):
     """
     Выдача откликов по job_ID:
     job_id: ID вакансии
     db: коннект к базе данных
+    current_user: текущий пользователь
     """
-    res=await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
+    if current_user.is_company:
+        res=await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
+    else:
+        res=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
     if len(res)==0:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Окликов нет")
     return res
 
+@router.get("/responses_user_id/{user_id}", response_model=list[ResponsesSchema])
+async def get_responses_by_job_id(
+    user_id: int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+    ):
+    """
+    Выдача откликов по user_id:
+    job_id: ID вакансии
+    db: коннект к базе данных
+    current_user: текущий пользователь
+    """
+    if not current_user.is_company:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Выдача откликов по пользователям доступна только не компаниям")
+    res=await responses_queries.get_response_by_user_id(db=db, user_id=user_id)
+    if len(res)==0:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Окликов нет")
+    return res
 
 @router.post("", response_model=ResponsestoSchema)
 async def create_response(
-    response_pr:ResponsesinSchema,
+    response:ResponsesinSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
     """
@@ -34,13 +58,42 @@ async def create_response(
     db: коннект к базе данных
     """
     if current_user.is_company:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь является компанией")
-    is_double_responce=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=response_pr.job_id,user_id=current_user.id)
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователь является компанией")
+    is_double_responce=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=response.job_id,user_id=current_user.id)
     if is_double_responce:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Отклик уже есть")
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклик уже есть")
+    is_active_job=(jobs_queries.get_by_id(db=db,job_id=response.job_id)).is_active
+    if not is_active_job:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
+    
     try:
-        res = await responses_queries.response_create(db=db, response_schema=response_pr,user_id=current_user.id)
+        res = await responses_queries.response_create(db=db, response_schema=response,user_id=current_user.id)
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Нет такого пользователя или вакансии")
 
+    return ResponsestoSchema.from_orm(res)
+
+@router.patch("/patch_job/{job_id}", response_model=ResponsesSchema)
+async def create_response(
+    job_id:int,
+    response:ResponsesinSchema,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    """
+    Изменение отклика:
+    job_id: id вакансии для изменения
+    response: данные для создания отклика согласно схемы ResponsesSchema
+    db: коннект к базе данных
+    """
+    responce_from_db=responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
+    if not responce_from_db:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика от текущего пользователя на эту вакансию нет")
+    is_active_job=(jobs_queries.get_by_id(db=db,job_id=job_id)).is_active
+    if is_active_job==False:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
+
+    new_response=ResponsesSchema
+    new_response=responce_from_db
+    new_response.massage = new_response.massage if response.massage is not None else responce_from_db.massage
+    res = await responses_queries.update(db=db, response=new_response)
     return ResponsestoSchema.from_orm(res)

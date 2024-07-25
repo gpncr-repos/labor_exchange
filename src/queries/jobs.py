@@ -32,3 +32,8 @@ async def create(db: AsyncSession, job_schema: JobtoSchema,curent_user_id) -> Jo
     await db.refresh(job)
     return job
 
+async def update(db: AsyncSession, job: Job) -> Job:
+    db.add(job)
+    await db.commit()
+    await db.refresh(job)
+    return job

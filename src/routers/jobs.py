@@ -43,7 +43,7 @@ async def get_all_jobs(
     return res
 
 
-@router.post("", response_model=JobtoSchema)
+@router.post("/post_job", response_model=JobtoSchema)
 async def create_job(
     job:JobtoSchema,
     db: AsyncSession = Depends(get_db),
@@ -59,3 +59,30 @@ async def create_job(
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Пользователь не является компанией")
     res = await jobs_queries.create(db=db, job_schema=job,curent_user_id=current_user.id)
     return JobtoSchema.from_orm(res)
+
+@router.patch("/patch_job/{job_id}", response_model=JobSchema)
+async def patch_job(
+    job_id:int,
+    JobPatch=JobtoSchema,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    """
+    Обновление вакансии:
+    job_id: id вакансии для изменения
+    job: данные для создания вакансии согласно схемы JobfromSchema
+    db: коннект к базе данных
+    """
+    job=JobSchema
+    job=get_job_by_id(job_id=job_id,db=db)
+    if current_user.id!=job.user_id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не относится к текущему пользователю")
+    newjob=JobSchema
+    newjob.title = JobPatch.title if JobPatch.title is not None else job.title
+    newjob.salary_to = JobPatch.salary_to if JobPatch.salary_to is not None else job.salary_to
+    newjob.salary_from = JobPatch.salary_from if JobPatch.salary_from is not None else job.salary_from
+    newjob.discription = JobPatch.discription if JobPatch.discription is not None else job.discription
+    newjob.is_active = JobPatch.is_active if JobPatch.is_active is not None else job.is_active
+    if newjob.salary_from>newjob.salary_to:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail=f"Некорректные данные по зарплате: зарплата до {newjob.salary_from} меньше чем после {newjob.salary_to}")
+    job = await jobs_queries.update(db=db, job=newjob)
+    return JobSchema.from_orm(job)
