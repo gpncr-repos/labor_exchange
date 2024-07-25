@@ -2,7 +2,6 @@ import sqlalchemy as sa
 import datetime
 from db_settings import Base
 from sqlalchemy.orm import relationship
-from sqlalchemy import CheckConstraint
 
 class Job(Base):
     __tablename__ = "jobs"

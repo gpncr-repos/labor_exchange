@@ -1,23 +1,20 @@
 import pytest
-from queries import user as user_query
 from queries import jobs as job_query
 from fixtures.users import UserFactory
 from fixtures.jobs import JobFactory
 from schemas import JobtoSchema
-from pydantic import ValidationError
+
 
 
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
     user = UserFactory.build()
-    sa_session.add(user)
-    sa_session.flush()
     user.is_company=True
+    sa_session.add(user)
 
     job = JobFactory.build()
     job.user_id=user.id
     sa_session.add(job)
-    sa_session.flush()
 
     job = JobFactory.build()
     job.user_id=user.id
