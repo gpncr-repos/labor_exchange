@@ -8,7 +8,7 @@ class JobFactory(AsyncSQLAlchemyModelFactory):
     class Meta:
         model = Job
     id = factory.Sequence(lambda n: n)
-    user_id = factory.Faker('pyint', min_value=1, max_value=1)
+    user_id = factory.Faker('pyint')
     title= factory.Faker("pystr")
     discription = factory.Faker("pystr")
     salary_from = factory.Faker('pyint', min_value=0, max_value=500)
