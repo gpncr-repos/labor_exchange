@@ -105,7 +105,7 @@ async def delete_response(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user)):
     """
-    Удаление отклика:
+    Удаление отклика по job_id:
     job_id: id вакансии для изменения
     db: коннект к базе данных
     current_user: текущий пользователь
@@ -113,8 +113,24 @@ async def delete_response(
     responce_from_db=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
     if not responce_from_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика от текущего пользователя на эту вакансию нет")
-    is_active_job=await jobs_queries.get_by_id(db=db,id=job_id)
-    if not is_active_job.is_active:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
+    res = await responses_queries.delete(db=db,response=responce_from_db)
+    return res
+
+@router.delete("/patch_response/{id}")
+async def delete_response_by_id(
+    id:int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    """
+    Удаление отклика по job_id:
+    job_id: id вакансии для изменения
+    db: коннект к базе данных
+    current_user: текущий пользователь
+    """
+    responce_from_db=await responses_queries.get_response_by_id(db=db,id=id)
+    if not responce_from_db:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика с таким id не существует")
+    if responce_from_db.user_id != current_user.id:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="User_id пользователя не совпадает с текущей авторизацией")
     res = await responses_queries.delete(db=db,response=responce_from_db)
     return res
