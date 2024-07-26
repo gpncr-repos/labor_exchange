@@ -10,7 +10,11 @@ app.include_router(responses_router)
 
 @app.get("/")
 def hello():
-    return {"message": "Hello, world!"}
+    """
+    Здесь должно быть крутое промо
+    
+    """
+    return {"message": "Башкирский баш хантер приветствует тебя"}
 
 
 if __name__ == '__main__':

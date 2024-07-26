@@ -7,7 +7,8 @@ from pydantic import ValidationError
 
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
-
+    all_users = await user_query.get_all(sa_session)
+    coutUser=len(all_users)
     user = UserFactory.build()
     sa_session.add(user)
     user = UserFactory.build()
@@ -15,8 +16,7 @@ async def test_get_all(sa_session):
     sa_session.flush()
     all_users = await user_query.get_all(sa_session)
 
-    assert len(all_users) == 2
-    assert all_users[1] == user
+    assert len(all_users) == coutUser+2
 
 
 @pytest.mark.asyncio

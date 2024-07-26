@@ -42,6 +42,5 @@ async def delete (db: AsyncSession, job: Job) -> Job:
     id=job.id
     await db.delete(job)
     await db.commit()
-    #await db.refresh(job)
     res=await get_by_id(db=db,id=id)
     return res

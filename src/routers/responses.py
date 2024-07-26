@@ -56,6 +56,7 @@ async def create_response(
     Создание отклика:
     response: данные для создания отклика согласно схемы ResponsestoSchema
     db: коннект к базе данных
+    current_user: текущий пользователь
     """
     if current_user.is_company:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Пользователь является компанией")
@@ -63,13 +64,14 @@ async def create_response(
     if is_double_responce:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклик уже есть")
     is_active_job=await jobs_queries.get_by_id(db=db,id=response.job_id)
+    if not is_active_job:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Нет такой вакансии")
     if not is_active_job.is_active:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
     try:
         res = await responses_queries.response_create(db=db, response_schema=response,user_id=current_user.id)
     except Exception:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="Нет такого пользователя или вакансии")
-
     return ResponsestoSchema.from_orm(res)
 
 @router.patch("/patch_response/{job_id}", response_model=ResponsesSchema)
@@ -83,16 +85,36 @@ async def patch_response(
     job_id: id вакансии для изменения
     response: данные для создания отклика согласно схемы ResponsesSchema
     db: коннект к базе данных
+    current_user: текущий пользователь
     """
     responce_from_db=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
     if not responce_from_db:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика от текущего пользователя на эту вакансию нет")
     is_active_job=(await jobs_queries.get_by_id(db=db,id=job_id)).is_active
-    if is_active_job==False:
+    if not is_active_job:
         raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
-
     new_response=ResponsesSchema
     new_response=responce_from_db
     new_response.massage = new_response.massage if response.massage is not None else responce_from_db.massage
     res = await responses_queries.update(db=db, response=new_response)
     return ResponsestoSchema.from_orm(res)
+
+@router.delete("/patch_response/{job_id}")
+async def delete_response(
+    job_id:int,
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user)):
+    """
+    Удаление отклика:
+    job_id: id вакансии для изменения
+    db: коннект к базе данных
+    current_user: текущий пользователь
+    """
+    responce_from_db=await responses_queries.get_response_by_job_id_and_user_id(db=db,job_id=job_id,user_id=current_user.id)
+    if not responce_from_db:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Отклика от текущего пользователя на эту вакансию нет")
+    is_active_job=await jobs_queries.get_by_id(db=db,id=job_id)
+    if not is_active_job.is_active:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail="Вакансия не активна")
+    res = await responses_queries.delete(db=db,response=responce_from_db)
+    return res
