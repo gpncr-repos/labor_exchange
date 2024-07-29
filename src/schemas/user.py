@@ -4,7 +4,7 @@ from pydantic import BaseModel, EmailStr, validator, constr
 
 
 class UserSchema(BaseModel):
-    id: Optional[str] = None
+    id: Optional[int] = None
     name: str
     email: EmailStr
     hashed_password: str
@@ -12,7 +12,7 @@ class UserSchema(BaseModel):
     created_at: datetime.datetime
 
     class Config:
-        orm_mode = True
+        from_attributes = True
 
 
 class UserUpdateSchema(BaseModel):
