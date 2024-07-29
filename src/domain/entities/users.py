@@ -7,8 +7,8 @@ from domain.entities.base import BaseEntity
 class UserEntity(BaseEntity):
     email: str
     name: str
-    password: str
-    hashed_password: bytes
     is_company: bool
-    jobs_ids: list[int]
-    responses_ids: list[int]
+    password: str | None = None
+    hashed_password: bytes | None = None
+    jobs_ids: list[int] | None = None
+    responses_ids: list[int] | None = None

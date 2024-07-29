@@ -1,20 +1,36 @@
-import datetime
+from typing import TYPE_CHECKING
 
-from sqlalchemy.orm import relationship
+from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from db_settings import Base
-import sqlalchemy as sa
+from domain.entities.users import UserEntity
+from infra.repositories.alchemy_models.base import TimedBaseModel
+
+if TYPE_CHECKING:
+    from infra.repositories.alchemy_models.jobs import Job
+    from infra.repositories.alchemy_models.responses import Response
 
 
-class User(Base):
-    __tablename__ = "users"
+class User(TimedBaseModel):
+    email: Mapped[str] = mapped_column(comment="Email адрес", unique=True)
+    name: Mapped[str] = mapped_column(comment="Имя пользователя")
+    hashed_password: Mapped[bytes] = mapped_column(comment="Зашифрованный пароль")
+    is_company: Mapped[bytes] = mapped_column(comment="Флаг компании")
 
-    id = sa.Column(sa.Integer, primary_key=True, autoincrement=True, comment="Идентификатор задачи", unique=True)
-    email = sa.Column(sa.String, comment="Email адрес", unique=True)
-    name = sa.Column(sa.String, comment="Имя пользователя")
-    hashed_password = sa.Column(sa.String, comment="Зашифрованный пароль")
-    is_company = sa.Column(sa.Boolean, comment="Флаг компании")
-    created_at = sa.Column(sa.DateTime, comment="Время создания записи", default=datetime.datetime.utcnow)
+    jobs: Mapped[list["Job"]] = relationship(back_populates="user")
+    responses: Mapped[list["Response"]] = relationship(back_populates="user")
 
-    jobs = relationship("Job", back_populates="user")
-    responses = relationship("Response", back_populates="user")
+    def __str__(self):
+        return f"{self.__class__.__name__}(id={self.id}, name={self.name!r}"
+
+    def __repr__(self):
+        return str(self)
+
+    def to_entity(self) -> UserEntity:
+        return UserEntity(
+            id=self.id,
+            email=self.email,
+            name=self.name,
+            is_company=self.is_company,
+            hashed_password=self.hashed_password,
+            created_at=self.created_at
+        )
