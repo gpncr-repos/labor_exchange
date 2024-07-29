@@ -5,7 +5,7 @@ from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
-from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, Base
+from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER
 
 from alembic import context
 from models import *
@@ -30,7 +30,15 @@ if config.config_file_name is not None:
 # for 'autogenerate' support
 # from myapp import mymodel
 # target_metadata = mymodel.Base.metadata
-target_metadata = [Base.metadata]
+
+from infra.repositories.alchemy_models.base import TimedBaseModel
+from infra.repositories.alchemy_models.users import User # noqa
+from infra.repositories.alchemy_models.jobs import Job # noqa
+from infra.repositories.alchemy_models.responses import Response # noqa
+
+
+target_metadata = TimedBaseModel.metadata
+
 
 # other values from the config, defined by the needs of env.py,
 # can be acquired:
