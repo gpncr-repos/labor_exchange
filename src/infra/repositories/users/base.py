@@ -7,11 +7,11 @@ class BaseUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def get_all(self, limit: int, offset: int) -> list:
+    async def get_all(self, limit: int, offset: int):
         ...
 
     @abstractmethod
-    async def add(self, user_in) -> int:
+    async def add(self, user_in):
         ...
 
     @abstractmethod
@@ -19,7 +19,7 @@ class BaseUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def delete(self, user_id: int) -> None:
+    async def delete(self, user_id: int):
         ...
 
     @abstractmethod

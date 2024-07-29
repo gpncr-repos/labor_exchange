@@ -12,3 +12,9 @@ class UserEntity(BaseEntity):
     hashed_password: bytes | None = None
     jobs_ids: list[int] | None = None
     responses_ids: list[int] | None = None
+
+
+@dataclass
+class TokenEntity:
+    access_token: str
+    token_type: str
