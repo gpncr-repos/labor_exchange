@@ -1,20 +1,16 @@
-from typing import TYPE_CHECKING
-
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from domain.entities.users import UserEntity
 from infra.repositories.alchemy_models.base import TimedBaseModel
-
-if TYPE_CHECKING:
-    from infra.repositories.alchemy_models.jobs import Job
-    from infra.repositories.alchemy_models.responses import Response
+from infra.repositories.alchemy_models.jobs import Job
+from infra.repositories.alchemy_models.responses import Response
 
 
 class User(TimedBaseModel):
     email: Mapped[str] = mapped_column(comment="Email адрес", unique=True)
     name: Mapped[str] = mapped_column(comment="Имя пользователя")
-    hashed_password: Mapped[bytes] = mapped_column(comment="Зашифрованный пароль")
-    is_company: Mapped[bytes] = mapped_column(comment="Флаг компании")
+    hashed_password: Mapped[str] = mapped_column(comment="Зашифрованный пароль")
+    is_company: Mapped[bool] = mapped_column(comment="Флаг компании")
 
     jobs: Mapped[list["Job"]] = relationship(back_populates="user")
     responses: Mapped[list["Response"]] = relationship(back_populates="user")

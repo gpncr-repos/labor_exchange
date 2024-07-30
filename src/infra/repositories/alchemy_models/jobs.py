@@ -17,7 +17,7 @@ class Job(TimedBaseModel):
     salary_from: Mapped[float] = mapped_column(comment="Зарплата от")
     salary_to: Mapped[float] = mapped_column(comment="Зарплата до")
     is_active: Mapped[bool] = mapped_column(comment="Активна ли вакансия ")
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), comment="Идентификатор пользователя")
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), comment="Идентификатор пользователя")
 
     user: Mapped['User'] = relationship(back_populates="jobs", )
     responses: Mapped[list['Response']] = relationship(back_populates="job")

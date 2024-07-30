@@ -13,8 +13,8 @@ if TYPE_CHECKING:
 
 class Response(TimedBaseModel):
     message: Mapped[str] = mapped_column(Text, comment="Описание вакансии")
-    user_id: Mapped[int] = mapped_column(ForeignKey("users.id"), comment="Идентификатор пользователя")
-    job_id: Mapped[int] = mapped_column(ForeignKey("jobs.id"), comment="Идентификатор вакансии")
+    user_id: Mapped[str] = mapped_column(ForeignKey("users.id"), comment="Идентификатор пользователя")
+    job_id: Mapped[str] = mapped_column(ForeignKey("jobs.id"), comment="Идентификатор вакансии")
 
     user: Mapped["User"] = relationship(back_populates="responses", )
     job: Mapped["Job"] = relationship(back_populates="responses", )
