@@ -1,6 +1,6 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, constr
+from pydantic import BaseModel, EmailStr, field_validator, constr
 
 from domain.entities.users import UserEntity
 
@@ -12,7 +12,7 @@ class UserSchema(BaseModel):
     is_company: bool
     created_at: datetime.datetime
 
-    class Config:
+    class ConfigDict:
         from_attributes = True
 
     @classmethod
@@ -46,7 +46,7 @@ class UserInSchema(BaseModel):
     password2: str
     is_company: bool = False
 
-    @validator("password2")
+    @field_validator("password2")
     def password_match(cls, v, values, **kwargs):
         if 'password' in values and v != values["password"]:
             raise ValueError("Пароли не совпадают!")

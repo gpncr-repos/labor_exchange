@@ -2,7 +2,6 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from tests.fixtures.users import UserFactory
 from fastapi.testclient import TestClient
 from main import app
 import pytest
@@ -17,7 +16,7 @@ def client_app():
     return client
 
 
-@pytest_asyncio.fixture()
+@pytest_asyncio.fixture
 async def sa_session():
     engine = create_async_engine(SQLALCHEMY_DATABASE_URL) # You must provide your database URL.
     connection = await engine.connect()
@@ -42,7 +41,4 @@ async def sa_session():
         await engine.dispose()
 
 
-# регистрация фабрик
-@pytest_asyncio.fixture(autouse=True)
-def setup_factories(sa_session: AsyncSession) -> None:
-    UserFactory.session = sa_session
+

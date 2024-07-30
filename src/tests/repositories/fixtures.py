@@ -1,3 +1,5 @@
+from uuid import uuid4
+
 import factory
 
 from datetime import datetime
@@ -10,7 +12,7 @@ class UserFactory(AsyncSQLAlchemyModelFactory):
     class Meta:
         model = User
 
-    id = factory.Sequence(lambda n: n)
+    id = str(uuid4())
     name = factory.Faker("pystr")
     email = factory.Faker("email")
     hashed_password = factory.Faker("password")

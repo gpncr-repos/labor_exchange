@@ -25,5 +25,3 @@ session_factory = async_sessionmaker(
 def get_session():
     return session_factory()
 
-
-Base = declarative_base()
