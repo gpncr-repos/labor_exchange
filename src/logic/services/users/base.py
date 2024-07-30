@@ -14,7 +14,7 @@ class BaseUserService(ABC):
         ...
 
     @abstractmethod
-    async def update_user(self, user_in: UserEntity) -> UserEntity:
+    async def update_user(self, user_id: str, auth_user_email: str, user_in: UserEntity) -> UserEntity:
         ...
 
     @abstractmethod

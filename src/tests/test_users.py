@@ -1,6 +1,6 @@
 import pytest
 from queries import user as user_query
-from fixtures.users import UserFactory
+from tests.fixtures.users import UserFactory
 from schemas import UserInSchema
 from pydantic import ValidationError
 

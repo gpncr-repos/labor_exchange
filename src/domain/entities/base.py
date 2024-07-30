@@ -1,15 +1,18 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass, field, asdict
 from datetime import datetime
 from uuid import uuid4
 
 
 @dataclass
 class BaseEntity:
-    id: int = field(
-        default_factory=lambda: uuid4,
+    id: str = field(
+        default_factory=lambda: str(uuid4()),
         kw_only=True
     )
     created_at: datetime = field(
         default_factory=datetime.now,
         kw_only=True
     )
+
+    def to_dict(self):
+        return {key: value for key, value in asdict(self).items() if value}

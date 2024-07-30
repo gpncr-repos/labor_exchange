@@ -6,10 +6,9 @@ from domain.entities.users import UserEntity
 
 
 class UserSchema(BaseModel):
-    id: Optional[int] = None
+    id: Optional[str] = None
     name: str
     email: EmailStr
-    hashed_password: str
     is_company: bool
     created_at: datetime.datetime
 
@@ -22,7 +21,6 @@ class UserSchema(BaseModel):
             id=entity.id,
             name=entity.name,
             email=entity.email,
-            hashed_password=entity.hashed_password,
             is_company=entity.is_company,
             created_at=entity.created_at,
         )

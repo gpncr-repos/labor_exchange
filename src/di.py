@@ -3,8 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from functools import lru_cache
 
-from api.dependencies.session import get_session
-from db_settings import session_factory
+from infra.repositories.alchemy_settings import get_session
 from infra.repositories.users.alchemy import AlchemyUserRepository
 from infra.repositories.users.base import BaseUserRepository
 from logic.services.users.base import BaseUserService

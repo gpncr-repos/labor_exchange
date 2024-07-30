@@ -3,7 +3,7 @@ from fastapi import Request, HTTPException, status
 from fastapi.security import HTTPBearer
 from passlib.context import CryptContext
 from jose import jwt
-from .config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
+from core.config import ACCESS_TOKEN_EXPIRE_MINUTES, SECRET_KEY, ALGORITHM
 
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 

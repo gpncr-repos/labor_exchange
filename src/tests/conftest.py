@@ -2,13 +2,13 @@ import asyncio
 
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
-from fixtures.users import UserFactory
+from tests.fixtures.users import UserFactory
 from fastapi.testclient import TestClient
 from main import app
 import pytest
 import pytest_asyncio
 from unittest.mock import MagicMock
-from db_settings import SQLALCHEMY_DATABASE_URL
+from infra.repositories.alchemy_settings import SQLALCHEMY_DATABASE_URL
 
 
 @pytest.fixture()

@@ -1,7 +1,9 @@
 import factory
-from models import User
+
 from datetime import datetime
 from factory_boy_extra.async_sqlalchemy_factory import AsyncSQLAlchemyModelFactory
+
+from infra.repositories.alchemy_models.users import User
 
 
 class UserFactory(AsyncSQLAlchemyModelFactory):
