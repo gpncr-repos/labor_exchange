@@ -1,6 +1,3 @@
-from abc import ABC
-from dataclasses import dataclass
-
 from domain.entities.users import UserEntity, TokenEntity
 from logic.services.users.base import BaseUserService
 from logic.utils.security import verify_password, create_access_token, hash_password
@@ -11,9 +8,9 @@ from infra.repositories.alchemy_models.users import User as UserDTO
 from infra.repositories.users.base import BaseUserRepository
 
 
-@dataclass
 class RepositoryUserService(BaseUserService):
-    repository: BaseUserRepository
+    def __init__(self, repository: BaseUserRepository):
+        self.repository = repository
 
     async def get_user_list(self, limit: int, offset: int) -> list[UserEntity]:
         user_list: list[UserDTO] = await self.repository.get_all(limit=limit, offset=offset)
