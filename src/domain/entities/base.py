@@ -14,5 +14,5 @@ class BaseEntity:
         kw_only=True
     )
 
-    def to_dict(self):
+    def to_not_nullable_values_dict(self):
         return {key: value for key, value in asdict(self).items() if value}

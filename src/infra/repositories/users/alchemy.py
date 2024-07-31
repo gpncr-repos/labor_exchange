@@ -54,7 +54,9 @@ class AlchemyUserRepository(BaseUserRepository):
 
     async def update(self, user_in: UserEntity) -> User:
         async with self.session as session:
-            query = update(User).where(User.id == user_in.id).values(**user_in.to_dict()).returning(User)
+            query = update(User).where(User.id == user_in.id).values(
+                **user_in.to_not_nullable_values_dict()
+            ).returning(User)
             try:
                 res = await session.execute(query)
                 await session.commit()
