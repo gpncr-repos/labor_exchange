@@ -15,4 +15,4 @@ class BaseEntity:
     )
 
     def to_not_nullable_values_dict(self):
-        return {key: value for key, value in asdict(self).items() if value}
+        return {key: value for key, value in asdict(self).items() if value is not None}

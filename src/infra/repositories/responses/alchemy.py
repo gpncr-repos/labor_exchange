@@ -1,4 +1,5 @@
 from sqlalchemy import select
+from sqlalchemy.orm import selectinload
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.entities.responses import ResponseEntity
@@ -19,7 +20,9 @@ class AlchemyResponseRepository(BaseResponseRepository):
         return new_response
 
     async def get_list_by_user_id(self, user_id: str) -> list[Response]:
-        query = select(Response).where(Response.user_id == user_id)
+        query = select(Response).where(Response.user_id == user_id).options(
+            selectinload(Response.job)
+        )
         async with self.session as session:
             res = await session.execute(query)
         return res.scalars()
