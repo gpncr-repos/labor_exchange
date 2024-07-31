@@ -1,6 +1,6 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from domain.entities.responses import ResponseEntity
@@ -18,6 +18,10 @@ class Response(TimedBaseModel):
 
     user: Mapped["User"] = relationship(back_populates="responses", )
     job: Mapped["Job"] = relationship(back_populates="responses", )
+
+    __table_args__ = (
+        UniqueConstraint('user_id', 'job_id', name='uix_user_job'),
+    )
 
     def __str__(self):
         return f"{self.__class__.__name__}(id={self.id},"
