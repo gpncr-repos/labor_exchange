@@ -1,11 +1,9 @@
-from dataclasses import dataclass
-
 from infra.exceptions.base import RepositoryException
 
 
-@dataclass
 class JobNotFoundDBException(RepositoryException):
-    job_id: str
+    def __init__(self, job_id: str):
+        self.job_id = job_id
 
     @property
     def message(self):

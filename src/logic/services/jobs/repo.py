@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from domain.entities.jobs import JobEntity
 from domain.entities.users import UserEntity
 from infra.exceptions.base import RepositoryException

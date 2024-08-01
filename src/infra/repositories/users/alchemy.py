@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession

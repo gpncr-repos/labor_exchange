@@ -1,18 +1,15 @@
-from dataclasses import dataclass
-
 from logic.exceptions.base import ServiceException
 
 
-@dataclass
 class JobNotFoundException(ServiceException):
-    job_id: str
+    def __init__(self, job_id: str):
+        self.job_id = job_id
 
     @property
     def message(self):
         return f"Вакансия с id {self.job_id} не найденa!"
 
 
-@dataclass
 class OnlyCompanyCanCreateJobException(ServiceException):
     @property
     def message(self):
