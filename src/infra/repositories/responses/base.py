@@ -22,6 +22,10 @@ class BaseResponseRepository(ABC):
         ...
 
     @abstractmethod
+    async def get_list_by_job_id(self, job_id: str):
+        ...
+
+    @abstractmethod
     async def get_list_by_company_user_id(self, user_id: str):
         ...
 

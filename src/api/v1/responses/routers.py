@@ -72,12 +72,12 @@ async def get_all_company_responses(
     return [ResponseAggregateUserSchema.from_entity(response) for response in responses]
 
 
-@router.get("/job_responses", response_model=list[ResponseSchema])
+@router.get("/job_responses", response_model=list[ResponseAggregateUserSchema])
 async def get_all_job_responses(
         job_id: str,
         auth_user: UserEntity = Depends(get_current_user),
         response_service: BaseResponseService = Depends(get_response_service),
-) -> list[ResponseSchema]:
+) -> list[ResponseAggregateUserSchema]:
     try:
         responses = await response_service.get_job_response_list(job_id=job_id, user=auth_user)
     except ApplicationException as e:
@@ -85,7 +85,7 @@ async def get_all_job_responses(
             status_code=status.HTTP_400_BAD_REQUEST,
             detail=e.message,
         )
-    return [ResponseSchema.from_entity(response) for response in responses]
+    return [ResponseAggregateUserSchema.from_entity(response) for response in responses]
 
 
 @router.delete("", status_code=status.HTTP_204_NO_CONTENT)

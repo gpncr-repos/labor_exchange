@@ -34,8 +34,8 @@ class RepositoryResponseService(BaseResponseService):
         job = await self.job_repository.get_one_by_id(job_id=job_id)
         if job.user_id != user.id:
             raise OnlyJobOwnerCanGetJobResponsesException
-        response_list = await self.repository.get_list_by_user_id(user_id=user.id)
-        return [response.to_detail_entity() for response in response_list]
+        response_list = await self.repository.get_list_by_job_id(job_id=job_id)
+        return [response.to_aggregate_user_entity() for response in response_list]
 
     async def delete_response(self, response_id, user: UserEntity) -> None:
         response_to_delete: Response = await self.repository.get_one_by_id_join_job(response_id=response_id)
