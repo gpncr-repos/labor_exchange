@@ -1,13 +1,12 @@
 import asyncio
 from logging.config import fileConfig
 
-from sqlalchemy import engine_from_config
-from sqlalchemy import pool
+from alembic import context
+from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
-from db_settings import DB_NAME, DB_HOST, DB_PASS, DB_USER, Base
 
-from alembic import context
+from db_settings import DB_HOST, DB_NAME, DB_PASS, DB_USER, Base
 from models import *
 
 # this is the Alembic Config object, which provides
@@ -16,10 +15,10 @@ config = context.config
 
 section = config.config_ini_section
 
-config.set_section_option(section, "DB_USER", DB_USER)
-config.set_section_option(section, "DB_HOST", DB_HOST)
-config.set_section_option(section, "DB_PASS", DB_PASS)
-config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, 'DB_USER', DB_USER)
+config.set_section_option(section, 'DB_HOST', DB_HOST)
+config.set_section_option(section, 'DB_PASS', DB_PASS)
+config.set_section_option(section, 'DB_NAME', DB_NAME)
 
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
@@ -50,12 +49,12 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option("sqlalchemy.url")
+    url = config.get_main_option('sqlalchemy.url')
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={"paramstyle": "named"},
+        dialect_opts={'paramstyle': 'named'},
     )
 
     with context.begin_transaction():
@@ -79,7 +78,7 @@ async def run_migrations_online() -> None:
     connectable = AsyncEngine(
         engine_from_config(
             config.get_section(config.config_ini_section),
-            prefix="sqlalchemy.",
+            prefix='sqlalchemy.',
             poolclass=pool.NullPool,
             future=True,
         )

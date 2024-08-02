@@ -1,6 +1,7 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, validator, Field
+
+from pydantic import BaseModel, EmailStr, Field, validator
 
 
 class UserSchema(BaseModel):
@@ -14,6 +15,7 @@ class UserSchema(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserGetSchema(BaseModel):
     id: int = Field(examples=[1])
     name: str
@@ -24,26 +26,28 @@ class UserGetSchema(BaseModel):
     class Config:
         orm_mode = True
 
+
 class UserUpdateSchema(BaseModel):
-    name: Optional[str] = Field(examples=["Василий"])
-    email: Optional[EmailStr] = Field(examples=["Vasilii@alibabaevich.com"])
+    name: Optional[str] = Field(examples=['Василий'])
+    email: Optional[EmailStr] = Field(examples=['Vasilii@alibabaevich.com'])
     is_company: Optional[bool] = None
 
     class Config:
         orm_mode = True
 
+
 class UserInSchema(BaseModel):
-    name: str = Field(examples=["Василий"])
-    email: EmailStr = Field(examples=["Vasilii@alibabaevich.com"])
+    name: str = Field(examples=['Василий'])
+    email: EmailStr = Field(examples=['Vasilii@alibabaevich.com'])
     password: str = Field(min_length=8)
-    password2: str= Field(min_length=8)
+    password2: str = Field(min_length=8)
     is_company: bool = False
 
     class Config:
         orm_mode = True
 
-    @validator("password2")
+    @validator('password2')
     def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values["password"]:
-            raise ValueError("Пароли не совпадают!")
+        if 'password' in values and v != values['password']:
+            raise ValueError('Пароли не совпадают!')
         return True

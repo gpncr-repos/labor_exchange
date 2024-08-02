@@ -22,7 +22,7 @@ pip install -r requirements.txt
 ```
 4) Поднимите базу:
 ```bash
-docker-compose up 
+docker-compose up
 ```
 5) Накатите миграцию:
 ```shell

@@ -1,15 +1,16 @@
 import asyncio
+from unittest.mock import MagicMock
 
-from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
-from sqlalchemy.orm import sessionmaker
-from fixtures.users import UserFactory
-from fixtures.jobs import JobFactory
-from fastapi.testclient import TestClient
-from main import app
 import pytest
 import pytest_asyncio
-from unittest.mock import MagicMock
+from fastapi.testclient import TestClient
+from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
+from sqlalchemy.orm import sessionmaker
+
 from db_settings import SQLALCHEMY_DATABASE_URL
+from fixtures.jobs import JobFactory
+from fixtures.users import UserFactory
+from main import app
 
 
 @pytest.fixture()
@@ -20,7 +21,9 @@ def client_app():
 
 @pytest_asyncio.fixture()
 async def sa_session():
-    engine = create_async_engine(SQLALCHEMY_DATABASE_URL,echo=True) # You must provide your database URL.
+    engine = create_async_engine(
+        SQLALCHEMY_DATABASE_URL, echo=True
+    )  # You must provide your database URL.
     connection = await engine.connect()
     trans = await connection.begin()
 
@@ -48,4 +51,3 @@ async def sa_session():
 def setup_factories(sa_session: AsyncSession) -> None:
     JobFactory.session = sa_session
     UserFactory.session = sa_session
-    
