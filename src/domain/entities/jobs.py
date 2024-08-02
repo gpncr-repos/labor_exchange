@@ -1,4 +1,4 @@
-from dataclasses import dataclass, field
+from dataclasses import dataclass
 
 from domain.entities.base import BaseEntity
 
@@ -11,4 +11,3 @@ class JobEntity(BaseEntity):
     salary_to: float
     is_active: bool
     user_id: str
-    responses_ids: list[int] = field(default_factory=list)
