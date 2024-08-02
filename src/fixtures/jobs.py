@@ -1,7 +1,8 @@
 from datetime import datetime
 
 import factory
-from factory_boy_extra.async_sqlalchemy_factory import AsyncSQLAlchemyModelFactory
+from factory_boy_extra.async_sqlalchemy_factory import \
+    AsyncSQLAlchemyModelFactory
 
 from models import Job
 

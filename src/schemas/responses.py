@@ -1,10 +1,12 @@
+"""Module of schemas of responses"""
+
 import datetime
-from typing import Optional
 
 from pydantic import BaseModel
 
 
 class ResponsesSchema(BaseModel):
+    """ Shema of model """
     id: int
     user_id: int
     job_id: int
@@ -15,8 +17,8 @@ class ResponsesSchema(BaseModel):
         orm_mode = True
 
 
-class ResponsestoSchema(BaseModel):
-    user_id: int
+class ResponsesCreateSchema(BaseModel):
+    """ Schema to create"""
     job_id: int
     massage: str
 
@@ -24,7 +26,8 @@ class ResponsestoSchema(BaseModel):
         orm_mode = True
 
 
-class ResponsesinSchema(BaseModel):
+class ResponsesUpdateSchema(BaseModel):
+    """ schema to patch """
     job_id: int
     massage: str
 

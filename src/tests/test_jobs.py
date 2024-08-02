@@ -3,7 +3,7 @@ import pytest
 from fixtures.jobs import JobFactory
 from fixtures.users import UserFactory
 from queries import jobs as job_query
-from schemas import JobtoSchema
+from schemas import JobCreateSchema
 
 
 @pytest.mark.asyncio
@@ -51,7 +51,7 @@ async def test_create(sa_session):
     sa_session.add(user)
     sa_session.flush()
     user.is_company = True
-    job = JobtoSchema(
+    job = JobCreateSchema(
         title='Naneika_Uchpochmak',
         discription='chak-chak producer',
         salary_from=500000,

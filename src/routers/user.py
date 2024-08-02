@@ -1,3 +1,5 @@
+"""" Model Users API  """
+
 from typing import List
 
 from fastapi import APIRouter, Depends, HTTPException, status
@@ -6,7 +8,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies import get_current_user, get_db
 from models import User
 from queries import user as user_queries
-from schemas import UserGetSchema, UserInSchema, UserSchema, UserUpdateSchema
+from schemas import (UserCreateSchema, UserGetSchema, UserSchema,
+                     UserUpdateSchema)
 
 router = APIRouter(prefix='/users', tags=['users'])
 
@@ -16,67 +19,59 @@ async def read_all_users(
     db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0
 ):
     """
-    Выдача пользователей по limit штук от skip:
-    db: коннект к базе данных
-    limit: кол-во записей для вывода,
-    skip: от какой записи начинать вывод):
+    Get limit users skip some:
+    db: datebase connection;
+    limit: count of get users,
+    skip: skip from:
     """
-    res = await user_queries.get_all(db=db, limit=limit, skip=skip)
-    if len(res) == 0:
+    all_users = await user_queries.get_all(db=db, limit=limit, skip=skip)
+    if not all_users:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='В базе данных нет пользователей',
+            detail='There is no user',
         )
-    return res
+    return all_users
 
 
 @router.get('/{user_id}', response_model=UserSchema)
 async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
-    Выдача пользователя по ID:
-    user_id: ID пользователя
-    db: коннект к базе данных
+    Get user by id:
+    user_id: user id
+    db: datebase connection;
     """
-    res = await user_queries.get_by_id(db=db, id=user_id)
-    if res is None:
+    user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
+    if not user_by_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь не найден'
+            status_code=status.HTTP_404_NOT_FOUND, detail='User not find'
         )
-    return res
+    return user_by_id
 
 
-@router.post('', response_model=UserSchema)
-async def create_user(user: UserInSchema, db: AsyncSession = Depends(get_db)):
+@router.post('', response_model=UserGetSchema)
+async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
-    Создание пользователя:
-    user: данные для создания пользователя согласно схемы UserInSchema
-    db: коннект к базе данных
+    Create user:
+    user: shame of user to create
+    db: datebase connection;
     """
-
-    res = await user_queries.create(db=db, user_schema=user)
-    return UserSchema.from_orm(res)
+    new_user = await user_queries.create(db=db, user_schema=user)
+    return UserGetSchema.from_orm(new_user)
 
 
 @router.put('', response_model=UserUpdateSchema)
 async def update_user(
-    id: int,
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
-    Обновление пользователя:
-    id: ID пользователя, которого будем исправлять
-    user: данные для создания пользователя согласно схемы UserUpdateSchema
-    db: коннект к базе данных
-    current_user: проверка существующего юзера
+    update user:
+    user: dataset of UserUpdateSchema
+    db: datebase connection;
+    current_user: only for autorized user
     """
-    old_user = await user_queries.get_by_id(db=db, id=id)
-
-    if old_user is None or old_user.email != current_user.email:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='Пользователь не найден'
-        )
+    old_user = await user_queries.get_by_id(db=db, user_id=current_user.id)
 
     old_user.name = user.name if user.name is not None else old_user.name
     old_user.email = user.email if user.email is not None else old_user.email
@@ -87,3 +82,16 @@ async def update_user(
     new_user = await user_queries.update(db=db, user=old_user)
 
     return UserUpdateSchema.from_orm(new_user)
+
+@router.delete('/delete')
+async def delete_user(
+    db: AsyncSession = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
+    """
+    Delete current user:
+    db: datebase connection;
+    current_user:current user
+    """
+    removed_user = await user_queries.delete(db=db, delete_user=current_user)
+    return removed_user

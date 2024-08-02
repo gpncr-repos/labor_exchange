@@ -1,3 +1,4 @@
+""" Shemas of users"""
 import datetime
 from typing import Optional
 
@@ -5,6 +6,7 @@ from pydantic import BaseModel, EmailStr, Field, validator
 
 
 class UserSchema(BaseModel):
+    """ Shemas as model """
     id: int = Field(examples=[1])
     name: str
     email: EmailStr
@@ -17,6 +19,7 @@ class UserSchema(BaseModel):
 
 
 class UserGetSchema(BaseModel):
+    """ Shemas for get """
     id: int = Field(examples=[1])
     name: str
     email: EmailStr
@@ -28,6 +31,7 @@ class UserGetSchema(BaseModel):
 
 
 class UserUpdateSchema(BaseModel):
+    """ Shemas for patch """
     name: Optional[str] = Field(examples=['Василий'])
     email: Optional[EmailStr] = Field(examples=['Vasilii@alibabaevich.com'])
     is_company: Optional[bool] = None
@@ -36,7 +40,8 @@ class UserUpdateSchema(BaseModel):
         orm_mode = True
 
 
-class UserInSchema(BaseModel):
+class UserCreateSchema(BaseModel):
+    """ Shemas for create """
     name: str = Field(examples=['Василий'])
     email: EmailStr = Field(examples=['Vasilii@alibabaevich.com'])
     password: str = Field(min_length=8)

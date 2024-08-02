@@ -1,4 +1,5 @@
 from .auth import LoginSchema, TokenSchema
-from .jobs import JobSchema, JobtoSchema
-from .responses import ResponsesinSchema, ResponsesSchema, ResponsestoSchema
-from .user import UserGetSchema, UserInSchema, UserSchema, UserUpdateSchema
+from .jobs import JobCreateSchema, JobSchema, JobUpdateSchema
+from .responses import (ResponsesCreateSchema, ResponsesSchema,
+                        ResponsesUpdateSchema)
+from .user import UserCreateSchema, UserGetSchema, UserSchema, UserUpdateSchema

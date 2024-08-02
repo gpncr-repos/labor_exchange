@@ -3,7 +3,7 @@ from pydantic import ValidationError
 
 from fixtures.users import UserFactory
 from queries import user as user_query
-from schemas import UserInSchema
+from schemas import UserCreateSchema
 
 
 @pytest.mark.asyncio
@@ -43,7 +43,7 @@ async def test_get_by_email(sa_session):
 
 @pytest.mark.asyncio
 async def test_create(sa_session):
-    user = UserInSchema(
+    user = UserCreateSchema(
         name='Uchpochmak',
         email='bashkort@example.com',
         password='eshkere!',
@@ -60,7 +60,7 @@ async def test_create(sa_session):
 @pytest.mark.asyncio
 async def test_create_password_mismatch(sa_session):
     with pytest.raises(ValidationError):
-        user = UserInSchema(
+        user = UserCreateSchema(
             name='Uchpochmak',
             email='bashkort@example.com',
             password='eshkere!',
