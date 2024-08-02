@@ -1,12 +1,10 @@
-from dataclasses import dataclass
-
 from infra.exceptions.base import RepositoryException
 
 
-@dataclass
 class UserNotFoundDBException(RepositoryException):
-    user_id: str | None = None
-    user_email: str | None = None
+    def __init__(self, user_id: str | None = None, user_email: str | None = None):
+        self.user_id = user_id
+        self.user_email = user_email
 
     @property
     def message(self):
@@ -17,9 +15,9 @@ class UserNotFoundDBException(RepositoryException):
         return f"Пользователь не найден!"
 
 
-@dataclass
 class UserAlreadyExistsDBException(RepositoryException):
-    user_email: str
+    def __init__(self, user_email: str):
+        self.user_email = user_email
 
     @property
     def message(self):

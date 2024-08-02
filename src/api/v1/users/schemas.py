@@ -1,6 +1,6 @@
 import datetime
 from typing import Optional
-from pydantic import BaseModel, EmailStr, field_validator, constr
+from pydantic import BaseModel, EmailStr, field_validator, StringConstraints, ValidationInfo
 
 from domain.entities.users import UserEntity
 
@@ -42,15 +42,15 @@ class UserUpdateSchema(BaseModel):
 class UserInSchema(BaseModel):
     name: str
     email: EmailStr
-    password: constr(min_length=8)
+    password: str
     password2: str
     is_company: bool = False
 
     @field_validator("password2")
-    def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values["password"]:
+    def password_match(cls, v, info: ValidationInfo):
+        if 'password' in info.data and v != info.data["password"]:
             raise ValueError("Пароли не совпадают!")
-        return True
+        return v
 
     def to_entity(self):
         return UserEntity(

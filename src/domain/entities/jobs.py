@@ -10,5 +10,5 @@ class JobEntity(BaseEntity):
     salary_from: float
     salary_to: float
     is_active: bool
-    user_id: int
+    user_id: str
     responses_ids: list[int] = field(default_factory=list)

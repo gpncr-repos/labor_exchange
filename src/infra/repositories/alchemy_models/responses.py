@@ -1,9 +1,9 @@
 from typing import TYPE_CHECKING
 
-from sqlalchemy import ForeignKey, Text
+from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from domain.entities.responses import ResponseEntity
+from domain.entities.responses import ResponseEntity, ResponseDetailEntity
 from infra.repositories.alchemy_models.base import TimedBaseModel
 
 if TYPE_CHECKING:
@@ -19,6 +19,10 @@ class Response(TimedBaseModel):
     user: Mapped["User"] = relationship(back_populates="responses", )
     job: Mapped["Job"] = relationship(back_populates="responses", )
 
+    __table_args__ = (
+        UniqueConstraint('user_id', 'job_id', name='uix_user_job'),
+    )
+
     def __str__(self):
         return f"{self.__class__.__name__}(id={self.id},"
 
@@ -32,4 +36,14 @@ class Response(TimedBaseModel):
             user_id=self.user_id,
             job_id=self.job_id,
             created_at=self.created_at,
+        )
+
+    def to_detail_entity(self) -> ResponseDetailEntity:
+        return ResponseDetailEntity(
+            id=self.id,
+            message=self.message,
+            user_id=self.user_id,
+            job_id=self.job_id,
+            created_at=self.created_at,
+            job=self.job.to_entity()
         )

@@ -1,5 +1,3 @@
-from dataclasses import dataclass
-
 from sqlalchemy import select, update
 from sqlalchemy.exc import IntegrityError, NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -11,27 +9,29 @@ from infra.repositories.users.base import BaseUserRepository
 from infra.repositories.users.converters import convert_user_entity_to_dto
 
 
-@dataclass
 class AlchemyUserRepository(BaseUserRepository):
-    session: AsyncSession
+    def __init__(self, session: AsyncSession):
+        self.session = session
 
     async def get_by_id(self, user_id: str) -> User:
         query = select(User).where(User.id == user_id).limit(1)
         async with self.session as session:
             try:
                 res = await session.execute(query)
+                user = res.scalar_one()
             except NoResultFound:
                 raise UserNotFoundDBException(user_id=user_id)
-        return res.scalars().first()
+        return user
 
     async def get_by_email(self, email: str) -> User:
         query = select(User).where(User.email == email).limit(1)
         async with self.session as session:
             try:
                 res = await session.execute(query)
+                user = res.scalar_one()
             except NoResultFound:
                 raise UserNotFoundDBException(user_email=email)
-        return res.scalars().first()
+        return user
 
     async def get_all(self, limit: int, offset: int) -> list[User]:
         query = select(User).limit(limit).offset(offset)
@@ -52,7 +52,9 @@ class AlchemyUserRepository(BaseUserRepository):
 
     async def update(self, user_in: UserEntity) -> User:
         async with self.session as session:
-            query = update(User).where(User.id == user_in.id).values(**user_in.to_dict()).returning(User)
+            query = update(User).where(User.id == user_in.id).values(
+                **user_in.to_not_nullable_values_dict()
+            ).returning(User)
             try:
                 res = await session.execute(query)
                 await session.commit()
