@@ -3,7 +3,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from api.dependencies.responses import get_response_service
 from api.v1.jobs.schemas import JobSchema
 from api.v1.responses.schemas import ResponseSchema, ResponseCreateSchema, ResponseDetailSchema
-from api.dependencies.users import get_current_user
+from api.dependencies.auth import get_auth_user
 from core.exceptions import ApplicationException
 from domain.entities.users import UserEntity
 from logic.services.responses.base import BaseResponseService
@@ -14,7 +14,7 @@ router = APIRouter(prefix="/responses", tags=["responses"])
 @router.post("", response_model=ResponseSchema)
 async def make_response(
         response: ResponseCreateSchema,
-        auth_user: UserEntity = Depends(get_current_user),
+        auth_user: UserEntity = Depends(get_auth_user),
         response_service: BaseResponseService = Depends(get_response_service),
 ) -> list[JobSchema]:
     response.user_id = auth_user.id

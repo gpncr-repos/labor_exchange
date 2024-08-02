@@ -23,7 +23,7 @@ class AlchemyUserRepository(BaseUserRepository):
                 raise UserNotFoundDBException(user_id=user_id)
         return user
 
-    async def get_by_email(self, email: str) -> User:
+    async def get_one_by_email(self, email: str) -> User:
         query = select(User).where(User.email == email).limit(1)
         async with self.session as session:
             try:

@@ -3,7 +3,7 @@ from abc import ABC, abstractmethod
 
 class BaseUserRepository(ABC):
     @abstractmethod
-    async def get_by_id(self, user_id: str):
+    async def get_one_by_id(self, user_id: str):
         ...
 
     @abstractmethod
@@ -19,9 +19,5 @@ class BaseUserRepository(ABC):
         ...
 
     @abstractmethod
-    async def delete(self, user_id: str):
-        ...
-
-    @abstractmethod
-    async def get_by_email(self, email: str):
+    async def get_one_by_email(self, email: str):
         ...

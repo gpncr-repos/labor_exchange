@@ -8,10 +8,3 @@ class UpdateOtherUserException(ServiceException):
     @property
     def message(self):
         return f"Невозможно изменить чужого пользователя с email {self.user_email}!"
-
-
-class WrongCredentialsException(ServiceException):
-
-    @property
-    def message(self):
-        return f"Неверные имя пользователя или пароль!"

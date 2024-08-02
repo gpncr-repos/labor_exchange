@@ -2,7 +2,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 
 from api.v1.users.schemas import UserSchema, UserInSchema, UserUpdateSchema
 from core.exceptions import ApplicationException
-from api.dependencies.users import get_current_user, get_user_service
+from api.dependencies.auth import get_auth_user, get_user_service
 from domain.entities.users import UserEntity
 
 from logic.services.users.base import BaseUserService
@@ -39,7 +39,7 @@ async def create_user(
 async def update_user(
         user_id: str,
         user: UserUpdateSchema,
-        auth_user: UserEntity = Depends(get_current_user),
+        auth_user: UserEntity = Depends(get_auth_user),
         user_service: BaseUserService = Depends(get_user_service),
 ) -> UserSchema:
     try:

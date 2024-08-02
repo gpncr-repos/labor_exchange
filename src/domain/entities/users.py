@@ -10,11 +10,3 @@ class UserEntity(BaseEntity):
     is_company: bool
     password: str | None = None
     hashed_password: str | None = None
-    jobs_ids: list[int] | None = None
-    responses_ids: list[int] | None = None
-
-
-@dataclass
-class TokenEntity:
-    access_token: str
-    token_type: str
