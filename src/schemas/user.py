@@ -1,4 +1,5 @@
 """ Shemas of users"""
+
 import datetime
 from typing import Optional
 
@@ -6,7 +7,8 @@ from pydantic import BaseModel, EmailStr, Field, validator
 
 
 class UserSchema(BaseModel):
-    """ Shemas as model """
+    """Shemas as model"""
+
     id: int = Field(examples=[1])
     name: str
     email: EmailStr
@@ -19,7 +21,8 @@ class UserSchema(BaseModel):
 
 
 class UserGetSchema(BaseModel):
-    """ Shemas for get """
+    """Shemas for get"""
+
     id: int = Field(examples=[1])
     name: str
     email: EmailStr
@@ -31,9 +34,10 @@ class UserGetSchema(BaseModel):
 
 
 class UserUpdateSchema(BaseModel):
-    """ Shemas for patch """
-    name: Optional[str] = Field(examples=['Василий'])
-    email: Optional[EmailStr] = Field(examples=['Vasilii@alibabaevich.com'])
+    """Shemas for patch"""
+
+    name: Optional[str] = Field(examples=["Василий"])
+    email: Optional[EmailStr] = Field(examples=["Vasilii@alibabaevich.com"])
     is_company: Optional[bool] = None
 
     class Config:
@@ -41,9 +45,10 @@ class UserUpdateSchema(BaseModel):
 
 
 class UserCreateSchema(BaseModel):
-    """ Shemas for create """
-    name: str = Field(examples=['Василий'])
-    email: EmailStr = Field(examples=['Vasilii@alibabaevich.com'])
+    """Shemas for create"""
+
+    name: str = Field(examples=["Василий"])
+    email: EmailStr = Field(examples=["Vasilii@alibabaevich.com"])
     password: str = Field(min_length=8)
     password2: str = Field(min_length=8)
     is_company: bool = False
@@ -51,8 +56,8 @@ class UserCreateSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator('password2')
+    @validator("password2")
     def password_match(cls, v, values, **kwargs):
-        if 'password' in values and v != values['password']:
-            raise ValueError('Пароли не совпадают!')
+        if "password" in values and v != values["password"]:
+            raise ValueError("Пароли не совпадают!")
         return True

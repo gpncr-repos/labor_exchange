@@ -11,10 +11,10 @@ from queries import user as user_queries
 from schemas import (UserCreateSchema, UserGetSchema, UserSchema,
                      UserUpdateSchema)
 
-router = APIRouter(prefix='/users', tags=['users'])
+router = APIRouter(prefix="/users", tags=["users"])
 
 
-@router.get('', response_model=List[UserGetSchema])
+@router.get("", response_model=List[UserGetSchema])
 async def read_all_users(
     db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0
 ):
@@ -28,12 +28,12 @@ async def read_all_users(
     if not all_users:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='There is no user',
+            detail="There is no user",
         )
     return all_users
 
 
-@router.get('/{user_id}', response_model=UserSchema)
+@router.get("/{user_id}", response_model=UserSchema)
 async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     Get user by id:
@@ -43,12 +43,12 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
     if not user_by_id:
         raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail='User not find'
+            status_code=status.HTTP_404_NOT_FOUND, detail="User not find"
         )
     return user_by_id
 
 
-@router.post('', response_model=UserGetSchema)
+@router.post("", response_model=UserGetSchema)
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:
@@ -59,7 +59,7 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     return UserGetSchema.from_orm(new_user)
 
 
-@router.put('', response_model=UserUpdateSchema)
+@router.put("", response_model=UserUpdateSchema)
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -83,7 +83,8 @@ async def update_user(
 
     return UserUpdateSchema.from_orm(new_user)
 
-@router.delete('/delete')
+
+@router.delete("/delete")
 async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),

@@ -17,17 +17,17 @@ config = context.config
 
 section = config.config_ini_section
 
-config.set_section_option(section, 'DB_USER', DB_USER)
-config.set_section_option(section, 'DB_HOST', DB_HOST)
-config.set_section_option(section, 'DB_PASS', DB_PASS)
-config.set_section_option(section, 'DB_NAME', DB_NAME)
-config.set_section_option(section, 'DB_PORT', DB_PORT)
+config.set_section_option(section, "DB_USER", DB_USER)
+config.set_section_option(section, "DB_HOST", DB_HOST)
+config.set_section_option(section, "DB_PASS", DB_PASS)
+config.set_section_option(section, "DB_NAME", DB_NAME)
+config.set_section_option(section, "DB_PORT", DB_PORT)
 if test_mode:
-    config.set_section_option(section, 'DB_USER', DB_USER_TEST)
-    config.set_section_option(section, 'DB_HOST', DB_HOST_TEST)
-    config.set_section_option(section, 'DB_PASS', DB_PASS_TEST)
-    config.set_section_option(section, 'DB_NAME', DB_NAME_TEST)
-    config.set_section_option(section, 'DB_PORT', DB_PORT_TEST)
+    config.set_section_option(section, "DB_USER", DB_USER_TEST)
+    config.set_section_option(section, "DB_HOST", DB_HOST_TEST)
+    config.set_section_option(section, "DB_PASS", DB_PASS_TEST)
+    config.set_section_option(section, "DB_NAME", DB_NAME_TEST)
+    config.set_section_option(section, "DB_PORT", DB_PORT_TEST)
 # Interpret the config file for Python logging.
 # This line sets up loggers basically.
 if config.config_file_name is not None:
@@ -57,12 +57,12 @@ def run_migrations_offline() -> None:
     script output.
 
     """
-    url = config.get_main_option('sqlalchemy.url')
+    url = config.get_main_option("sqlalchemy.url")
     context.configure(
         url=url,
         target_metadata=target_metadata,
         literal_binds=True,
-        dialect_opts={'paramstyle': 'named'},
+        dialect_opts={"paramstyle": "named"},
     )
 
     with context.begin_transaction():
@@ -86,7 +86,7 @@ async def run_migrations_online() -> None:
     connectable = AsyncEngine(
         engine_from_config(
             config.get_section(config.config_ini_section),
-            prefix='sqlalchemy.',
+            prefix="sqlalchemy.",
             poolclass=pool.NullPool,
             future=True,
         )

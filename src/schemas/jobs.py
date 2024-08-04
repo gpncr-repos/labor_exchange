@@ -6,7 +6,8 @@ from pydantic import BaseModel, validator
 
 
 class JobSchema(BaseModel):
-    """ Shema of model """
+    """Shema of model"""
+
     id: int
     user_id: int
     title: str
@@ -21,7 +22,8 @@ class JobSchema(BaseModel):
 
 
 class JobCreateSchema(BaseModel):
-    """ Shema to create model """
+    """Shema to create model"""
+
     title: str
     discription: str
     salary_from: int
@@ -31,14 +33,20 @@ class JobCreateSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator('salary_to')
+    @validator("salary_to")
     def salary_match(cls, v, values, **kwargs):
-        if v < values['salary_from']:
-            raise ValueError('Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}'.format(v,values['salary_from']))
+        if v < values["salary_from"]:
+            raise ValueError(
+                "Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}".format(
+                    v, values["salary_from"]
+                )
+            )
         return v
 
+
 class JobUpdateSchema(BaseModel):
-    """ Shema to update model """
+    """Shema to update model"""
+
     title: str
     discription: str
     salary_from: int
@@ -48,8 +56,12 @@ class JobUpdateSchema(BaseModel):
     class Config:
         orm_mode = True
 
-    @validator('salary_to')
+    @validator("salary_to")
     def salary_match(cls, v, values, **kwargs):
-        if v < values['salary_from']:
-            raise ValueError('Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}'.format(v,values['salary_from']))
+        if v < values["salary_from"]:
+            raise ValueError(
+                "Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}".format(
+                    v, values["salary_from"]
+                )
+            )
         return v

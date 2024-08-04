@@ -6,12 +6,12 @@ from fastapi.security import HTTPBearer
 from jose import jwt
 from passlib.context import CryptContext
 
-ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get('ACCESS_TOKEN_EXPIRE_MINUTES'))
-SECRET_KEY = os.environ.get('SECRET_KEY')
-ALGORITHM = os.environ.get('ALGORITHM')
+ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
+SECRET_KEY = os.environ.get("SECRET_KEY")
+ALGORITHM = os.environ.get("ALGORITHM")
 
 
-pwd_context = CryptContext(schemes=['bcrypt'], deprecated='auto')
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 
 
 def hash_password(password: str) -> str:
@@ -26,7 +26,7 @@ def create_access_token(data: dict) -> str:
     to_encode = data.copy()
     to_encode.update(
         {
-            'exp': datetime.datetime.utcnow()
+            "exp": datetime.datetime.utcnow()
             + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
         }
     )
@@ -48,7 +48,7 @@ class JWTBearer(HTTPBearer):
     async def __call__(self, request: Request):
         credentials = await super(JWTBearer, self).__call__(request)
         exp = HTTPException(
-            status_code=status.HTTP_403_FORBIDDEN, detail='Invalid auth token'
+            status_code=status.HTTP_403_FORBIDDEN, detail="Invalid auth token"
         )
         if credentials:
             token = decode_access_token(credentials.credentials)

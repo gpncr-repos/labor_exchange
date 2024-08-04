@@ -10,14 +10,14 @@ app.include_router(jobs_router)
 app.include_router(responses_router)
 
 
-@app.get('/')
+@app.get("/")
 def hello():
     """
     Здесь должно быть крутое промо
 
     """
-    return {'message': 'Башкирский баш хантер приветствует тебя'}
+    return {"message": "Башкирский баш хантер приветствует тебя"}
 
 
-if __name__ == '__main__':
-    uvicorn.run('main:app', port=8080, reload=True)
+if __name__ == "__main__":
+    uvicorn.run("main:app", port=8080, reload=True)

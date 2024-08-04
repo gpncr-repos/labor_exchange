@@ -12,7 +12,7 @@ class ResponseFactory(AsyncSQLAlchemyModelFactory):
         model = Response
 
     id = factory.Sequence(lambda n: n)
-    user_id = factory.Faker('pyint')
-    job_id = factory.Faker('pyint')
-    massage = factory.Faker('pystr')
+    user_id = factory.Faker("pyint")
+    job_id = factory.Faker("pyint")
+    massage = factory.Faker("pystr")
     created_at = factory.LazyFunction(datetime.utcnow)
