@@ -13,7 +13,7 @@ DB_PORT = os.environ.get('DB_PORT')
 test_mode = False
 if os.environ.get('test_mode'):
     test_mode = True
-    
+
 DB_USER_TEST = os.environ.get('DB_USER_TEST')
 DB_PASS_TEST = os.environ.get('DB_PASS_TEST')
 DB_HOST_TEST = os.environ.get('DB_HOST_TEST')

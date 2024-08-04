@@ -5,7 +5,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from core.security import hash_password
 from models import User
-from schemas import UserCreateSchema,UserGetSchema
+from schemas import UserCreateSchema, UserGetSchema
 
 
 async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:
