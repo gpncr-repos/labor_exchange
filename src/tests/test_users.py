@@ -44,27 +44,27 @@ async def test_get_by_email(sa_session):
 @pytest.mark.asyncio
 async def test_create(sa_session):
     user = UserCreateSchema(
-        name='Uchpochmak',
-        email='bashkort@example.com',
-        password='eshkere!',
-        password2='eshkere!',
+        name="Uchpochmak",
+        email="bashkort@example.com",
+        password="eshkere!",
+        password2="eshkere!",
         is_company=False,
     )
 
     new_user = await user_query.create(sa_session, user_schema=user)
     assert new_user is not None
-    assert new_user.name == 'Uchpochmak'
-    assert new_user.hashed_password != 'eshkere!'
+    assert new_user.name == "Uchpochmak"
+    assert new_user.hashed_password != "eshkere!"
 
 
 @pytest.mark.asyncio
 async def test_create_password_mismatch(sa_session):
     with pytest.raises(ValidationError):
         user = UserCreateSchema(
-            name='Uchpochmak',
-            email='bashkort@example.com',
-            password='eshkere!',
-            password2='eshkero',
+            name="Uchpochmak",
+            email="bashkort@example.com",
+            password="eshkere!",
+            password2="eshkero",
             is_company=False,
         )
         await user_query.create(sa_session, user_schema=user)
@@ -75,10 +75,10 @@ async def test_update(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
     sa_session.flush()
-    user.name = 'update_name'
+    user.name = "update_name"
     updated_user = await user_query.update(sa_session, user=user)
     res = await user_query.get_by_id(sa_session, user.id)
     assert updated_user.name == res.name
     assert updated_user.email == res.email
     assert updated_user.is_company == res.is_company
-    assert res.name == 'update_name'
+    assert res.name == "update_name"

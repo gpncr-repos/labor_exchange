@@ -10,10 +10,10 @@ from queries import responses as responses_queries
 from schemas import (ResponsesCreateSchema, ResponsesSchema,
                      ResponsesUpdateSchema)
 
-router = APIRouter(prefix='/responses', tags=['responses'])
+router = APIRouter(prefix="/responses", tags=["responses"])
 
 
-@router.get('/responses_job_id/{job_id}', response_model=list[ResponsesSchema])
+@router.get("/responses_job_id/{job_id}", response_model=list[ResponsesSchema])
 async def get_responses_by_job_id(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -25,21 +25,31 @@ async def get_responses_by_job_id(
     db: datebase connection;
     current_user: current user
     """
-    looking_job=await jobs_queries.get_by_id(db=db, id=job_id)
+    looking_job = await jobs_queries.get_by_id(db=db, id=job_id)
     if not current_user.is_company:
-        responses_of_job_id = [await responses_queries.get_response_by_job_id_and_user_id(
-        db=db, job_id=job_id, user_id=current_user.id
-        )]
-    elif looking_job.user_id==current_user.id:
-        responses_of_job_id = await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
+        responses_of_job_id = [
+            await responses_queries.get_response_by_job_id_and_user_id(
+                db=db, job_id=job_id, user_id=current_user.id
+            )
+        ]
+    elif looking_job.user_id == current_user.id:
+        responses_of_job_id = await responses_queries.get_response_by_job_id(
+            db=db, job_id=job_id
+        )
     else:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail='You can\'t read not yours job responses ')
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You can't read not yours job responses ",
+        )
     if not responses_of_job_id:
-        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail='No responses in base by this job id for you')
+        raise HTTPException(
+            status_code=status.HTTP_204_NO_CONTENT,
+            detail="No responses in base by this job id for you",
+        )
     return responses_of_job_id
 
 
-@router.get('/responses_user_id/', response_model=list[ResponsesSchema])
+@router.get("/responses_user_id/", response_model=list[ResponsesSchema])
 async def get_responses_by_user_id(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -53,16 +63,21 @@ async def get_responses_by_user_id(
     if not current_user.is_company:
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND,
-            detail='Only not company user can read there responses',
+            detail="Only not company user can read there responses",
         )
-    responses_of_user = await responses_queries.get_response_by_user_id(db=db, user_id=current_user.id)
+    responses_of_user = await responses_queries.get_response_by_user_id(
+        db=db, user_id=current_user.id
+    )
 
     if not responses_of_user:
-        raise HTTPException(status_code=status.HTTP_204_NO_CONTENT, detail='No responses in base by this user id')
+        raise HTTPException(
+            status_code=status.HTTP_204_NO_CONTENT,
+            detail="No responses in base by this user id",
+        )
     return responses_of_user
 
 
-@router.post('', response_model=ResponsesCreateSchema)
+@router.post("", response_model=ResponsesCreateSchema)
 async def create_response(
     response: ResponsesCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -77,32 +92,33 @@ async def create_response(
     if current_user.is_company:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Companies are prohibited from creating responses ',
+            detail="Companies are prohibited from creating responses ",
         )
     is_double_responce = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=response.job_id, user_id=current_user.id
     )
     if is_double_responce:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='You alredy have response for thise job'
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="You alredy have response for thise job",
         )
     is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
     if not is_active_job:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='No job ith this id'
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No job ith this id"
         )
     if not is_active_job.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='Job is not active'
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Job is not active"
         )
     new_response = await responses_queries.response_create(
-            db=db, response_schema=response, user_id=current_user.id
-        )
+        db=db, response_schema=response, user_id=current_user.id
+    )
 
     return ResponsesCreateSchema.from_orm(new_response)
 
 
-@router.patch('/patch_response/{job_id}', response_model=ResponsesSchema)
+@router.patch("/patch_response/{job_id}", response_model=ResponsesSchema)
 async def patch_response(
     job_id: int,
     response: ResponsesUpdateSchema,
@@ -122,27 +138,25 @@ async def patch_response(
     if not responce_to_patch:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='Not responses to update',
+            detail="Not responses to update",
         )
     is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
     if not is_active_job:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='No job ith this id'
+            status_code=status.HTTP_400_BAD_REQUEST, detail="No job ith this id"
         )
     if not is_active_job.is_active:
         raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail='Job is not active'
+            status_code=status.HTTP_400_BAD_REQUEST, detail="Job is not active"
         )
     responce_to_patch.massage = (
-        response.massage
-        if response.massage is not None
-        else responce_to_patch.massage
+        response.massage if response.massage is not None else responce_to_patch.massage
     )
     new_response = await responses_queries.update(db=db, response=responce_to_patch)
     return ResponsesUpdateSchema.from_orm(new_response)
 
 
-@router.delete('/delete_response/job/{job_id}')
+@router.delete("/delete_response/job/{job_id}")
 async def delete_response(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -160,13 +174,15 @@ async def delete_response(
     if not responce_to_delete:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT,
-            detail='You dont have responses for this job',
+            detail="You dont have responses for this job",
         )
-    respose_to_delete = await responses_queries.delete(db=db, response=responce_to_delete)
+    respose_to_delete = await responses_queries.delete(
+        db=db, response=responce_to_delete
+    )
     return respose_to_delete
 
 
-@router.delete('/delete_response/{response_id}')
+@router.delete("/delete_response/{response_id}")
 async def delete_response_by_id(
     response_id: int,
     db: AsyncSession = Depends(get_db),
@@ -178,16 +194,20 @@ async def delete_response_by_id(
     db: datebase connection;
     current_user: current user
     """
-    responce_to_delete = await responses_queries.get_response_by_id(db=db, response_id=response_id)
+    responce_to_delete = await responses_queries.get_response_by_id(
+        db=db, response_id=response_id
+    )
     if not responce_to_delete:
         raise HTTPException(
             status_code=status.HTTP_204_NO_CONTENT,
-            detail='Response not exist',
+            detail="Response not exist",
         )
     if responce_to_delete.user_id != current_user.id:
         raise HTTPException(
             status_code=status.HTTP_400_BAD_REQUEST,
-            detail='It is not your response',
+            detail="It is not your response",
         )
-    respose_to_delete = await responses_queries.delete(db=db, response=responce_to_delete)
+    respose_to_delete = await responses_queries.delete(
+        db=db, response=responce_to_delete
+    )
     return respose_to_delete

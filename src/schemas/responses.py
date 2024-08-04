@@ -6,7 +6,8 @@ from pydantic import BaseModel
 
 
 class ResponsesSchema(BaseModel):
-    """ Shema of model """
+    """Shema of model"""
+
     id: int
     user_id: int
     job_id: int
@@ -18,7 +19,8 @@ class ResponsesSchema(BaseModel):
 
 
 class ResponsesCreateSchema(BaseModel):
-    """ Schema to create"""
+    """Schema to create"""
+
     job_id: int
     massage: str
 
@@ -27,7 +29,8 @@ class ResponsesCreateSchema(BaseModel):
 
 
 class ResponsesUpdateSchema(BaseModel):
-    """ schema to patch """
+    """schema to patch"""
+
     job_id: int
     massage: str
 

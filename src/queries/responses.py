@@ -7,25 +7,23 @@ from models import Response
 from schemas import ResponsesCreateSchema, ResponsesSchema
 
 
-async def get_response_by_job_id(
-    db: AsyncSession, job_id: int
-) -> List[Response]:
+async def get_response_by_job_id(db: AsyncSession, job_id: int) -> List[Response]:
     query = select(Response).where(Response.job_id == job_id)
     res = await db.execute(query)
     return res.scalars().all()
 
 
-async def get_response_by_user_id(
-    db: AsyncSession, user_id: int
-) -> List[Response]:
+async def get_response_by_user_id(db: AsyncSession, user_id: int) -> List[Response]:
     query = select(Response).where(Response.user_id == user_id)
     res = await db.execute(query)
     return res.scalars().all()
+
 
 async def get_response_by_id(db: AsyncSession, response_id: int) -> Response:
     query = select(Response).where(Response.id == response_id)
     res = await db.execute(query)
     return res.scalars().first()
+
 
 async def get_response_by_job_id_and_user_id(
     db: AsyncSession, job_id: int, user_id: int
@@ -55,7 +53,7 @@ async def update(db: AsyncSession, response: ResponsesSchema) -> Response:
     db.add(response)
     await db.commit()
     await db.refresh(response)
-    update_response_id=response.id
+    update_response_id = response.id
     res = await get_response_by_id(db=db, response_id=update_response_id)
     return res
 

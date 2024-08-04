@@ -38,7 +38,7 @@ async def update(db: AsyncSession, update_job: JobSchema) -> Job:
     db.add(update_job)
     await db.commit()
     await db.refresh(update_job)
-    updated_job= await get_by_id(db=db,id=update_job.id)
+    updated_job = await get_by_id(db=db, id=update_job.id)
     return updated_job
 
 

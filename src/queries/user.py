@@ -32,11 +32,13 @@ async def create(db: AsyncSession, user_schema: UserCreateSchema) -> User:
     await db.refresh(user)
     return user
 
+
 async def update(db: AsyncSession, user: User) -> User:
     db.add(user)
     await db.commit()
     await db.refresh(user)
     return user
+
 
 async def get_by_email(db: AsyncSession, email: str) -> User:
     query = select(User).where(User.email == email)
@@ -44,9 +46,10 @@ async def get_by_email(db: AsyncSession, email: str) -> User:
     user = res.scalars().first()
     return user
 
+
 async def delete(db: AsyncSession, delete_user: User) -> UserGetSchema:
-    user_id=delete_user.id
-    deleted_user= await get_by_id(db=db,user_id=user_id)
+    user_id = delete_user.id
+    deleted_user = await get_by_id(db=db, user_id=user_id)
     await db.delete(delete_user)
     await db.commit()
     return deleted_user
