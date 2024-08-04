@@ -1,17 +1,31 @@
 version: '3'
-
 services:
-  postgres:
-    container_name: postgres-laborexchange
+  prod_postgres:
+    container_name: prod_postgres-laborexchange
     image: postgres
     environment:
       POSTGRES_DB: "labor-exchange"
       POSTGRES_USER: "admin"
       POSTGRES_PASSWORD: "admin"
-      PGDATA: /data/postgres
-    volumes:
-       - postgres:/data/postgres
+      PGDATA: /data/prod_postgres
     ports:
       - "5432:5432"
+    volumes:
+       - prod_postgres:/data/prod_postgres
+
+  test_postgres:
+    container_name: test_postgres-laborexchange
+    image: postgres
+    environment:
+      POSTGRES_DB: "test-labor-exchange"
+      POSTGRES_USER: "admin"
+      POSTGRES_PASSWORD: "admin"
+      PGDATA: /data/test_postgres
+    ports:
+      - "5433:5433"
+    volumes:
+       - test_postgres:/data/test_postgres
+
 volumes:
-    postgres:
+    prod_postgres:
+    test_postgres:

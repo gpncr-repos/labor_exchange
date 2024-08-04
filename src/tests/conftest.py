@@ -7,7 +7,7 @@ from fastapi.testclient import TestClient
 from sqlalchemy.ext.asyncio import AsyncSession, create_async_engine
 from sqlalchemy.orm import sessionmaker
 
-from db_settings import SQLALCHEMY_DATABASE_URL
+from db_settings import SQLALCHEMY_DATABASE_URL_TEST
 from fixtures.jobs import JobFactory
 from fixtures.users import UserFactory
 from main import app
@@ -22,7 +22,7 @@ def client_app():
 @pytest_asyncio.fixture()
 async def sa_session():
     engine = create_async_engine(
-        SQLALCHEMY_DATABASE_URL, echo=True
+        SQLALCHEMY_DATABASE_URL_TEST, echo=True
     )  # You must provide your database URL.
     connection = await engine.connect()
     trans = await connection.begin()
