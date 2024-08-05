@@ -71,9 +71,7 @@ async def test_get_recponces_by_job_id(sa_session):
     sa_session.add(response2)
     sa_session.flush()
 
-    all_responses = await responses_query.get_response_by_job_id(
-        sa_session, job_id=job.id
-    )
+    all_responses = await responses_query.get_response_by_job_id(sa_session, job_id=job.id)
 
     assert len(all_responses) == 2
     assert all_responses[1] == response2

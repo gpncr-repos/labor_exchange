@@ -13,9 +13,7 @@ class Validation_for_routers:
     def element_not_found(router_name: str):
         return JSONResponse(
             status_code=422,
-            content={
-                "message": "{router} not found in database".format(router=router_name)
-            },
+            content={"message": "{router} not found in database".format(router=router_name)},
         )
 
     @staticmethod

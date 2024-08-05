@@ -6,9 +6,20 @@ from sqlalchemy import engine_from_config, pool
 from sqlalchemy.engine import Connection
 from sqlalchemy.ext.asyncio import AsyncEngine
 
-from db_settings import (DB_HOST, DB_HOST_TEST, DB_NAME, DB_NAME_TEST, DB_PASS,
-                         DB_PASS_TEST, DB_PORT, DB_PORT_TEST, DB_USER,
-                         DB_USER_TEST, Base, test_mode)
+from db_settings import (
+    DB_HOST,
+    DB_HOST_TEST,
+    DB_NAME,
+    DB_NAME_TEST,
+    DB_PASS,
+    DB_PASS_TEST,
+    DB_PORT,
+    DB_PORT_TEST,
+    DB_USER,
+    DB_USER_TEST,
+    Base,
+    test_mode,
+)
 from models import *
 
 # this is the Alembic Config object, which provides

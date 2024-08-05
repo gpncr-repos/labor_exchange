@@ -30,9 +30,7 @@ async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.get("", response_model=List[JobSchema])
-async def get_all_jobs(
-    db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0
-):
+async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
     Get limit Jobs skip some:
     db: datebase connection;
@@ -58,9 +56,7 @@ async def create_job(
     """
     if not current_user.is_company:
         return JSONResponse(status_code=422, content={"message": "User is not company"})
-    created_job = await jobs_queries.create(
-        db=db, job_schema=job, curent_user_id=current_user.id
-    )
+    created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
     return JSONResponse(
         status_code=200,
         content={
@@ -93,22 +89,14 @@ async def patch_of_job(
             router_name="job", action_name="update"
         )
     old_job.title = jobpatch.title if jobpatch.title is not None else old_job.title
-    old_job.salary_to = (
-        jobpatch.salary_to if jobpatch.salary_to is not None else old_job.salary_to
-    )
+    old_job.salary_to = jobpatch.salary_to if jobpatch.salary_to is not None else old_job.salary_to
     old_job.salary_from = (
-        jobpatch.salary_from
-        if jobpatch.salary_from is not None
-        else old_job.salary_from
+        jobpatch.salary_from if jobpatch.salary_from is not None else old_job.salary_from
     )
     old_job.discription = (
-        jobpatch.discription
-        if jobpatch.discription is not None
-        else old_job.discription
+        jobpatch.discription if jobpatch.discription is not None else old_job.discription
     )
-    old_job.is_active = (
-        jobpatch.is_active if jobpatch.is_active is not None else old_job.is_active
-    )
+    old_job.is_active = jobpatch.is_active if jobpatch.is_active is not None else old_job.is_active
     update_job = await jobs_queries.update(db=db, update_job=old_job)
     return JSONResponse(
         status_code=200,

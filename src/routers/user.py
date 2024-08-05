@@ -9,8 +9,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies import get_current_user, get_db
 from models import User
 from queries import user as user_queries
-from schemas import (UserCreateSchema, UserGetSchema, UserSchema,
-                     UserUpdateSchema)
+from schemas import UserCreateSchema, UserGetSchema, UserSchema, UserUpdateSchema
 
 from .validation import Validation_for_routers
 
@@ -18,9 +17,7 @@ router = APIRouter(prefix="/users", tags=["users"])
 
 
 @router.get("", response_model=List[UserGetSchema])
-async def read_all_users(
-    db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0
-):
+async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
     Get limit users skip some:
     db: datebase connection;
@@ -46,7 +43,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     return user_by_id
 
 
-@router.post("", response_model=UserGetSchema)
+@router.post("/post", response_model=UserGetSchema)
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:
@@ -64,7 +61,7 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     )
 
 
-@router.put("", response_model=UserUpdateSchema)
+@router.put("/put", response_model=UserUpdateSchema)
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -80,9 +77,7 @@ async def update_user(
 
     old_user.name = user.name if user.name is not None else old_user.name
     old_user.email = user.email if user.email is not None else old_user.email
-    old_user.is_company = (
-        user.is_company if user.is_company is not None else old_user.is_company
-    )
+    old_user.is_company = user.is_company if user.is_company is not None else old_user.is_company
 
     new_user = await user_queries.update(db=db, user=old_user)
 

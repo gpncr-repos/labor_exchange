@@ -15,12 +15,8 @@ class Response(Base):
         autoincrement=True,
         comment="Идентификатор отклика",
     )
-    user_id = sa.Column(
-        sa.Integer, sa.ForeignKey("users.id"), comment="Идентификатор пользователя"
-    )
-    job_id = sa.Column(
-        sa.Integer, sa.ForeignKey("jobs.id"), comment="Идентификатор вакансии"
-    )
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"), comment="Идентификатор пользователя")
+    job_id = sa.Column(sa.Integer, sa.ForeignKey("jobs.id"), comment="Идентификатор вакансии")
     message = sa.Column(sa.String, comment="Сопроводительное письмо")
     created_at = sa.Column(
         sa.DateTime, comment="Дата создания записи", default=datetime.datetime.utcnow

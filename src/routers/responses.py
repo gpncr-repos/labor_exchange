@@ -8,8 +8,7 @@ from dependencies import get_current_user, get_db
 from models import User
 from queries import jobs as jobs_queries
 from queries import responses as responses_queries
-from schemas import (ResponsesCreateSchema, ResponsesSchema,
-                     ResponsesUpdateSchema)
+from schemas import ResponsesCreateSchema, ResponsesSchema, ResponsesUpdateSchema
 
 from .validation import Validation_for_routers
 
@@ -36,9 +35,7 @@ async def get_responses_by_job_id(
             )
         ]
     elif looking_job.user_id == current_user.id:
-        responses_of_job_id = await responses_queries.get_response_by_job_id(
-            db=db, job_id=job_id
-        )
+        responses_of_job_id = await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
     else:
         return Validation_for_routers.element_not_current_user_for("Respose", "read")
     if not responses_of_job_id:
@@ -187,16 +184,12 @@ async def delete_response_by_id(
     db: datebase connection;
     current_user: current user
     """
-    responce_to_delete = await responses_queries.get_response_by_id(
-        db=db, response_id=response_id
-    )
+    responce_to_delete = await responses_queries.get_response_by_id(db=db, response_id=response_id)
     if not responce_to_delete:
         return Validation_for_routers.element_not_found("Responses")
     if responce_to_delete.user_id != current_user.id:
         return Validation_for_routers.element_not_current_user_for("Respose", "delete")
-    respose_to_delete = await responses_queries.delete(
-        db=db, response=responce_to_delete
-    )
+    respose_to_delete = await responses_queries.delete(db=db, response=responce_to_delete)
     return JSONResponse(
         status_code=200,
         content={

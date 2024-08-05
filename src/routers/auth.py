@@ -19,6 +19,4 @@ async def login(login: LoginSchema, db: AsyncSession = Depends(get_db)):
             detail="Некорректное имя пользователя или пароль",
         )
 
-    return TokenSchema(
-        access_token=create_access_token({"sub": user.email}), token_type="Bearer"
-    )
+    return TokenSchema(access_token=create_access_token({"sub": user.email}), token_type="Bearer")

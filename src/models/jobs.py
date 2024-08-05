@@ -15,9 +15,7 @@ class Job(Base):
         autoincrement=True,
         comment="Идентификатор вакансии",
     )
-    user_id = sa.Column(
-        sa.Integer, sa.ForeignKey("users.id"), comment="Идентификатор пользователя"
-    )
+    user_id = sa.Column(sa.Integer, sa.ForeignKey("users.id"), comment="Идентификатор пользователя")
     title = sa.Column(sa.String, comment="Название вакансии")
     discription = sa.Column(sa.String, comment="описание вакансии")
     salary_from = sa.Column(sa.Integer, comment="Зарплата от")

@@ -36,9 +36,7 @@ def upgrade() -> None:
             comment="Зашифрованный пароль",
         ),
         sa.Column("is_company", sa.Boolean(), nullable=True, comment="Флаг компании"),
-        sa.Column(
-            "created_at", sa.DateTime(), nullable=True, comment="Время создания записи"
-        ),
+        sa.Column("created_at", sa.DateTime(), nullable=True, comment="Время создания записи"),
         sa.PrimaryKeyConstraint("id"),
         sa.UniqueConstraint("email"),
         sa.UniqueConstraint("id"),
@@ -52,9 +50,7 @@ def upgrade() -> None:
             nullable=False,
             comment="Идентификатор вакансии",
         ),
-        sa.Column(
-            "user_id", sa.Integer(), nullable=True, comment="Идентификатор пользователя"
-        ),
+        sa.Column("user_id", sa.Integer(), nullable=True, comment="Идентификатор пользователя"),
         sa.ForeignKeyConstraint(
             ["user_id"],
             ["users.id"],
@@ -70,12 +66,8 @@ def upgrade() -> None:
             nullable=False,
             comment="Идентификатор отклика",
         ),
-        sa.Column(
-            "user_id", sa.Integer(), nullable=True, comment="Идентификатор пользователя"
-        ),
-        sa.Column(
-            "job_id", sa.Integer(), nullable=True, comment="Идентификатор вакансии"
-        ),
+        sa.Column("user_id", sa.Integer(), nullable=True, comment="Идентификатор пользователя"),
+        sa.Column("job_id", sa.Integer(), nullable=True, comment="Идентификатор вакансии"),
         sa.ForeignKeyConstraint(
             ["job_id"],
             ["jobs.id"],

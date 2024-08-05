@@ -9,7 +9,7 @@ from schemas import UserCreateSchema
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
     all_users = await user_query.get_all(sa_session)
-    coutUser = len(all_users)
+    count_user = len(all_users)
     user = UserFactory.build()
     sa_session.add(user)
     user = UserFactory.build()
@@ -17,7 +17,7 @@ async def test_get_all(sa_session):
     sa_session.flush()
     all_users = await user_query.get_all(sa_session)
 
-    assert len(all_users) == coutUser + 2
+    assert len(all_users) == count_user + 2
 
 
 @pytest.mark.asyncio
