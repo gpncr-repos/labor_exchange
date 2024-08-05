@@ -3,7 +3,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 
 from functools import lru_cache
 
-from infra.repositories.alchemy_settings import get_session
+from infra.repositories.session import get_session
 from infra.repositories.jobs.alchemy import AlchemyJobRepository
 from infra.repositories.jobs.base import BaseJobRepository
 from infra.repositories.responses.alchemy import AlchemyResponseRepository
@@ -12,6 +12,7 @@ from infra.repositories.users.alchemy import AlchemyUserRepository
 from infra.repositories.users.base import BaseUserRepository
 from logic.services.jobs.base import BaseJobService
 from logic.services.jobs.repo import RepositoryJobService
+from logic.services.auth.jwt_auth import JWTAuthService
 from logic.services.responses.base import BaseResponseService
 from logic.services.responses.repo import RepositoryResponseService
 from logic.services.users.base import BaseUserService
@@ -42,6 +43,10 @@ def _initialize_container() -> punq.Container:
         repository: BaseUserRepository = container.resolve(AlchemyUserRepository)
         return RepositoryUserService(repository=repository)
 
+    def init_jwt_auth_service():
+        repository: BaseUserRepository = container.resolve(AlchemyUserRepository)
+        return JWTAuthService(user_repository=repository)
+
     def init_sqlalchemy_job_service():
         repository: BaseJobRepository = container.resolve(AlchemyJobRepository)
         return RepositoryJobService(repository=repository)
@@ -54,5 +59,6 @@ def _initialize_container() -> punq.Container:
     container.register(BaseUserService, factory=init_sqlalchemy_user_service)
     container.register(BaseJobService, factory=init_sqlalchemy_job_service)
     container.register(BaseResponseService, factory=init_sqlalchemy_response_service)
+    container.register(JWTAuthService, factory=init_jwt_auth_service)
 
     return container

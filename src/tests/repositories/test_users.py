@@ -25,19 +25,19 @@ async def test_get_by_id(sa_session):
     await sa_session.flush()
 
     repo = AlchemyUserRepository(sa_session)
-    current_user = await repo.get_by_id(user.id)
+    current_user = await repo.get_one_by_id(user.id)
     assert current_user is not None
     assert current_user.id == user.id
 
 
 @pytest.mark.asyncio
-async def test_get_by_email(sa_session):
+async def test_get_one_by_email(sa_session):
     user = UserFactory.build()
     sa_session.add(user)
     await sa_session.flush()
 
     repo = AlchemyUserRepository(sa_session)
-    current_user = await repo.get_by_email(user.email)
+    current_user = await repo.get_one_by_email(user.email)
     assert current_user is not None
     assert current_user.id == user.id
 
