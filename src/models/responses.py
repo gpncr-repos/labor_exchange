@@ -21,7 +21,7 @@ class Response(Base):
     job_id = sa.Column(
         sa.Integer, sa.ForeignKey("jobs.id"), comment="Идентификатор вакансии"
     )
-    massage = sa.Column(sa.String, comment="Сопроводительное письмо")
+    message = sa.Column(sa.String, comment="Сопроводительное письмо")
     created_at = sa.Column(
         sa.DateTime, comment="Дата создания записи", default=datetime.datetime.utcnow
     )

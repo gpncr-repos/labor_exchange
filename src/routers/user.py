@@ -2,7 +2,8 @@
 
 from typing import List
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_current_user, get_db
@@ -10,6 +11,8 @@ from models import User
 from queries import user as user_queries
 from schemas import (UserCreateSchema, UserGetSchema, UserSchema,
                      UserUpdateSchema)
+
+from .validation import Validation_for_routers
 
 router = APIRouter(prefix="/users", tags=["users"])
 
@@ -26,10 +29,7 @@ async def read_all_users(
     """
     all_users = await user_queries.get_all(db=db, limit=limit, skip=skip)
     if not all_users:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="There is no user",
-        )
+        return Validation_for_routers.empty_base(router_name="User")
     return all_users
 
 
@@ -42,9 +42,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
     if not user_by_id:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND, detail="User not find"
-        )
+        return Validation_for_routers.element_not_found(f"User id {user_id}")
     return user_by_id
 
 
@@ -56,7 +54,14 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     db: datebase connection;
     """
     new_user = await user_queries.create(db=db, user_schema=user)
-    return UserGetSchema.from_orm(new_user)
+    return JSONResponse(
+        status_code=201,
+        content={
+            "message": "User created",
+            "user name": new_user.name,
+            "user email": new_user.email,
+        },
+    )
 
 
 @router.put("", response_model=UserUpdateSchema)
@@ -81,7 +86,15 @@ async def update_user(
 
     new_user = await user_queries.update(db=db, user=old_user)
 
-    return UserUpdateSchema.from_orm(new_user)
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "User updated",
+            "user name": new_user.name,
+            "user email": new_user.email,
+            "user is_company": new_user.is_company,
+        },
+    )
 
 
 @router.delete("/delete")
@@ -95,4 +108,11 @@ async def delete_user(
     current_user:current user
     """
     removed_user = await user_queries.delete(db=db, delete_user=current_user)
-    return removed_user
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "User delete",
+            "user name": removed_user.name,
+            "user email": removed_user.email,
+        },
+    )

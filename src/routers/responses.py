@@ -1,6 +1,7 @@
 """" Model Responses API  """
 
-from fastapi import APIRouter, Depends, HTTPException, status
+from fastapi import APIRouter, Depends
+from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_current_user, get_db
@@ -9,6 +10,8 @@ from queries import jobs as jobs_queries
 from queries import responses as responses_queries
 from schemas import (ResponsesCreateSchema, ResponsesSchema,
                      ResponsesUpdateSchema)
+
+from .validation import Validation_for_routers
 
 router = APIRouter(prefix="/responses", tags=["responses"])
 
@@ -37,43 +40,32 @@ async def get_responses_by_job_id(
             db=db, job_id=job_id
         )
     else:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You can't read not yours job responses ",
-        )
+        return Validation_for_routers.element_not_current_user_for("Respose", "read")
     if not responses_of_job_id:
-        raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail="No responses in base by this job id for you",
-        )
+        return Validation_for_routers.element_not_found("Responses")
     return responses_of_job_id
 
 
-@router.get("/responses_user_id/", response_model=list[ResponsesSchema])
-async def get_responses_by_user_id(
+@router.get("/responses_user/", response_model=list[ResponsesSchema])
+async def get_responses_by_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
     Get responses by user id:
-    user_id: user id
     db: datebase connection;
     current_user: current user
     """
     if not current_user.is_company:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail="Only not company user can read there responses",
+        return JSONResponse(
+            status_code=422,
+            content={"message": "Only not company user can read there responses"},
         )
     responses_of_user = await responses_queries.get_response_by_user_id(
         db=db, user_id=current_user.id
     )
-
     if not responses_of_user:
-        raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail="No responses in base by this user id",
-        )
+        return Validation_for_routers.element_not_current_user_for("Respose", "read")
     return responses_of_user
 
 
@@ -90,32 +82,33 @@ async def create_response(
     current_user: current user
     """
     if current_user.is_company:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Companies are prohibited from creating responses ",
+        return JSONResponse(
+            status_code=422,
+            content={"message": "Companies are prohibited from creating responses"},
         )
     is_double_responce = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=response.job_id, user_id=current_user.id
     )
     if is_double_responce:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="You alredy have response for thise job",
+        return JSONResponse(
+            status_code=422,
+            content={"message": "You alredy have response for thise job"},
         )
     is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
     if not is_active_job:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="No job ith this id"
-        )
+        return Validation_for_routers.element_not_found(f"Job {response.job_id}")
     if not is_active_job.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Job is not active"
-        )
+        return Validation_for_routers.job_is_not_active()
     new_response = await responses_queries.response_create(
         db=db, response_schema=response, user_id=current_user.id
     )
-
-    return ResponsesCreateSchema.from_orm(new_response)
+    return JSONResponse(
+        status_code=201,
+        content={
+            "message": "response create",
+            "new responce messege": new_response.message,
+        },
+    )
 
 
 @router.patch("/patch_response/{job_id}", response_model=ResponsesSchema)
@@ -136,24 +129,23 @@ async def patch_response(
         db=db, job_id=job_id, user_id=current_user.id
     )
     if not responce_to_patch:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="Not responses to update",
-        )
+        return Validation_for_routers.element_not_current_user_for("Respose", "update")
     is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
     if not is_active_job:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="No job ith this id"
-        )
+        return Validation_for_routers.element_not_found(f"Job {job_id}")
     if not is_active_job.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST, detail="Job is not active"
-        )
-    responce_to_patch.massage = (
-        response.massage if response.massage is not None else responce_to_patch.massage
+        return Validation_for_routers.job_is_not_active()
+    responce_to_patch.message = (
+        response.message if response.message is not None else responce_to_patch.message
     )
     new_response = await responses_queries.update(db=db, response=responce_to_patch)
-    return ResponsesUpdateSchema.from_orm(new_response)
+    return JSONResponse(
+        status_code=201,
+        content={
+            "message": "response update",
+            "new responce messege": new_response.message,
+        },
+    )
 
 
 @router.delete("/delete_response/job/{job_id}")
@@ -168,18 +160,19 @@ async def delete_response(
     db: datebase connection;
     current_user: current user
     """
-    responce_to_delete = await responses_queries.get_response_by_job_id_and_user_id(
+    respose_to_delete = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=job_id, user_id=current_user.id
     )
-    if not responce_to_delete:
-        raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail="You dont have responses for this job",
-        )
-    respose_to_delete = await responses_queries.delete(
-        db=db, response=responce_to_delete
+    if not respose_to_delete:
+        return Validation_for_routers.element_not_current_user_for("Resposes", "delete")
+    delete_responses = await responses_queries.delete(db=db, response=respose_to_delete)
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "Response delete",
+            "job_id": delete_responses.job_id,
+        },
     )
-    return respose_to_delete
 
 
 @router.delete("/delete_response/{response_id}")
@@ -198,16 +191,17 @@ async def delete_response_by_id(
         db=db, response_id=response_id
     )
     if not responce_to_delete:
-        raise HTTPException(
-            status_code=status.HTTP_204_NO_CONTENT,
-            detail="Response not exist",
-        )
+        return Validation_for_routers.element_not_found("Responses")
     if responce_to_delete.user_id != current_user.id:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="It is not your response",
-        )
+        return Validation_for_routers.element_not_current_user_for("Respose", "delete")
     respose_to_delete = await responses_queries.delete(
         db=db, response=responce_to_delete
     )
-    return respose_to_delete
+    return JSONResponse(
+        status_code=200,
+        content={
+            "message": "Response delete",
+            "Response id": respose_to_delete.id,
+            "Response message": respose_to_delete.message,
+        },
+    )

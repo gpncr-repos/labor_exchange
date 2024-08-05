@@ -41,7 +41,7 @@ async def response_create(
     response_el = Response(
         user_id=user_id,
         job_id=response_schema.job_id,
-        massage=response_schema.massage,
+        message=response_schema.message,
     )
     db.add(response_el)
     await db.commit()

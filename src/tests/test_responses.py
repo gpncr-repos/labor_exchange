@@ -98,14 +98,14 @@ async def test_create(sa_session):
 
     response = ResponsesCreateSchema(
         job_id=job.id,
-        massage="What a beutiful job",
+        message="What a beutiful job",
     )
 
     res = await responses_query.response_create(
         sa_session, response_schema=response, user_id=worker.id
     )
     assert res is not None
-    assert res.massage == "What a beutiful job"
+    assert res.message == "What a beutiful job"
 
 
 @pytest.mark.asyncio
@@ -131,12 +131,12 @@ async def test_update(sa_session):
     sa_session.add(response)
     sa_session.flush()
 
-    response.massage = "New_message"
+    response.message = "New_message"
 
     new_response = await responses_query.update(sa_session, response)
     current_responses = await responses_query.get_response_by_job_id_and_user_id(
         sa_session, job_id=job.id, user_id=worker.id
     )
 
-    assert current_responses.massage == "New_message"
-    assert current_responses.massage == new_response.massage
+    assert current_responses.message == "New_message"
+    assert current_responses.message == new_response.message

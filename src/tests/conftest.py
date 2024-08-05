@@ -22,7 +22,7 @@ def client_app():
 @pytest_asyncio.fixture()
 async def sa_session():
     engine = create_async_engine(
-        SQLALCHEMY_DATABASE_URL_TEST, echo=True
+        SQLALCHEMY_DATABASE_URL_TEST,  # echo=True
     )  # You must provide your database URL.
     connection = await engine.connect()
     trans = await connection.begin()

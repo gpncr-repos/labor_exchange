@@ -14,5 +14,5 @@ class ResponseFactory(AsyncSQLAlchemyModelFactory):
     id = factory.Sequence(lambda n: n)
     user_id = factory.Faker("pyint")
     job_id = factory.Faker("pyint")
-    massage = factory.Faker("pystr")
+    message = factory.Faker("pystr")
     created_at = factory.LazyFunction(datetime.utcnow)

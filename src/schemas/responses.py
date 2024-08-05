@@ -11,7 +11,7 @@ class ResponsesSchema(BaseModel):
     id: int
     user_id: int
     job_id: int
-    massage: str
+    message: str
     created_at: datetime.datetime
 
     class Config:
@@ -22,7 +22,7 @@ class ResponsesCreateSchema(BaseModel):
     """Schema to create"""
 
     job_id: int
-    massage: str
+    message: str
 
     class Config:
         orm_mode = True
@@ -32,7 +32,7 @@ class ResponsesUpdateSchema(BaseModel):
     """schema to patch"""
 
     job_id: int
-    massage: str
+    message: str
 
     class Config:
         orm_mode = True
