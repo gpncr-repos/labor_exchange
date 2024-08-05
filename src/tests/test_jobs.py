@@ -9,7 +9,7 @@ from schemas import JobCreateSchema
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
     all_jobs = await job_query.get_all(sa_session)
-    countJobs = len(all_jobs)
+    count_jobs = len(all_jobs)
     user = UserFactory.build()
     user.is_company = True
     sa_session.add(user)
@@ -25,7 +25,7 @@ async def test_get_all(sa_session):
 
     all_jobs = await job_query.get_all(sa_session)
 
-    assert len(all_jobs) == countJobs + 2
+    assert len(all_jobs) == count_jobs + 2
 
 
 @pytest.mark.asyncio

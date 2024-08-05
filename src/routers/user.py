@@ -46,7 +46,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     return user_by_id
 
 
-@router.post("", response_model=UserGetSchema)
+@router.post("/post", response_model=UserGetSchema)
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:
@@ -64,7 +64,7 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     )
 
 
-@router.put("", response_model=UserUpdateSchema)
+@router.put("/put", response_model=UserUpdateSchema)
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
