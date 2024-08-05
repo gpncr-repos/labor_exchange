@@ -13,7 +13,7 @@ class AlchemyUserRepository(BaseUserRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_id(self, user_id: str) -> User:
+    async def get_one_by_id(self, user_id: str) -> User:
         query = select(User).where(User.id == user_id).limit(1)
         async with self.session as session:
             try:
@@ -61,9 +61,3 @@ class AlchemyUserRepository(BaseUserRepository):
             except IntegrityError:
                 raise UserAlreadyExistsDBException(user_email=user_in.email)
         return res.scalars().first()
-
-    async def delete(self, user_id: str) -> None:
-        user_to_delete = self.get_by_id(user_id)
-        async with self.session as session:
-            await session.delete(user_to_delete)
-            await session.commit()

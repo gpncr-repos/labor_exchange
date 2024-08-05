@@ -1,13 +1,13 @@
-from sqlalchemy import select
-from sqlalchemy.orm import selectinload
+from sqlalchemy import select, delete
+from sqlalchemy.orm import joinedload
 from sqlalchemy.ext.asyncio import AsyncSession
-from sqlalchemy.exc import IntegrityError
+from sqlalchemy.exc import IntegrityError, NoResultFound
 
 from domain.entities.responses import ResponseEntity
 from infra.exceptions.base import RepositoryException
+from infra.exceptions.responses import ResponseNotFoundDBException
 from infra.repositories.alchemy_models.jobs import Job
 from infra.repositories.alchemy_models.responses import Response
-from infra.repositories.alchemy_models.users import User
 from infra.repositories.responses.base import BaseResponseRepository
 from infra.repositories.responses.converters import convert_response_entity_to_dto
 
@@ -26,16 +26,52 @@ class AlchemyResponseRepository(BaseResponseRepository):
                 raise RepositoryException
         return new_response
 
+    async def get_one_by_id(self, response_id: str) -> Response:
+        query = select(Response).where(Response.id == response_id)
+        async with self.session as session:
+            try:
+                res = await session.execute(query)
+                response = res.scalar_one()
+            except NoResultFound:
+                raise ResponseNotFoundDBException(response_id=response_id)
+        return response
+
+    async def get_one_by_id_join_job(self, response_id: str) -> Response:
+        query = select(Response).where(Response.id == response_id).options(joinedload(Response.job))
+        async with self.session as session:
+            try:
+                res = await session.execute(query)
+                response = res.scalar_one()
+            except NoResultFound:
+                raise ResponseNotFoundDBException(response_id=response_id)
+        return response
+
     async def get_list_by_user_id(self, user_id: str) -> list[Response]:
-        user_query = select(User).where(User.id == user_id)
-        res_query = await self.session.execute(user_query)
-        user = res_query.scalar_one()
-        if not user.is_company:
-            query = select(Response).where(Response.user_id == user_id).options(
-                selectinload(Response.job)
+        query = select(Response).where(Response.user_id == user_id).options(
+                joinedload(Response.job)
             )
-        else:
-            query = select(Response).join(Job).filter(Job.user_id == user_id)
         async with self.session as session:
             res = await session.execute(query)
-        return res.scalars()
+        return res.scalars().all()
+
+    async def get_list_by_company_user_id(self, user_id: str) -> list[Response]:
+        query = select(Response).join(Job).filter(Job.user_id == user_id).options(
+                joinedload(Response.user)
+            )
+        async with self.session as session:
+            res = await session.execute(query)
+        return res.scalars().all()
+
+    async def get_list_by_job_id(self, job_id: str) -> list[Response]:
+        query = select(Response).where(Response.job_id == job_id).options(
+                joinedload(Response.user)
+            )
+        async with self.session as session:
+            res = await session.execute(query)
+        return res.scalars().all()
+
+    async def delete(self, response_id: str) -> None:
+        query = delete(Response).where(Response.id == response_id)
+        async with self.session as session:
+            await session.execute(query)
+            await session.commit()

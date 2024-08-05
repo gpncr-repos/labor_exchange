@@ -30,7 +30,6 @@ class JobSchema(BaseModel):
     salary_to: float
     is_active: bool = True
     user_id: str
-    responses_ids: list[int] = Field(default_factory=list)
 
     @classmethod
     def from_entity(cls, entity: JobEntity) -> "JobSchema":
@@ -42,5 +41,4 @@ class JobSchema(BaseModel):
             salary_to=entity.salary_to,
             is_active=entity.is_active,
             user_id=entity.user_id,
-            responses_ids=entity.responses_ids,
         )

@@ -11,5 +11,13 @@ class BaseResponseService(ABC):
         ...
 
     @abstractmethod
-    async def get_response_list_by_user_id(self, user_id):
+    async def get_user_response_list(self, user: UserEntity):
+        ...
+
+    @abstractmethod
+    async def get_job_response_list(self, job_id: str, user: UserEntity):
+        ...
+
+    @abstractmethod
+    async def delete_response(self, response_id: str, user: UserEntity):
         ...

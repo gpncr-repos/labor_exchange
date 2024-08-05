@@ -50,3 +50,18 @@ async def get_job_by_id(
             detail=e.message,
         )
     return JobSchema.from_entity(job)
+
+
+@router.delete("", status_code=status.HTTP_204_NO_CONTENT)
+async def delete_job(
+        job_id: str,
+        auth_user: UserEntity = Depends(get_current_user),
+        job_service: BaseJobService = Depends(get_job_service),
+) -> None:
+    try:
+        await job_service.delete_job(job_id=job_id, user=auth_user)
+    except ApplicationException as e:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail=e.message,
+        )

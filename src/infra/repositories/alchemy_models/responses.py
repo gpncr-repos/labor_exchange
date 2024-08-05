@@ -3,7 +3,7 @@ from typing import TYPE_CHECKING
 from sqlalchemy import ForeignKey, Text, UniqueConstraint
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
-from domain.entities.responses import ResponseEntity, ResponseDetailEntity
+from domain.entities.responses import ResponseEntity, ResponseAggregateJobEntity, ResponseAggregateUserEntity
 from infra.repositories.alchemy_models.base import TimedBaseModel
 
 if TYPE_CHECKING:
@@ -38,12 +38,22 @@ class Response(TimedBaseModel):
             created_at=self.created_at,
         )
 
-    def to_detail_entity(self) -> ResponseDetailEntity:
-        return ResponseDetailEntity(
+    def to_aggregate_job_entity(self) -> ResponseAggregateJobEntity:
+        return ResponseAggregateJobEntity(
             id=self.id,
             message=self.message,
             user_id=self.user_id,
             job_id=self.job_id,
             created_at=self.created_at,
             job=self.job.to_entity()
+        )
+
+    def to_aggregate_user_entity(self) -> ResponseAggregateUserEntity:
+        return ResponseAggregateUserEntity(
+            id=self.id,
+            message=self.message,
+            user_id=self.user_id,
+            job_id=self.job_id,
+            created_at=self.created_at,
+            user=self.user.to_entity()
         )

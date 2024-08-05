@@ -53,7 +53,8 @@ def _initialize_container() -> punq.Container:
 
     def init_sqlalchemy_response_service():
         repository: BaseResponseRepository = container.resolve(AlchemyResponseRepository)
-        return RepositoryResponseService(repository=repository)
+        job_repository: BaseJobRepository = container.resolve(AlchemyJobRepository)
+        return RepositoryResponseService(repository=repository, job_repository=job_repository)
 
     container.register(BaseUserService, factory=init_sqlalchemy_user_service)
     container.register(BaseJobService, factory=init_sqlalchemy_job_service)

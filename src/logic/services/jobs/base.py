@@ -15,3 +15,7 @@ class BaseJobService(ABC):
     @abstractmethod
     async def create_job(self, job_in, auth_user: UserEntity):
         ...
+
+    @abstractmethod
+    async def delete_job(self, job_id: str, user: UserEntity) -> None:
+        ...
