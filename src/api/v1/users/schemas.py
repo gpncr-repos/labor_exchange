@@ -12,9 +12,6 @@ class UserSchema(BaseModel):
     is_company: bool
     created_at: datetime.datetime
 
-    class ConfigDict:
-        from_attributes = True
-
     @classmethod
     def from_entity(cls, entity: UserEntity) -> "UserSchema":
         return UserSchema(

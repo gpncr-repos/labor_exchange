@@ -21,7 +21,7 @@ class RepositoryUserService(BaseUserService):
         return new_user.to_entity()
 
     async def update_user(self, user_id: str, auth_user_email: str, user_in: UserEntity) -> UserEntity:
-        old_user = await self.repository.get_by_id(user_id=user_id)
+        old_user = await self.repository.get_one_by_id(user_id=user_id)
         if old_user.email != auth_user_email:
             raise UpdateOtherUserException(user_email=old_user.email)
 

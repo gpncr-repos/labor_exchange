@@ -1,7 +1,5 @@
-from dataclasses import dataclass
-
-from sqlalchemy import select, update
-from sqlalchemy.exc import IntegrityError, NoResultFound
+from sqlalchemy import select, delete
+from sqlalchemy.exc import NoResultFound
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from domain.entities.jobs import JobEntity
@@ -15,7 +13,7 @@ class AlchemyJobRepository(BaseJobRepository):
     def __init__(self, session: AsyncSession):
         self.session = session
 
-    async def get_by_id(self, job_id: str) -> Job:
+    async def get_one_by_id(self, job_id: str) -> Job:
         query = select(Job).where(Job.id == job_id).limit(1)
         async with self.session as session:
             try:
@@ -38,3 +36,10 @@ class AlchemyJobRepository(BaseJobRepository):
             await session.commit()
             await session.refresh(new_job)
         return new_job
+
+    async def delete(self, job_id: str) -> None:
+        query = delete(Job).where(Job.id == job_id)
+        async with self.session as session:
+            await session.execute(query)
+            await session.commit()
+
