@@ -10,7 +10,7 @@ from queries import jobs as jobs_queries
 from queries import responses as responses_queries
 from schemas import ResponsesCreateSchema, ResponsesSchema, ResponsesUpdateSchema
 
-from .validation import Validation_for_routers
+from .validation import Real_Validation
 
 router = APIRouter(prefix="/responses", tags=["responses"])
 
@@ -27,7 +27,8 @@ async def get_responses_by_job_id(
     db: datebase connection;
     current_user: current user
     """
-    looking_job = await jobs_queries.get_by_id(db=db, id=job_id)
+    looking_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
+
     if not current_user.is_company:
         responses_of_job_id = [
             await responses_queries.get_response_by_job_id_and_user_id(
@@ -37,9 +38,9 @@ async def get_responses_by_job_id(
     elif looking_job.user_id == current_user.id:
         responses_of_job_id = await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
     else:
-        return Validation_for_routers.element_not_current_user_for("Respose", "read")
-    if not responses_of_job_id:
-        return Validation_for_routers.element_not_found("Responses")
+        Real_Validation.element_not_current_user_for(1, 0, "Respose", "read")
+
+    Real_Validation.element_not_found(responses_of_job_id, "Responses")
     return responses_of_job_id
 
 
@@ -53,16 +54,11 @@ async def get_responses_by_user(
     db: datebase connection;
     current_user: current user
     """
-    if not current_user.is_company:
-        return JSONResponse(
-            status_code=422,
-            content={"message": "Only not company user can read there responses"},
-        )
+    Real_Validation.is_company_for_response(current_user.is_company)
     responses_of_user = await responses_queries.get_response_by_user_id(
         db=db, user_id=current_user.id
     )
-    if not responses_of_user:
-        return Validation_for_routers.element_not_current_user_for("Respose", "read")
+    Real_Validation.element_not_found(responses_of_user, "Resposes")
     return responses_of_user
 
 
@@ -78,24 +74,7 @@ async def create_response(
     db: datebase connection;
     current_user: current user
     """
-    if current_user.is_company:
-        return JSONResponse(
-            status_code=422,
-            content={"message": "Companies are prohibited from creating responses"},
-        )
-    is_double_responce = await responses_queries.get_response_by_job_id_and_user_id(
-        db=db, job_id=response.job_id, user_id=current_user.id
-    )
-    if is_double_responce:
-        return JSONResponse(
-            status_code=422,
-            content={"message": "You alredy have response for thise job"},
-        )
-    is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
-    if not is_active_job:
-        return Validation_for_routers.element_not_found(f"Job {response.job_id}")
-    if not is_active_job.is_active:
-        return Validation_for_routers.job_is_not_active()
+    await Real_Validation.post_responses_validation(db, current_user, response)
     new_response = await responses_queries.response_create(
         db=db, response_schema=response, user_id=current_user.id
     )
@@ -125,13 +104,7 @@ async def patch_response(
     responce_to_patch = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=job_id, user_id=current_user.id
     )
-    if not responce_to_patch:
-        return Validation_for_routers.element_not_current_user_for("Respose", "update")
-    is_active_job = await jobs_queries.get_by_id(db=db, id=response.job_id)
-    if not is_active_job:
-        return Validation_for_routers.element_not_found(f"Job {job_id}")
-    if not is_active_job.is_active:
-        return Validation_for_routers.job_is_not_active()
+    await Real_Validation.patch_responses_validation(db, responce_to_patch)
     responce_to_patch.message = (
         response.message if response.message is not None else responce_to_patch.message
     )
@@ -160,8 +133,7 @@ async def delete_response(
     respose_to_delete = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=job_id, user_id=current_user.id
     )
-    if not respose_to_delete:
-        return Validation_for_routers.element_not_current_user_for("Resposes", "delete")
+    Real_Validation.element_not_found(respose_to_delete, "Resposes")
     delete_responses = await responses_queries.delete(db=db, response=respose_to_delete)
     return JSONResponse(
         status_code=200,
@@ -185,10 +157,10 @@ async def delete_response_by_id(
     current_user: current user
     """
     responce_to_delete = await responses_queries.get_response_by_id(db=db, response_id=response_id)
-    if not responce_to_delete:
-        return Validation_for_routers.element_not_found("Responses")
-    if responce_to_delete.user_id != current_user.id:
-        return Validation_for_routers.element_not_current_user_for("Respose", "delete")
+    Real_Validation.element_not_found(responce_to_delete, "Resposes")
+    Real_Validation.element_not_current_user_for(
+        responce_to_delete.user_id, current_user.id, router_name="response", action_name="delete"
+    )
     respose_to_delete = await responses_queries.delete(db=db, response=responce_to_delete)
     return JSONResponse(
         status_code=200,

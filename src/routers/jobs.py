@@ -11,7 +11,7 @@ from models import User
 from queries import jobs as jobs_queries
 from schemas import JobCreateSchema, JobSchema, JobUpdateSchema
 
-from .validation import Validation_for_routers
+from .validation import Real_Validation
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
 
@@ -23,9 +23,8 @@ async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
     job_id: job id
     db: datebase connection;
     """
-    job_by_id = await jobs_queries.get_by_id(db=db, id=job_id)
-    if not job_by_id:
-        return Validation_for_routers.element_not_found(f"Job id {job_id}")
+    job_by_id = await jobs_queries.get_by_id(db=db, job_id=job_id)
+    Real_Validation.element_not_found(job_by_id, f"Job id {job_id}")
     return job_by_id
 
 
@@ -38,8 +37,7 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, ski
     skip: skip from:
     """
     all_jobs = await jobs_queries.get_all(db=db, limit=limit, skip=skip)
-    if not all_jobs:
-        return Validation_for_routers.empty_base(router_name="Job")
+    Real_Validation.empty_base(all_jobs, router_name="Job")
     return all_jobs
 
 
@@ -54,8 +52,7 @@ async def create_job(
     job: dataset of JobCreateSchema
     db: datebase connection;
     """
-    if not current_user.is_company:
-        return JSONResponse(status_code=422, content={"message": "User is not company"})
+    Real_Validation.is_company_for_job(current_user.is_company)
     created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
     return JSONResponse(
         status_code=200,
@@ -83,11 +80,10 @@ async def patch_of_job(
     job: dataset of JobUpdateSchema
     db: datebase connection;
     """
-    old_job = await jobs_queries.get_by_id(db=db, id=job_id)
-    if current_user.id != old_job.user_id:
-        return Validation_for_routers.element_not_current_user_for(
-            router_name="job", action_name="update"
-        )
+    old_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
+    Real_Validation.element_not_current_user_for(
+        current_user.id, old_job.user_id, router_name="job", action_name="update"
+    )
     old_job.title = jobpatch.title if jobpatch.title is not None else old_job.title
     old_job.salary_to = jobpatch.salary_to if jobpatch.salary_to is not None else old_job.salary_to
     old_job.salary_from = (
@@ -122,18 +118,16 @@ async def delete_job(
     job_id: job id
     db: datebase connection;
     """
-    job_to_delete = await jobs_queries.get_by_id(db=db, id=job_id)
-    if job_to_delete is None:
-        return Validation_for_routers.element_not_found(f"Job id {job_id}")
-    if current_user.id != job_to_delete.user_id:
-        return Validation_for_routers.element_not_current_user_for(
-            router_name="job", action_name="delete"
-        )
+    job_to_delete = await jobs_queries.get_by_id(db=db, job_id=job_id)
+    Real_Validation.element_not_found(job_to_delete, f"Job id {job_id}")
+    Real_Validation.element_not_current_user_for(
+        current_user.id, job_to_delete.user_id, router_name="job", action_name="delete"
+    )
     removed_job = await jobs_queries.delete(db=db, delete_job=job_to_delete)
     return JSONResponse(
         status_code=200,
         content={
-            "message": "Job update",
+            "message": "Job delete",
             "Jb id": removed_job.id,
             "Job Title": removed_job.title,
             "Job discription": removed_job.discription,
