@@ -7,7 +7,7 @@ from models import Job
 from schemas import JobCreateSchema, JobSchema
 
 
-async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Optional[Job]]:
+async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Job]:
     query = select(Job).limit(limit).offset(skip)
     res = await db.execute(query)
     return res.scalars().all()

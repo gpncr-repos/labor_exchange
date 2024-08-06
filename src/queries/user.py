@@ -8,7 +8,7 @@ from models import User
 from schemas import UserCreateSchema, UserGetSchema
 
 
-async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Optional[User]]:
+async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[User]:
     query = select(User).limit(limit).offset(skip)
     res = await db.execute(query)
     return res.scalars().all()

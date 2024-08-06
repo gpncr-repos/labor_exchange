@@ -36,7 +36,9 @@ class Real_Validation:
         if elem:
             return JSONResponse(
                 status_code=422,
-                content={"message": "Only not company user can read there responses"},
+                content={
+                    "message": "Only not company user can read/create/update/delete there responses"
+                },
             )
 
     @staticmethod
@@ -57,11 +59,6 @@ class Real_Validation:
     async def post_responses_validation(
         db: AsyncSession, current_user: User, response: ResponsesCreateSchema
     ) -> None:
-        if current_user.is_company:
-            return JSONResponse(
-                status_code=422,
-                content={"message": "Companies are prohibited from creating responses"},
-            )
         is_double_responce = await responses_queries.get_response_by_job_id_and_user_id(
             db=db, job_id=response.job_id, user_id=current_user.id
         )

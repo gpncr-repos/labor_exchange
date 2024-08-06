@@ -7,13 +7,13 @@ from models import Response
 from schemas import ResponsesCreateSchema, ResponsesSchema
 
 
-async def get_response_by_job_id(db: AsyncSession, job_id: int) -> List[Optional[Response]]:
+async def get_response_by_job_id(db: AsyncSession, job_id: int) -> List[Response]:
     query = select(Response).where(Response.job_id == job_id)
     res = await db.execute(query)
     return res.scalars().all()
 
 
-async def get_response_by_user_id(db: AsyncSession, user_id: int) -> List[Optional[Response]]:
+async def get_response_by_user_id(db: AsyncSession, user_id: int) -> List[Response]:
     query = select(Response).where(Response.user_id == user_id)
     res = await db.execute(query)
     return res.scalars().all()

@@ -16,11 +16,80 @@ from .validation import Real_Validation
 router = APIRouter(prefix="/users", tags=["users"])
 
 responses = {
-    403: {"description": "it is not your {router} to {action}"},
+    204: {"description": "Zero rezult"},
+    403: {"description": "You have not power here"},
+    422: {"description": "Some proplem with validation"},
+}
+responses_get = {
+    **responses,
+    200: {
+        "description": "Get user",
+        "content": {
+            "application/json": {
+                "example": {
+                    "id": 1,
+                    "name": "Vasilii",
+                    "email": "Alibabaevich@bandit.cement",
+                    "is_company": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
+                }
+            }
+        },
+    },
+}
+
+responses_post = {
+    **responses,
+    200: {
+        "description": "User create",
+        "content": {
+            "application/json": {
+                "example": {
+                    "message": "User created",
+                    "user name": "Vasilii",
+                    "user email": "Alibabaevich@bandit.cement",
+                    "created_at": "2024-08-06T20:41:48.521Z",
+                }
+            }
+        },
+    },
+}
+
+responses_update = {
+    **responses,
+    200: {
+        "description": "User updated",
+        "content": {
+            "application/json": {
+                "example": {
+                    "message": "User updated",
+                    "user name": "Alex",
+                    "user email": "Belii@bandit.docent",
+                    "user is_company": True,
+                }
+            }
+        },
+    },
+}
+
+responses_delete = {
+    **responses,
+    200: {
+        "description": "User delete",
+        "content": {
+            "application/json": {
+                "example": {
+                    "message": "User delete",
+                    "user name": "Djady",
+                    "user email": "Obi@van.cenoby",
+                }
+            }
+        },
+    },
 }
 
 
-@router.get("", response_model=List[UserGetSchema], responses={**responses})
+@router.get("", response_model=List[UserGetSchema], responses={**responses_get})
 async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
     Get limit users skip some:
@@ -33,7 +102,7 @@ async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, s
     return all_users
 
 
-@router.get("/{user_id}", response_model=UserSchema)
+@router.get("/{user_id}", response_model=UserSchema, responses={**responses_get})
 async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     Get user by id:
@@ -45,7 +114,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     return user_by_id
 
 
-@router.post("/post")
+@router.post("/post", response_model=UserCreateSchema, responses={**responses_post})
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:
@@ -59,11 +128,12 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
             "message": "User created",
             "user name": new_user.name,
             "user email": new_user.email,
+            "created at": str(new_user.created_at),
         },
     )
 
 
-@router.put("/put")
+@router.put("/put", response_model=UserUpdateSchema, responses={**responses_update})
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -94,7 +164,7 @@ async def update_user(
     )
 
 
-@router.delete("/delete")
+@router.delete("/delete", responses={**responses_delete})
 async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
