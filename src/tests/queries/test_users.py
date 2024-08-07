@@ -8,16 +8,14 @@ from schemas import UserCreateSchema
 
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
-    all_users = await user_query.get_all(sa_session)
-    count_user = len(all_users)
-    user = UserFactory.build()
-    sa_session.add(user)
-    user = UserFactory.build()
-    sa_session.add(user)
+    user_count = 10
+    for _ in range(user_count):
+        user = UserFactory.build()
+        sa_session.add(user)
     sa_session.flush()
     all_users = await user_query.get_all(sa_session)
 
-    assert len(all_users) == count_user + 2
+    assert len(all_users) == user_count
 
 
 @pytest.mark.asyncio
@@ -28,6 +26,7 @@ async def test_get_by_id(sa_session):
 
     current_user = await user_query.get_by_id(sa_session, user.id)
     assert current_user is not None
+    assert current_user.email == user.email
 
 
 @pytest.mark.asyncio
@@ -76,9 +75,23 @@ async def test_update(sa_session):
     sa_session.add(user)
     sa_session.flush()
     user.name = "update_name"
+    user.email = "update_email"
+    old_company = user.is_company
+    user.is_company = not old_company
     updated_user = await user_query.update(sa_session, user=user)
-    res = await user_query.get_by_id(sa_session, user.id)
-    assert updated_user.name == res.name
-    assert updated_user.email == res.email
-    assert updated_user.is_company == res.is_company
+    res = await user_query.get_by_id(sa_session, updated_user.id)
     assert res.name == "update_name"
+    assert res.email == "update_email"
+    assert res.is_company != old_company
+
+
+@pytest.mark.asyncio
+async def test_delete(sa_session):
+    user = UserFactory.build()
+    sa_session.add(user)
+    sa_session.flush()
+
+    delete_user = await user_query.delete(sa_session, delete_user=user)
+    res = await user_query.get_by_id(sa_session, user.id)
+    assert delete_user.id == user.id
+    assert res is None

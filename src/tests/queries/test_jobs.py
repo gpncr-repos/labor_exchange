@@ -8,24 +8,18 @@ from schemas import JobCreateSchema
 
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
-    all_jobs = await job_query.get_all(sa_session)
-    count_jobs = len(all_jobs)
     user = UserFactory.build()
     user.is_company = True
     sa_session.add(user)
-
-    job = JobFactory.build()
-    job.user_id = user.id
-    sa_session.add(job)
-
-    job = JobFactory.build()
-    job.user_id = user.id
-    sa_session.add(job)
-    sa_session.flush()
+    count_job = 10
+    for _ in range(count_job):
+        job = JobFactory.build()
+        job.user_id = user.id
+        sa_session.add(job)
 
     all_jobs = await job_query.get_all(sa_session)
 
-    assert len(all_jobs) == count_jobs + 2
+    assert len(all_jobs) == count_job
 
 
 @pytest.mark.asyncio
