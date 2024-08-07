@@ -16,7 +16,6 @@ async def test_get_all(sa_session):
         job = JobFactory.build()
         job.user_id = user.id
         sa_session.add(job)
-        sa_session.add(user)
 
     all_jobs = await job_query.get_all(sa_session)
 
