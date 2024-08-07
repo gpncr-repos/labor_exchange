@@ -12,14 +12,16 @@ async def test_get_all(sa_session):
     user.is_company = True
     sa_session.add(user)
     count_job = 10
+    skip = 5
+    limit = 8
     for _ in range(count_job):
         job = JobFactory.build()
         job.user_id = user.id
         sa_session.add(job)
 
-    all_jobs = await job_query.get_all(sa_session)
+    all_jobs = await job_query.get_all(sa_session, limit=limit, skip=skip)
 
-    assert len(all_jobs) == count_job
+    assert len(all_jobs) == min(count_job - skip, limit)
 
 
 @pytest.mark.asyncio

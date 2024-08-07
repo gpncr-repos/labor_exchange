@@ -8,13 +8,15 @@ from schemas import UserCreateSchema
 @pytest.mark.asyncio
 async def test_get_all(sa_session):
     user_count = 10
+    skip = 5
+    limit = 8
     for _ in range(user_count):
         user = UserFactory.build()
         sa_session.add(user)
     sa_session.flush()
-    all_users = await user_query.get_all(sa_session)
+    all_users = await user_query.get_all(sa_session, limit=limit, skip=skip)
 
-    assert len(all_users) == user_count
+    assert len(all_users) == min(user_count - skip, limit)
 
 
 @pytest.mark.asyncio
