@@ -15,9 +15,7 @@ async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Use
 
 
 async def get_by_id(db: AsyncSession, user_id: int) -> Optional[User]:
-    query = select(User).where(User.id == user_id)
-    res = await db.execute(query)
-    return res.scalars().first()
+    return (await db.execute(select(User).where(User.id == user_id))).scalars().first()
 
 
 async def create(db: AsyncSession, user_schema: UserCreateSchema) -> Optional[User]:
@@ -41,15 +39,10 @@ async def update(db: AsyncSession, user: User) -> Optional[User]:
 
 
 async def get_by_email(db: AsyncSession, email: str) -> Optional[User]:
-    query = select(User).where(User.email == email)
-    res = await db.execute(query)
-    user = res.scalars().first()
-    return user
+    return (await db.execute(select(User).where(User.email == email))).scalars().first()
 
 
 async def delete(db: AsyncSession, delete_user: User) -> Optional[UserGetSchema]:
-    user_id = delete_user.id
-    deleted_user = await get_by_id(db=db, user_id=user_id)
     await db.delete(delete_user)
     await db.commit()
-    return deleted_user
+    return delete_user

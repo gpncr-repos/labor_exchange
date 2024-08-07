@@ -26,9 +26,9 @@ class JobCreateSchema(BaseModel):
 
     title: str
     discription: str
-    salary_from: int
-    salary_to: int
-    is_active: bool
+    salary_from: int = 0
+    salary_to: int = 0
+    is_active: bool = True
 
     class Config:
         orm_mode = True
@@ -41,8 +41,6 @@ class JobCreateSchema(BaseModel):
                     v, values["salary_from"]
                 )
             )
-        if v < 0:
-            raise ValueError("Некорректные данные по зарплате: зарплата {} меньше нуля".format(v))
         if values["salary_from"] < 0:
             raise ValueError(
                 "Некорректные данные по зарплате: зарплата {} меньше нуля".format(
@@ -57,8 +55,8 @@ class JobUpdateSchema(BaseModel):
 
     title: str
     discription: str
-    salary_from: int
-    salary_to: int
+    salary_from: int = 0
+    salary_to: int = 0
     is_active: bool
 
     class Config:
@@ -72,8 +70,6 @@ class JobUpdateSchema(BaseModel):
                     v, values["salary_from"]
                 )
             )
-        if v < 0:
-            raise ValueError("Некорректные данные по зарплате: зарплата {} меньше нуля".format(v))
         if values["salary_from"] < 0:
             raise ValueError(
                 "Некорректные данные по зарплате: зарплата {} меньше нуля".format(
