@@ -31,7 +31,6 @@ class ResponsesCreateSchema(BaseModel):
 class ResponsesUpdateSchema(BaseModel):
     """schema to patch"""
 
-    job_id: int
     message: str
 
     class Config:

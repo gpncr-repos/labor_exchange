@@ -111,7 +111,7 @@ async def get_responses_by_job_id(
     else:
         Real_Validation.element_not_current_user_for(1, 0, "Respose", "read")
 
-    Real_Validation.element_not_found(responses_of_job_id, "Responses")
+    Real_Validation.element_not_found(responses_of_job_id)
     return responses_of_job_id
 
 
@@ -129,7 +129,7 @@ async def get_responses_by_user(
     responses_of_user = await responses_queries.get_response_by_user_id(
         db=db, user_id=current_user.id
     )
-    Real_Validation.element_not_found(responses_of_user, "Resposes")
+    Real_Validation.element_not_found(responses_of_user)
     return responses_of_user
 
 
@@ -210,7 +210,7 @@ async def delete_response(
     respose_to_delete = await responses_queries.get_response_by_job_id_and_user_id(
         db=db, job_id=job_id, user_id=current_user.id
     )
-    Real_Validation.element_not_found(respose_to_delete, "Resposes")
+    Real_Validation.element_not_found(respose_to_delete)
     delete_responses = await responses_queries.delete(db=db, response=respose_to_delete)
     return JSONResponse(
         status_code=200,
@@ -237,7 +237,7 @@ async def delete_response_by_id(
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     responce_to_delete = await responses_queries.get_response_by_id(db=db, response_id=response_id)
-    Real_Validation.element_not_found(responce_to_delete, "Resposes")
+    Real_Validation.element_not_found(responce_to_delete)
     Real_Validation.element_not_current_user_for(
         responce_to_delete.user_id, current_user.id, router_name="response", action_name="delete"
     )

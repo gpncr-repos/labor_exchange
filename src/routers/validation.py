@@ -11,31 +11,22 @@ from schemas import ResponsesCreateSchema
 
 class Real_Validation:
     @staticmethod
-    def empty_base(elements: Any, router_name: str) -> None:
+    def element_not_found(elements: Any) -> None:
         if not elements:
             raise HTTPException(
-                status_code=422,
-                detail={"message": "{router} is empty".format(router=router_name)},
-            )
-
-    @staticmethod
-    def element_not_found(elements: Any, router_name: str) -> None:
-        if not elements:
-            raise HTTPException(
-                status_code=422,
-                detail={"message": "{router} not found in database".format(router=router_name)},
+                status_code=204,
             )
 
     @staticmethod
     def is_company_for_job(elem: bool) -> None:
         if not elem:
-            raise HTTPException(status_code=422, detail={"message": "User is not company"})
+            raise HTTPException(status_code=403, detail={"message": "User is not company"})
 
     @staticmethod
     def is_company_for_response(elem: bool) -> None:
         if elem:
             raise HTTPException(
-                status_code=422,
+                status_code=403,
                 detail={
                     "message": "Only not company user can read/create/update/delete there responses"
                 },

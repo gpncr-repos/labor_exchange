@@ -106,7 +106,7 @@ async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
     db: datebase connection;
     """
     job_by_id = await jobs_queries.get_by_id(db=db, job_id=job_id)
-    Real_Validation.element_not_found(job_by_id, f"Job id {job_id}")
+    Real_Validation.element_not_found(job_by_id)
     return job_by_id
 
 
@@ -119,7 +119,7 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, ski
     skip: skip from:
     """
     all_jobs = await jobs_queries.get_all(db=db, limit=limit, skip=skip)
-    Real_Validation.empty_base(all_jobs, router_name="Job")
+    Real_Validation.element_not_found(all_jobs)
     return all_jobs
 
 
@@ -137,7 +137,7 @@ async def create_job(
     Real_Validation.is_company_for_job(current_user.is_company)
     created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
     return JSONResponse(
-        status_code=200,
+        status_code=201,
         content={
             "message": "Job create",
             "Job id": created_job.id,
@@ -164,6 +164,8 @@ async def patch_of_job(
     db: datebase connection;
     """
     old_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
+    Real_Validation.element_not_found(old_job)
+    Real_Validation.is_company_for_job(current_user.is_company)
     Real_Validation.element_not_current_user_for(
         current_user.id, old_job.user_id, router_name="job", action_name="update"
     )
@@ -202,7 +204,8 @@ async def delete_job(
     db: datebase connection;
     """
     job_to_delete = await jobs_queries.get_by_id(db=db, job_id=job_id)
-    Real_Validation.element_not_found(job_to_delete, f"Job id {job_id}")
+    Real_Validation.element_not_found(job_to_delete)
+    Real_Validation.is_company_for_job(current_user.is_company)
     Real_Validation.element_not_current_user_for(
         current_user.id, job_to_delete.user_id, router_name="job", action_name="delete"
     )

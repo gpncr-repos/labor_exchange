@@ -98,7 +98,7 @@ async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, s
     skip: skip from:
     """
     all_users = await user_queries.get_all(db=db, limit=limit, skip=skip)
-    Real_Validation.empty_base(all_users, router_name="User")
+    Real_Validation.element_not_found(all_users)
     return all_users
 
 
@@ -110,7 +110,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     db: datebase connection;
     """
     user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
-    Real_Validation.element_not_found(user_by_id, f"User id {user_id}")
+    Real_Validation.element_not_found(user_by_id)
     return user_by_id
 
 

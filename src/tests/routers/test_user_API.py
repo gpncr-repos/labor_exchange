@@ -1,13 +1,34 @@
+import json
+
 import pytest
+
+from fixtures.users import UserCreateFactory
 
 
 @pytest.mark.asyncio
-async def test_read_all_delete(client_app):
+async def test_read_current_user_and_delete(client_app):
     response = await client_app.get("/users")
     assert response.status_code == 200
+
     response = await client_app.delete("/users/delete")
     response = await client_app.get("/users")
-    assert response.status_code == 422
+    assert response.status_code == 204
+
+
+@pytest.mark.asyncio
+async def test_read_limit_and_skip(client_app):
+    response = await client_app.delete("/users/delete")
+    count_user = 10
+    for _ in range(count_user):
+        user = (UserCreateFactory.stub()).__dict__
+        user["password2"] = user["password"]
+        response = await client_app.post("/users/post", json=user)
+    limit = 8
+    skip = 5
+    response = await client_app.get(f"/users?limit={limit}&skip={skip}")
+    assert len(json.loads((response.content).decode("utf-8").replace("'", '"'))) == min(
+        count_user - skip, limit
+    )
 
 
 @pytest.mark.asyncio
@@ -15,21 +36,14 @@ async def test_read_users_by_id(client_app, current_user):
     response = await client_app.get(f"/users/{current_user.id}")
     assert response.status_code == 200
     response = await client_app.get("/users/2")
-    assert response.status_code == 422
+    assert response.status_code == 204
 
 
 @pytest.mark.asyncio
 async def test_post_user(client_app):
-    response = await client_app.post(
-        "/users/post",
-        json={
-            "name": "string",
-            "email": "user@example.com",
-            "password": "stringst",
-            "password2": "stringst",
-            "is_company": False,
-        },
-    )
+    user = (UserCreateFactory.stub()).__dict__
+    user["password2"] = user["password"]
+    response = await client_app.post("/users/post", json=user)
     assert response.status_code == 201
 
 

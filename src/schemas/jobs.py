@@ -1,6 +1,7 @@
 """Module of schemas of jobs"""
 
 import datetime
+from typing import Optional
 
 from pydantic import BaseModel, validator
 
@@ -53,11 +54,11 @@ class JobCreateSchema(BaseModel):
 class JobUpdateSchema(BaseModel):
     """Shema to update model"""
 
-    title: str
-    discription: str
+    title: Optional[str]
+    discription: Optional[str]
     salary_from: int = 0
     salary_to: int = 0
-    is_active: bool
+    is_active: Optional[bool]
 
     class Config:
         orm_mode = True
