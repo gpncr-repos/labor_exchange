@@ -15,3 +15,10 @@ class ResponseFactory(AsyncSQLAlchemyModelFactory):
     job_id = factory.Faker("pyint")
     message = factory.Faker("pystr")
     created_at = factory.LazyFunction(datetime.utcnow)
+
+
+class ResponseCreateFactory(factory.BaseDictFactory):
+    class Meta:
+        model = Response
+
+    message = factory.Faker("pystr")

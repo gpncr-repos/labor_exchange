@@ -157,12 +157,11 @@ async def test_create(sa_session):
     sa_session.flush()
 
     response = ResponsesCreateSchema(
-        job_id=job.id,
         message="What a beutiful job",
     )
 
     res = await responses_query.response_create(
-        sa_session, response_schema=response, user_id=worker.id
+        sa_session, response_schema=response, user_id=worker.id, job_id=job.id
     )
     assert res is not None
     assert res.message == "What a beutiful job"

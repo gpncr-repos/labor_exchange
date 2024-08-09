@@ -99,7 +99,7 @@ async def get_responses_by_job_id(
     current_user: current user
     """
     looking_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
-
+    Real_Validation.element_not_found(looking_job)
     if not current_user.is_company:
         responses_of_job_id = [
             await responses_queries.get_response_by_job_id_and_user_id(
@@ -115,7 +115,7 @@ async def get_responses_by_job_id(
     return responses_of_job_id
 
 
-@router.get("/responses_user/", response_model=list[ResponsesSchema], responses={**responses_get})
+@router.get("/responses_user", response_model=list[ResponsesSchema], responses={**responses_get})
 async def get_responses_by_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -133,14 +133,18 @@ async def get_responses_by_user(
     return responses_of_user
 
 
-@router.post("", response_model=ResponsesCreateSchema, responses={**responses_post})
+@router.post(
+    "/post_response/{job_id}", response_model=ResponsesCreateSchema, responses={**responses_post}
+)
 async def create_response(
+    job_id: int,
     response: ResponsesCreateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
     """
     Create response:
+    job_id id of job, where we want create response
     response: dataset for ResponsesCreateSchema
     db: datebase connection;
     current_user: current user
@@ -148,7 +152,7 @@ async def create_response(
     Real_Validation.is_company_for_response(current_user.is_company)
     await Real_Validation.post_responses_validation(db, current_user, response)
     new_response = await responses_queries.response_create(
-        db=db, response_schema=response, user_id=current_user.id
+        db=db, response_schema=response, user_id=current_user.id, job_id=job_id
     )
     return JSONResponse(
         status_code=201,

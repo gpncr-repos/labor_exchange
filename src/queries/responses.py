@@ -38,11 +38,11 @@ async def get_response_by_job_id_and_user_id(
 
 
 async def response_create(
-    db: AsyncSession, response_schema: ResponsesCreateSchema, user_id: int
+    db: AsyncSession, response_schema: ResponsesCreateSchema, user_id: int, job_id: int
 ) -> Optional[Response]:
     response_el = Response(
         user_id=user_id,
-        job_id=response_schema.job_id,
+        job_id=job_id,
         message=response_schema.message,
     )
     db.add(response_el)
