@@ -53,17 +53,16 @@ class Real_Validation:
         )
         if is_double_responce:
             raise HTTPException(
-                status_code=422,
+                status_code=498,
                 detail={"message": "You alredy have response for thise job"},
             )
         is_active_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
         if not is_active_job:
             raise HTTPException(
-                status_code=422,
-                detail={"message": "{router} not found in database".format(router=f"Job {job_id}")},
+                status_code=204,
             )
         if not is_active_job.is_active:
-            raise HTTPException(status_code=422, detail={"message": "Job is not active"})
+            raise HTTPException(status_code=499, detail={"message": "Job is not active"})
 
     @staticmethod
     async def patch_responses_validation(
@@ -79,14 +78,5 @@ class Real_Validation:
                 },
             )
         is_active_job = await jobs_queries.get_by_id(db=db, job_id=responce_to_patch.job_id)
-        if not is_active_job:
-            raise HTTPException(
-                status_code=422,
-                detail={
-                    "message": "{router} not found in database".format(
-                        router=f"Job {responce_to_patch.job_id}"
-                    )
-                },
-            )
         if not is_active_job.is_active:
-            raise HTTPException(status_code=422, detail={"message": "Job is not active"})
+            raise HTTPException(status_code=499, detail={"message": "Job is not active"})

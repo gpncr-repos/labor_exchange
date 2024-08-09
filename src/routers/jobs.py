@@ -101,9 +101,9 @@ responses_delete = {
 @router.get("/{job_id}", response_model=JobSchema, responses={**responses_get})
 async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
     """
-    Get job by id:
-    job_id: job id
-    db: datebase connection;
+    Get job by id:\n
+    job_id: job id\n
+    db: datebase connection;\n
     """
     job_by_id = await jobs_queries.get_by_id(db=db, job_id=job_id)
     Real_Validation.element_not_found(job_by_id)
@@ -113,9 +113,9 @@ async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
 @router.get("", response_model=List[JobSchema], responses={**responses_get})
 async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
-    Get limit Jobs skip some:
-    db: datebase connection;
-    limit: limits of Jobs,
+    Get limit Jobs skip some:\n
+    db: datebase connection;\n
+    limit: limits of Jobs,\n
     skip: skip from:
     """
     all_jobs = await jobs_queries.get_all(db=db, limit=limit, skip=skip)
@@ -130,9 +130,9 @@ async def create_job(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Create job:
-    job: dataset of JobCreateSchema
-    db: datebase connection;
+    Create job:\n
+    job: dataset of JobCreateSchema\n
+    db: datebase connection;\n
     """
     Real_Validation.is_company_for_job(current_user.is_company)
     created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
@@ -158,10 +158,10 @@ async def patch_of_job(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Patch job:
-    job_id: job id
-    job: dataset of JobUpdateSchema
-    db: datebase connection;
+    Patch job:\n
+    job_id: job id\n
+    job: dataset of JobUpdateSchema\n
+    db: datebase connection;\n
     """
     old_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
     Real_Validation.element_not_found(old_job)
@@ -199,9 +199,9 @@ async def delete_job(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Delete job:
-    job_id: job id
-    db: datebase connection;
+    Delete job:\n
+    job_id: job id\n
+    db: datebase connection;\n
     """
     job_to_delete = await jobs_queries.get_by_id(db=db, job_id=job_id)
     Real_Validation.element_not_found(job_to_delete)

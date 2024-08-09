@@ -93,10 +93,10 @@ async def get_responses_by_job_id(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Get responses by job id:
-    job_id: job id
-    db: datebase connection;
-    current_user: current user
+    Get responses by job id:\n
+    job_id: job id\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     looking_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
     Real_Validation.element_not_found(looking_job)
@@ -121,9 +121,9 @@ async def get_responses_by_user(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Get responses by user id:
-    db: datebase connection;
-    current_user: current user
+    Get responses by user id:\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     responses_of_user = await responses_queries.get_response_by_user_id(
@@ -143,11 +143,11 @@ async def create_response(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Create response:
-    job_id id of job, where we want create response
-    response: dataset for ResponsesCreateSchema
-    db: datebase connection;
-    current_user: current user
+    Create response:\n
+    job_id id of job, where we want create response\n
+    response: dataset for ResponsesCreateSchema\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     await Real_Validation.post_responses_validation(db, current_user, job_id)
@@ -174,11 +174,11 @@ async def patch_response(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Patch response:
-    job_id: job id
-    response: dataset for ResponsesCreateSchema
-    db: datebase connection;
-    current_user: current user
+    Patch response:\n
+    job_id: job id\n
+    response: dataset for ResponsesCreateSchema\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     responce_to_patch = await responses_queries.get_response_by_job_id_and_user_id(
@@ -190,7 +190,7 @@ async def patch_response(
     )
     new_response = await responses_queries.update(db=db, response=responce_to_patch)
     return JSONResponse(
-        status_code=201,
+        status_code=200,
         content={
             "message": "response update",
             "new responce messege": new_response.message,
@@ -205,10 +205,10 @@ async def delete_response(
     current_user: User = Depends(get_current_user),
 ):
     """
-    delete responses by job_id:
-    job_id: job id
-    db: datebase connection;
-    current_user: current user
+    delete responses by job_id:\n
+    job_id: job id\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     respose_to_delete = await responses_queries.get_response_by_job_id_and_user_id(
@@ -234,10 +234,10 @@ async def delete_response_by_id(
     current_user: User = Depends(get_current_user),
 ):
     """
-    delete responses by id:
-    id: response id
-    db: datebase connection;
-    current_user: current user
+    delete responses by id:\n
+    id: response id\n
+    db: datebase connection;\n
+    current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
     responce_to_delete = await responses_queries.get_response_by_id(db=db, response_id=response_id)

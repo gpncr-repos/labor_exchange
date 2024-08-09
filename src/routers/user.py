@@ -92,10 +92,10 @@ responses_delete = {
 @router.get("", response_model=List[UserGetSchema], responses={**responses_get})
 async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
-    Get limit users skip some:
-    db: datebase connection;
-    limit: count of get users,
-    skip: skip from:
+    Get limit users skip some:\n
+    db: datebase connection;\n
+    limit: count of get users,\n
+    skip: skip from:\n
     """
     all_users = await user_queries.get_all(db=db, limit=limit, skip=skip)
     Real_Validation.element_not_found(all_users)
@@ -105,9 +105,9 @@ async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, s
 @router.get("/{user_id}", response_model=UserSchema, responses={**responses_get})
 async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
-    Get user by id:
-    user_id: user id
-    db: datebase connection;
+    Get user by id:\n
+    user_id: user id\n
+    db: datebase connection;\n
     """
     user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
     Real_Validation.element_not_found(user_by_id)
@@ -117,9 +117,9 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
 @router.post("/post", response_model=UserCreateSchema, responses={**responses_post})
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
-    Create user:
-    user: shame of user to create
-    db: datebase connection;
+    Create user:\n
+    user: shame of user to create\n
+    db: datebase connection;\n
     """
     new_user = await user_queries.create(db=db, user_schema=user)
     return JSONResponse(
@@ -140,10 +140,10 @@ async def update_user(
     current_user: User = Depends(get_current_user),
 ):
     """
-    update user:
-    user: dataset of UserUpdateSchema
-    db: datebase connection;
-    current_user: only for autorized user
+    update user:\n
+    user: dataset of UserUpdateSchema\n
+    db: datebase connection;\n
+    current_user: only for autorized user\n
     """
     old_user = await user_queries.get_by_id(db=db, user_id=current_user.id)
 
@@ -170,9 +170,9 @@ async def delete_user(
     current_user: User = Depends(get_current_user),
 ):
     """
-    Delete current user:
-    db: datebase connection;
-    current_user:current user
+    Delete current user:\n
+    db: datebase connection;\n
+    current_user:current user\n
     """
     removed_user = await user_queries.delete(db=db, delete_user=current_user)
     return JSONResponse(
