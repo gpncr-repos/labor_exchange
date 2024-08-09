@@ -8,8 +8,6 @@ from fixtures.users import UserFactory
 
 @pytest.mark.asyncio
 async def test_read_job_by_id(client_app, current_user, sa_session):
-    response = await client_app.get(f"/users/{current_user.id}")
-    sa_session.add(current_user)
     count_jobs = 10
     list_of_jobs_id = []
     for _ in range(count_jobs):

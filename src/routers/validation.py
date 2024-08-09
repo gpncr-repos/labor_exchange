@@ -47,26 +47,20 @@ class Real_Validation:
             )
 
     @staticmethod
-    async def post_responses_validation(
-        db: AsyncSession, current_user: User, response: ResponsesCreateSchema
-    ) -> None:
+    async def post_responses_validation(db: AsyncSession, current_user: User, job_id: int) -> None:
         is_double_responce = await responses_queries.get_response_by_job_id_and_user_id(
-            db=db, job_id=response.job_id, user_id=current_user.id
+            db=db, job_id=job_id, user_id=current_user.id
         )
         if is_double_responce:
             raise HTTPException(
                 status_code=422,
                 detail={"message": "You alredy have response for thise job"},
             )
-        is_active_job = await jobs_queries.get_by_id(db=db, job_id=response.job_id)
+        is_active_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
         if not is_active_job:
             raise HTTPException(
                 status_code=422,
-                detail={
-                    "message": "{router} not found in database".format(
-                        router=f"Job {response.job_id}"
-                    )
-                },
+                detail={"message": "{router} not found in database".format(router=f"Job {job_id}")},
             )
         if not is_active_job.is_active:
             raise HTTPException(status_code=422, detail={"message": "Job is not active"})

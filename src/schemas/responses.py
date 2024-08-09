@@ -21,7 +21,6 @@ class ResponsesSchema(BaseModel):
 class ResponsesCreateSchema(BaseModel):
     """Schema to create"""
 
-    job_id: int
     message: str
 
     class Config:
