@@ -128,5 +128,4 @@ async def test_post_response_company(client_app, current_user, sa_session):
 
     response_massage = (ResponseCreateFactory.stub()).__dict__
     response = await client_app.post(f"/responses/post_response/{job.id}", json=response_massage)
-
     assert response.status_code == 201
