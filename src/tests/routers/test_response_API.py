@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 from fixtures.responses import ResponseCreateFactory
@@ -18,7 +16,7 @@ async def test_read_response_by_id(client_app, current_user, sa_session):
         list_of_workers.append(user)
     response = await client_app.get(f"/responses/responses_job_id/{job.id}")
     assert response.status_code == 200
-    assert len(json.loads((response.content).decode("utf-8").replace("'", '"'))) == count_workers
+    assert len(response.json()) == count_workers
     response = await client_app.get("/responses/responses_job_id/-1")
     assert response.status_code == 204
 
@@ -33,7 +31,7 @@ async def test_read_all_user_responses(client_app, current_user, sa_session):
         response = await Conveyor.create_response(sa_session, current_user, job)
     response = await client_app.get("/responses/responses_user")
     assert response.status_code == 200
-    assert len(json.loads((response.content).decode("utf-8").replace("'", '"'))) == count_responses
+    assert len(response.json()) == count_responses
 
 
 @pytest.mark.asyncio

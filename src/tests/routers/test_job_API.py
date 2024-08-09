@@ -1,5 +1,3 @@
-import json
-
 import pytest
 
 from fixtures.jobs import JobCreateFactory
@@ -29,9 +27,7 @@ async def test_read_jobs_limit_and_skip(client_app, current_user, sa_session):
     skip = 5
     response = await client_app.get(f"/jobs?limit={limit}&skip={skip}")
     assert response.status_code == 200
-    assert len(json.loads((response.content).decode("utf-8").replace("'", '"'))) == min(
-        count_jobs - skip, limit
-    )
+    assert len(response.json()) == min(count_jobs - skip, limit)
 
 
 @pytest.mark.asyncio
