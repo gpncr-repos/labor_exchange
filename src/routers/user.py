@@ -114,7 +114,7 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     return user_by_id
 
 
-@router.post("/post", response_model=UserCreateSchema, responses={**responses_post})
+@router.post("", response_model=UserCreateSchema, responses={**responses_post})
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:\n
@@ -133,7 +133,7 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     )
 
 
-@router.put("/put", response_model=UserUpdateSchema, responses={**responses_update})
+@router.put("", response_model=UserUpdateSchema, responses={**responses_update})
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -164,7 +164,7 @@ async def update_user(
     )
 
 
-@router.delete("/delete", responses={**responses_delete})
+@router.delete("", responses={**responses_delete})
 async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),

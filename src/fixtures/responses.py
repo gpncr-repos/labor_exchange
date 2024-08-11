@@ -21,4 +21,5 @@ class ResponseCreateFactory(factory.BaseDictFactory):
     class Meta:
         model = Response
 
+    job_id = factory.Faker("pyint")
     message = factory.Faker("pystr")

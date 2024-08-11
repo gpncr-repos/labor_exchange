@@ -54,6 +54,7 @@ class JobCreateSchema(BaseModel):
 class JobUpdateSchema(BaseModel):
     """Shema to update model"""
 
+    id: int
     title: Optional[str]
     discription: Optional[str]
     salary_from: int = 0

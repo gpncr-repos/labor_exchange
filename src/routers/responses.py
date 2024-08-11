@@ -84,9 +84,7 @@ responses_delete = {
 }
 
 
-@router.get(
-    "/responses_job_id/{job_id}", response_model=list[ResponsesSchema], responses={**responses_get}
-)
+@router.get("/{job_id}", response_model=list[ResponsesSchema], responses={**responses_get})
 async def get_responses_by_job_id(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -115,7 +113,7 @@ async def get_responses_by_job_id(
     return responses_of_job_id
 
 
-@router.get("/responses_user", response_model=list[ResponsesSchema], responses={**responses_get})
+@router.get("", response_model=list[ResponsesSchema], responses={**responses_get})
 async def get_responses_by_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -133,11 +131,8 @@ async def get_responses_by_user(
     return responses_of_user
 
 
-@router.post(
-    "/post_response/{job_id}", response_model=ResponsesCreateSchema, responses={**responses_post}
-)
+@router.post("", response_model=ResponsesCreateSchema, responses={**responses_post})
 async def create_response(
-    job_id: int,
     response: ResponsesCreateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -150,9 +145,9 @@ async def create_response(
     current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
-    await Real_Validation.post_responses_validation(db, current_user, job_id)
+    await Real_Validation.post_responses_validation(db, current_user, response.job_id)
     new_response = await responses_queries.response_create(
-        db=db, response_schema=response, user_id=current_user.id, job_id=job_id
+        db=db, response_schema=response, user_id=current_user.id, job_id=response.job_id
     )
     return JSONResponse(
         status_code=201,
@@ -164,11 +159,8 @@ async def create_response(
     )
 
 
-@router.patch(
-    "/patch_response/{job_id}", response_model=ResponsesSchema, responses={**responses_update}
-)
+@router.patch("", response_model=ResponsesSchema, responses={**responses_update})
 async def patch_response(
-    job_id: int,
     response: ResponsesUpdateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -181,9 +173,7 @@ async def patch_response(
     current_user: current user\n
     """
     Real_Validation.is_company_for_response(current_user.is_company)
-    responce_to_patch = await responses_queries.get_response_by_job_id_and_user_id(
-        db=db, job_id=job_id, user_id=current_user.id
-    )
+    responce_to_patch = await responses_queries.get_response_by_id(db=db, response_id=response.id)
     await Real_Validation.patch_responses_validation(db, responce_to_patch)
     responce_to_patch.message = (
         response.message if response.message is not None else responce_to_patch.message
@@ -198,7 +188,7 @@ async def patch_response(
     )
 
 
-@router.delete("/delete_response/job/{job_id}", responses={**responses_delete})
+@router.delete("/jobs/{job_id}", responses={**responses_delete})
 async def delete_response(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -227,7 +217,7 @@ async def delete_response(
     )
 
 
-@router.delete("/delete_response/{response_id}", responses={**responses_delete})
+@router.delete("/{response_id}", responses={**responses_delete})
 async def delete_response_by_id(
     response_id: int,
     db: AsyncSession = Depends(get_db),

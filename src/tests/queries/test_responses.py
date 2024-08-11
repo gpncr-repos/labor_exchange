@@ -151,12 +151,13 @@ async def test_create(sa_session):
     sa_session.add(job)
 
     worker = UserFactory.build()
-    user.is_company = False
+    worker.is_company = False
     sa_session.add(worker)
 
     sa_session.flush()
 
     response = ResponsesCreateSchema(
+        job_id=job.id,
         message="What a beutiful job",
     )
 
@@ -189,8 +190,8 @@ async def test_update(sa_session):
     response.message = "New_message"
 
     new_response = await responses_query.update(sa_session, response)
-    current_responses = await responses_query.get_response_by_job_id_and_user_id(
-        sa_session, job_id=job.id, user_id=worker.id
+    current_responses = await responses_query.get_response_by_id(
+        sa_session, response_id=response.id
     )
 
     assert current_responses.id == response.id

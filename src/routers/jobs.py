@@ -123,7 +123,7 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, ski
     return all_jobs
 
 
-@router.post("/post_job", response_model=JobSchema, responses={**responses_post})
+@router.post("", response_model=JobSchema, responses={**responses_post})
 async def create_job(
     job: JobCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -150,9 +150,8 @@ async def create_job(
     )
 
 
-@router.patch("/patch_job/{job_id}", response_model=JobSchema, responses={**responses_update})
+@router.patch("", response_model=JobSchema, responses={**responses_update})
 async def patch_of_job(
-    job_id: int,
     jobpatch: JobUpdateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -163,7 +162,7 @@ async def patch_of_job(
     job: dataset of JobUpdateSchema\n
     db: datebase connection;\n
     """
-    old_job = await jobs_queries.get_by_id(db=db, job_id=job_id)
+    old_job = await jobs_queries.get_by_id(db=db, job_id=jobpatch.id)
     Real_Validation.element_not_found(old_job)
     Real_Validation.is_company_for_job(current_user.is_company)
     Real_Validation.element_not_current_user_for(
@@ -192,7 +191,7 @@ async def patch_of_job(
     )
 
 
-@router.delete("/delete/{job_id}", responses={**responses_delete})
+@router.delete("/{job_id}", responses={**responses_delete})
 async def delete_job(
     job_id: int,
     db: AsyncSession = Depends(get_db),
