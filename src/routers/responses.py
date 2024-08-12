@@ -1,5 +1,7 @@
 """" Model Responses API  """
 
+import json
+
 from fastapi import APIRouter, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -10,81 +12,20 @@ from queries import jobs as jobs_queries
 from queries import responses as responses_queries
 from schemas import ResponsesCreateSchema, ResponsesSchema, ResponsesUpdateSchema
 
+from .response_examples.responses import (
+    responses_delete_responses,
+    responses_get_responses,
+    responses_post_responses,
+    responses_update_responses,
+)
 from .validation import Real_Validation
 
 router = APIRouter(prefix="/responses", tags=["responses"])
-responses = {
-    204: {"description": "Zero rezult"},
-    403: {"description": "You have not power here"},
-    422: {"description": "Some proplem with validation"},
-}
-responses_get = {
-    **responses,
-    200: {
-        "description": "Get response\\es",
-        "content": {
-            "application/json": {
-                "example": {
-                    "id": 1,
-                    "user_id": 1,
-                    "job_id": 1,
-                    "message": "dreem work",
-                    "created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
-
-responses_post = {
-    **responses,
-    200: {
-        "description": "response create",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "response create",
-                    "new responce messege": "dreem_WoRk",
-                    "created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
-
-responses_update = {
-    **responses,
-    200: {
-        "description": "response updated",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "response update",
-                    "new responce messege": "super_work",
-                }
-            }
-        },
-    },
-}
-responses_delete = {
-    **responses,
-    200: {
-        "description": "response delete",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "Response delete",
-                    "Response id": 5,
-                    "job_id": 1,
-                    "Response message": "Great_work",
-                }
-            }
-        },
-    },
-}
 
 
-@router.get("/{job_id}", response_model=list[ResponsesSchema], responses={**responses_get})
+@router.get(
+    "/{job_id}", response_model=list[ResponsesSchema], responses={**responses_get_responses}
+)
 async def get_responses_by_job_id(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -107,13 +48,15 @@ async def get_responses_by_job_id(
     elif looking_job.user_id == current_user.id:
         responses_of_job_id = await responses_queries.get_response_by_job_id(db=db, job_id=job_id)
     else:
-        Real_Validation.element_not_current_user_for(1, 0, "Respose", "read")
+        Real_Validation.element_not_current_user_for(1, 0, "Job", "read")
+    Real_Validation.element_not_found(responses_of_job_id[0])
+    list_of_responses = []
+    for response in responses_of_job_id:
+        list_of_responses.append(ResponsesSchema(**response.__dict__))
+    return list_of_responses
 
-    Real_Validation.element_not_found(responses_of_job_id)
-    return responses_of_job_id
 
-
-@router.get("", response_model=list[ResponsesSchema], responses={**responses_get})
+@router.get("", response_model=list[ResponsesSchema], responses={**responses_get_responses})
 async def get_responses_by_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -128,10 +71,13 @@ async def get_responses_by_user(
         db=db, user_id=current_user.id
     )
     Real_Validation.element_not_found(responses_of_user)
-    return responses_of_user
+    list_of_responses = []
+    for response in responses_of_user:
+        list_of_responses.append(ResponsesSchema(**response.__dict__))
+    return list_of_responses
 
 
-@router.post("", response_model=ResponsesCreateSchema, responses={**responses_post})
+@router.post("", response_model=ResponsesSchema, responses={**responses_post_responses})
 async def create_response(
     response: ResponsesCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -151,15 +97,11 @@ async def create_response(
     )
     return JSONResponse(
         status_code=201,
-        content={
-            "message": "response create",
-            "new responce messege": new_response.message,
-            "created at": str(new_response.created_at),
-        },
+        content=json.dumps(ResponsesSchema(**new_response.__dict__).__dict__, default=str),
     )
 
 
-@router.patch("", response_model=ResponsesSchema, responses={**responses_update})
+@router.patch("", response_model=ResponsesSchema, responses={**responses_update_responses})
 async def patch_response(
     response: ResponsesUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -179,16 +121,10 @@ async def patch_response(
         response.message if response.message is not None else responce_to_patch.message
     )
     new_response = await responses_queries.update(db=db, response=responce_to_patch)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "response update",
-            "new responce messege": new_response.message,
-        },
-    )
+    return ResponsesSchema(**new_response.__dict__)
 
 
-@router.delete("/jobs/{job_id}", responses={**responses_delete})
+@router.delete("/jobs/{job_id}", responses={**responses_delete_responses})
 async def delete_response(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -206,18 +142,10 @@ async def delete_response(
     )
     Real_Validation.element_not_found(respose_to_delete)
     delete_responses = await responses_queries.delete(db=db, response=respose_to_delete)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "Response delete",
-            "Response id": delete_responses.id,
-            "job_id": delete_responses.job_id,
-            "Response message": delete_responses.message,
-        },
-    )
+    return ResponsesSchema(**delete_responses.__dict__)
 
 
-@router.delete("/{response_id}", responses={**responses_delete})
+@router.delete("/{response_id}", responses={**responses_delete_responses})
 async def delete_response_by_id(
     response_id: int,
     db: AsyncSession = Depends(get_db),
@@ -236,12 +164,4 @@ async def delete_response_by_id(
         responce_to_delete.user_id, current_user.id, router_name="response", action_name="delete"
     )
     respose_to_delete = await responses_queries.delete(db=db, response=responce_to_delete)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "Response delete",
-            "Response id": respose_to_delete.id,
-            "job_id": respose_to_delete.job_id,
-            "Response message": respose_to_delete.message,
-        },
-    )
+    return ResponsesSchema(**respose_to_delete.__dict__)

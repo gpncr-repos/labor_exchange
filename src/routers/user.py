@@ -1,5 +1,6 @@
 """" Model Users API  """
 
+import json
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -9,87 +10,20 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from dependencies import get_current_user, get_db
 from models import User
 from queries import user as user_queries
-from schemas import UserCreateSchema, UserGetSchema, UserSchema, UserUpdateSchema
+from schemas import UserCreateSchema, UserGetSchema, UserUpdateSchema
 
+from .response_examples.user import (
+    responses_delete_user,
+    responses_get_user,
+    responses_post_user,
+    responses_update_user,
+)
 from .validation import Real_Validation
 
 router = APIRouter(prefix="/users", tags=["users"])
 
-responses = {
-    204: {"description": "Zero rezult"},
-    403: {"description": "You have not power here"},
-    422: {"description": "Some proplem with validation"},
-}
-responses_get = {
-    **responses,
-    200: {
-        "description": "Get user",
-        "content": {
-            "application/json": {
-                "example": {
-                    "id": 1,
-                    "name": "Vasilii",
-                    "email": "Alibabaevich@bandit.cement",
-                    "is_company": True,
-                    "created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
 
-responses_post = {
-    **responses,
-    200: {
-        "description": "User create",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "User created",
-                    "user name": "Vasilii",
-                    "user email": "Alibabaevich@bandit.cement",
-                    "created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
-
-responses_update = {
-    **responses,
-    200: {
-        "description": "User updated",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "User updated",
-                    "user name": "Alex",
-                    "user email": "Belii@bandit.docent",
-                    "user is_company": True,
-                }
-            }
-        },
-    },
-}
-
-responses_delete = {
-    **responses,
-    200: {
-        "description": "User delete",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "User delete",
-                    "user name": "Djady",
-                    "user email": "Obi@van.cenoby",
-                }
-            }
-        },
-    },
-}
-
-
-@router.get("", response_model=List[UserGetSchema], responses={**responses_get})
+@router.get("", response_model=List[UserGetSchema], responses={**responses_get_user})
 async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
     Get limit users skip some:\n
@@ -99,10 +33,13 @@ async def read_all_users(db: AsyncSession = Depends(get_db), limit: int = 100, s
     """
     all_users = await user_queries.get_all(db=db, limit=limit, skip=skip)
     Real_Validation.element_not_found(all_users)
-    return all_users
+    list_of_users = []
+    for user in all_users:
+        list_of_users.append(UserGetSchema(**user.__dict__))
+    return list_of_users
 
 
-@router.get("/{user_id}", response_model=UserSchema, responses={**responses_get})
+@router.get("/{user_id}", response_model=UserGetSchema, responses={**responses_get_user})
 async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     Get user by id:\n
@@ -111,10 +48,10 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
     """
     user_by_id = await user_queries.get_by_id(db=db, user_id=user_id)
     Real_Validation.element_not_found(user_by_id)
-    return user_by_id
+    return UserGetSchema(**user_by_id.__dict__)
 
 
-@router.post("", response_model=UserCreateSchema, responses={**responses_post})
+@router.post("", response_model=UserGetSchema, responses={**responses_post_user})
 async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
     """
     Create user:\n
@@ -124,16 +61,11 @@ async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)
     new_user = await user_queries.create(db=db, user_schema=user)
     return JSONResponse(
         status_code=201,
-        content={
-            "message": "User created",
-            "user name": new_user.name,
-            "user email": new_user.email,
-            "created at": str(new_user.created_at),
-        },
+        content=json.dumps(UserGetSchema(**new_user.__dict__).__dict__, default=str),
     )
 
 
-@router.put("", response_model=UserUpdateSchema, responses={**responses_update})
+@router.put("", response_model=UserGetSchema, responses={**responses_update_user})
 async def update_user(
     user: UserUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -153,18 +85,10 @@ async def update_user(
 
     new_user = await user_queries.update(db=db, user=old_user)
 
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "User updated",
-            "user name": new_user.name,
-            "user email": new_user.email,
-            "user is_company": new_user.is_company,
-        },
-    )
+    return UserGetSchema(**new_user.__dict__)
 
 
-@router.delete("", responses={**responses_delete})
+@router.delete("", response_model=UserGetSchema, responses={**responses_delete_user})
 async def delete_user(
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -175,11 +99,4 @@ async def delete_user(
     current_user:current user\n
     """
     removed_user = await user_queries.delete(db=db, delete_user=current_user)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "User delete",
-            "user name": removed_user.name,
-            "user email": removed_user.email,
-        },
-    )
+    return UserGetSchema(**removed_user.__dict__)

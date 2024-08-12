@@ -20,21 +20,17 @@ async def get_response_by_user_id(db: AsyncSession, user_id: int) -> List[Respon
 
 
 async def get_response_by_id(db: AsyncSession, response_id: int) -> Optional[Response]:
-    return (await db.execute(select(Response).where(Response.id == response_id))).scalars().first()
+    query = select(Response).where(Response.id == response_id)
+    res = await db.execute(query)
+    return res.scalars().first()
 
 
 async def get_response_by_job_id_and_user_id(
     db: AsyncSession, job_id: int, user_id: int
 ) -> Optional[Response]:
-    return (
-        (
-            await db.execute(
-                select(Response).where(Response.job_id == job_id and Response.user_id == user_id)
-            )
-        )
-        .scalars()
-        .first()
-    )
+    query = select(Response).where(Response.job_id == job_id and Response.user_id == user_id)
+    res = await db.execute(query)
+    return res.scalars().first()
 
 
 async def response_create(

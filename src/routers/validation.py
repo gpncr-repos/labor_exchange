@@ -11,20 +11,20 @@ from schemas import ResponsesCreateSchema
 
 class Real_Validation:
     @staticmethod
-    def element_not_found(elements: Any) -> None:
-        if not elements:
+    def element_not_found(flag: Any) -> None:
+        if not flag:
             raise HTTPException(
                 status_code=204,
             )
 
     @staticmethod
-    def is_company_for_job(elem: bool) -> None:
-        if not elem:
+    def is_company_for_job(flag: bool) -> None:
+        if not flag:
             raise HTTPException(status_code=403, detail={"message": "User is not company"})
 
     @staticmethod
-    def is_company_for_response(elem: bool) -> None:
-        if elem:
+    def is_company_for_response(flag: bool) -> None:
+        if flag:
             raise HTTPException(
                 status_code=403,
                 detail={
@@ -34,9 +34,9 @@ class Real_Validation:
 
     @staticmethod
     def element_not_current_user_for(
-        el1: Union[int], el2: Union[int], router_name: str, action_name: str
+        user_1: Union[int], user_2: Union[int], router_name: str, action_name: str
     ) -> None:
-        if el1 != el2:
+        if user_1 != user_2:
             raise HTTPException(
                 status_code=403,
                 detail={

@@ -1,5 +1,6 @@
 """" Model Jobs API  """
 
+import json
 from typing import List
 
 from fastapi import APIRouter, Depends
@@ -11,94 +12,18 @@ from models import User
 from queries import jobs as jobs_queries
 from schemas import JobCreateSchema, JobSchema, JobUpdateSchema
 
+from .response_examples.jobs import (
+    responses_delete_jobs,
+    responses_get_jobs,
+    responses_post_jobs,
+    responses_update_jobs,
+)
 from .validation import Real_Validation
 
 router = APIRouter(prefix="/jobs", tags=["jobs"])
-responses = {
-    204: {"description": "Zero rezult"},
-    403: {"description": "You have not power here"},
-    422: {"description": "Some proplem with validation"},
-}
-responses_get = {
-    **responses,
-    200: {
-        "description": "Get job",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "Job get",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                    "Job active": True,
-                    "Job created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
-
-responses_post = {
-    **responses,
-    200: {
-        "description": "job create",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "Job create",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                    "Job created_at": "2024-08-06T20:41:48.521Z",
-                }
-            }
-        },
-    },
-}
-
-responses_update = {
-    **responses,
-    200: {
-        "description": "job updated",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "Job update",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                }
-            }
-        },
-    },
-}
-responses_delete = {
-    **responses,
-    200: {
-        "description": "job delete",
-        "content": {
-            "application/json": {
-                "example": {
-                    "message": "Job delete",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                }
-            }
-        },
-    },
-}
 
 
-@router.get("/{job_id}", response_model=JobSchema, responses={**responses_get})
+@router.get("/{job_id}", response_model=JobSchema, responses={**responses_get_jobs})
 async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
     """
     Get job by id:\n
@@ -107,10 +32,10 @@ async def get_job_by_id(job_id: int, db: AsyncSession = Depends(get_db)):
     """
     job_by_id = await jobs_queries.get_by_id(db=db, job_id=job_id)
     Real_Validation.element_not_found(job_by_id)
-    return job_by_id
+    return JobSchema(**job_by_id.__dict__)
 
 
-@router.get("", response_model=List[JobSchema], responses={**responses_get})
+@router.get("", response_model=List[JobSchema], responses={**responses_get_jobs})
 async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, skip: int = 0):
     """
     Get limit Jobs skip some:\n
@@ -120,10 +45,13 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, ski
     """
     all_jobs = await jobs_queries.get_all(db=db, limit=limit, skip=skip)
     Real_Validation.element_not_found(all_jobs)
-    return all_jobs
+    list_of_jobs = []
+    for job in all_jobs:
+        list_of_jobs.append(JobSchema(**job.__dict__))
+    return list_of_jobs
 
 
-@router.post("", response_model=JobSchema, responses={**responses_post})
+@router.post("", response_model=JobSchema, responses={**responses_post_jobs})
 async def create_job(
     job: JobCreateSchema,
     db: AsyncSession = Depends(get_db),
@@ -137,20 +65,11 @@ async def create_job(
     Real_Validation.is_company_for_job(current_user.is_company)
     created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
     return JSONResponse(
-        status_code=201,
-        content={
-            "message": "Job create",
-            "Job id": created_job.id,
-            "Job Title": created_job.title,
-            "Job discription": created_job.discription,
-            "Job salary from": created_job.salary_from,
-            "Job salary to": created_job.salary_to,
-            "Job created at": str(created_job.created_at),
-        },
+        status_code=201, content=json.dumps(JobSchema(**created_job.__dict__).__dict__, default=str)
     )
 
 
-@router.patch("", response_model=JobSchema, responses={**responses_update})
+@router.patch("", response_model=JobSchema, responses={**responses_update_jobs})
 async def patch_of_job(
     jobpatch: JobUpdateSchema,
     db: AsyncSession = Depends(get_db),
@@ -178,20 +97,10 @@ async def patch_of_job(
     )
     old_job.is_active = jobpatch.is_active if jobpatch.is_active is not None else old_job.is_active
     update_job = await jobs_queries.update(db=db, update_job=old_job)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "Job update",
-            "Job id": update_job.id,
-            "Job Title": update_job.title,
-            "Job discription": update_job.discription,
-            "Job salary from": update_job.salary_from,
-            "Job salary to": update_job.salary_to,
-        },
-    )
+    return JobSchema(**update_job.__dict__)
 
 
-@router.delete("/{job_id}", responses={**responses_delete})
+@router.delete("/{job_id}", responses={**responses_delete_jobs})
 async def delete_job(
     job_id: int,
     db: AsyncSession = Depends(get_db),
@@ -209,14 +118,4 @@ async def delete_job(
         current_user.id, job_to_delete.user_id, router_name="job", action_name="delete"
     )
     removed_job = await jobs_queries.delete(db=db, delete_job=job_to_delete)
-    return JSONResponse(
-        status_code=200,
-        content={
-            "message": "Job delete",
-            "Job id": removed_job.id,
-            "Job Title": removed_job.title,
-            "Job discription": removed_job.discription,
-            "Job salary from": removed_job.salary_from,
-            "Job salary to": removed_job.salary_to,
-        },
-    )
+    return JobSchema(**removed_job.__dict__)

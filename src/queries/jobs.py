@@ -8,11 +8,15 @@ from schemas import JobCreateSchema
 
 
 async def get_all(db: AsyncSession, limit: int = 100, skip: int = 0) -> List[Job]:
-    return (await db.execute(select(Job).limit(limit).offset(skip))).scalars().all()
+    querie = select(Job).limit(limit).offset(skip)
+    jobs_result = await db.execute(querie)
+    return jobs_result.scalars().all()
 
 
 async def get_by_id(db: AsyncSession, job_id: int) -> Optional[Job]:
-    return (await db.execute(select(Job).where(Job.id == job_id))).scalars().first()
+    querie = select(Job).where(Job.id == job_id)
+    job_result = await db.execute(querie)
+    return job_result.scalars().first()
 
 
 async def create(db: AsyncSession, job_schema: JobCreateSchema, curent_user_id) -> Optional[Job]:

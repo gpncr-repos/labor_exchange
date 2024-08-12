@@ -3,7 +3,22 @@
 import datetime
 from typing import Optional
 
-from pydantic import BaseModel, validator
+from pydantic import BaseModel
+from pydantic.class_validators import root_validator
+
+
+def salary_match(cls, values):
+    if values["salary_to"] < values["salary_from"]:
+        raise ValueError(
+            "Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}".format(
+                values["salary_to"], values["salary_from"]
+            )
+        )
+    if values["salary_from"] < 0:
+        raise ValueError(
+            "Некорректные данные по зарплате: зарплата {} меньше нуля".format(values["salary_from"])
+        )
+    return values
 
 
 class JobSchema(BaseModel):
@@ -31,24 +46,10 @@ class JobCreateSchema(BaseModel):
     salary_to: int = 0
     is_active: bool = True
 
+    _salary_validation_ = root_validator(allow_reuse=True)(salary_match)
+
     class Config:
         orm_mode = True
-
-    @validator("salary_to")
-    def salary_match(cls, v, values, **kwargs):
-        if v < values["salary_from"]:
-            raise ValueError(
-                "Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}".format(
-                    v, values["salary_from"]
-                )
-            )
-        if values["salary_from"] < 0:
-            raise ValueError(
-                "Некорректные данные по зарплате: зарплата {} меньше нуля".format(
-                    values["salary_from"]
-                )
-            )
-        return v
 
 
 class JobUpdateSchema(BaseModel):
@@ -61,21 +62,7 @@ class JobUpdateSchema(BaseModel):
     salary_to: int = 0
     is_active: Optional[bool]
 
+    _salary_validation_ = root_validator(allow_reuse=True)(salary_match)
+
     class Config:
         orm_mode = True
-
-    @validator("salary_to")
-    def salary_match(cls, v, values, **kwargs):
-        if v < values["salary_from"]:
-            raise ValueError(
-                "Некорректные данные по зарплате: зарплата сверху {} меньше чем снизу {}".format(
-                    v, values["salary_from"]
-                )
-            )
-        if values["salary_from"] < 0:
-            raise ValueError(
-                "Некорректные данные по зарплате: зарплата {} меньше нуля".format(
-                    values["salary_from"]
-                )
-            )
-        return v
