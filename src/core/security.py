@@ -6,6 +6,7 @@ from fastapi.security import HTTPBearer
 from jose import jwt
 from passlib.context import CryptContext
 
+REFRESH_TOKEN_EXPIRE_MINUTES = int(os.environ.get("REFRESH_TOKEN_EXPIRE_MINUTES"))
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.environ.get("ACCESS_TOKEN_EXPIRE_MINUTES"))
 SECRET_KEY = os.environ.get("SECRET_KEY")
 ALGORITHM = os.environ.get("ALGORITHM")
@@ -28,6 +29,17 @@ def create_access_token(data: dict) -> str:
         {
             "exp": datetime.datetime.utcnow()
             + datetime.timedelta(minutes=ACCESS_TOKEN_EXPIRE_MINUTES)
+        }
+    )
+    return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
+
+
+def create_refresh_token(data: dict) -> str:
+    to_encode = data.copy()
+    to_encode.update(
+        {
+            "exp": datetime.datetime.utcnow()
+            + datetime.timedelta(minutes=REFRESH_TOKEN_EXPIRE_MINUTES)
         }
     )
     return jwt.encode(to_encode, SECRET_KEY, algorithm=ALGORITHM)
