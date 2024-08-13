@@ -176,6 +176,23 @@ async def test_patch_response_not_active_job(client_app, current_user, sa_sessio
 
 
 @pytest.mark.asyncio
+async def test_patch_response_not_yours_response(client_app, current_user, sa_session):
+    emploer = await Conveyor.create_emploer(sa_session)
+    job = await Conveyor.create_job(sa_session, emploer)
+    worker = await Conveyor.create_woker(sa_session)
+    current_user = await Conveyor.current_to_worker(sa_session, current_user)
+    response1 = await Conveyor.create_response(sa_session, worker, job)
+    response_update = await client_app.patch(
+        "/responses",
+        json={
+            "id": response1.id,
+            "message": response1.message + "_update",
+        },
+    )
+    assert response_update.status_code == 403
+
+
+@pytest.mark.asyncio
 async def test_delete_response_job_id_norm(client_app, current_user, sa_session):
     emploer = await Conveyor.create_emploer(sa_session)
     job = await Conveyor.create_job(sa_session, emploer)
