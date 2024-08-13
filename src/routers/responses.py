@@ -113,6 +113,9 @@ async def patch_response(
     Real_Validation.is_company_for_response(current_user.is_company)
     responce_to_patch = await responses_queries.get_response_by_id(db=db, response_id=response.id)
     await Real_Validation.patch_responses_validation(db, responce_to_patch)
+    Real_Validation.element_not_current_user_for(
+        responce_to_patch.user_id, current_user.id, router_name="response", action_name="update"
+    )
     responce_to_patch.message = (
         response.message if response.message is not None else responce_to_patch.message
     )
