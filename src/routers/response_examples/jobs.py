@@ -10,14 +10,14 @@ responses_get_jobs = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "Job get",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                    "Job active": True,
-                    "Job created_at": "2024-08-06T20:41:48.521Z",
+                    "id": 1,
+                    "user_id": 1,
+                    "title": "President",
+                    "discription": "Sir",
+                    "salary_from": 100000,
+                    "salary_to": 200000,
+                    "is_active": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },
@@ -26,18 +26,36 @@ responses_get_jobs = {
 
 responses_post_jobs = {
     **responses,
+    201: {
+        "description": "job create",
+        "content": {
+            "application/json": {
+                "example": {
+                    "id": 1,
+                    "user_id": 1,
+                    "title": "President",
+                    "discription": "Sir",
+                    "salary_from": 100000,
+                    "salary_to": 200000,
+                    "is_active": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
+                }
+            }
+        },
+    },
     200: {
         "description": "job create",
         "content": {
             "application/json": {
                 "example": {
-                    "message": "Job create",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
-                    "Job created_at": "2024-08-06T20:41:48.521Z",
+                    "id": 1,
+                    "user_id": 1,
+                    "title": "President",
+                    "discription": "Sir",
+                    "salary_from": 100000,
+                    "salary_to": 200000,
+                    "is_active": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },
@@ -51,12 +69,14 @@ responses_update_jobs = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "Job update",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
+                    "id": 1,
+                    "user_id": 1,
+                    "title": "President",
+                    "discription": "Sir",
+                    "salary_from": 100000,
+                    "salary_to": 200000,
+                    "is_active": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },
@@ -69,12 +89,14 @@ responses_delete_jobs = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "Job delete",
-                    "Job id": 1,
-                    "Job Title": "President",
-                    "Job discription": "Sir",
-                    "Job salary from": 100000,
-                    "Job salary to": 200000,
+                    "id": 1,
+                    "user_id": 1,
+                    "title": "President",
+                    "discription": "Sir",
+                    "salary_from": 100000,
+                    "salary_to": 200000,
+                    "is_active": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },

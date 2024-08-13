@@ -1,9 +1,6 @@
 """" Model Responses API  """
 
-import json
-
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_current_user, get_db
@@ -79,6 +76,7 @@ async def get_responses_by_user(
 
 @router.post("", response_model=ResponsesSchema, responses={**responses_post_responses})
 async def create_response(
+    response_for_status: Response,
     response: ResponsesCreateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -95,10 +93,8 @@ async def create_response(
     new_response = await responses_queries.response_create(
         db=db, response_schema=response, user_id=current_user.id, job_id=response.job_id
     )
-    return JSONResponse(
-        status_code=201,
-        content=json.dumps(ResponsesSchema(**new_response.__dict__).__dict__, default=str),
-    )
+    response_for_status.status_code = 201
+    return ResponsesSchema(**new_response.__dict__)
 
 
 @router.patch("", response_model=ResponsesSchema, responses={**responses_update_responses})

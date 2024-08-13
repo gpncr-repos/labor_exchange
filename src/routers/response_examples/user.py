@@ -29,9 +29,24 @@ responses_post_user = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "User created",
-                    "user name": "Vasilii",
-                    "user email": "Alibabaevich@bandit.cement",
+                    "id": 1,
+                    "name": "Vasilii",
+                    "email": "Alibabaevich@bandit.cement",
+                    "is_company": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
+                }
+            }
+        },
+    },
+    201: {
+        "description": "User create",
+        "content": {
+            "application/json": {
+                "example": {
+                    "id": 1,
+                    "name": "Vasilii",
+                    "email": "Alibabaevich@bandit.cement",
+                    "is_company": True,
                     "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
@@ -46,10 +61,11 @@ responses_update_user = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "User updated",
-                    "user name": "Alex",
-                    "user email": "Belii@bandit.docent",
-                    "user is_company": True,
+                    "id": 1,
+                    "name": "Vasilii",
+                    "email": "Alibabaevich@bandit.cement",
+                    "is_company": True,
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },

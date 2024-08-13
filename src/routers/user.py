@@ -1,10 +1,8 @@
 """" Model Users API  """
 
-import json
 from typing import List
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_current_user, get_db
@@ -52,17 +50,17 @@ async def read_users(user_id: int, db: AsyncSession = Depends(get_db)):
 
 
 @router.post("", response_model=UserGetSchema, responses={**responses_post_user})
-async def create_user(user: UserCreateSchema, db: AsyncSession = Depends(get_db)):
+async def create_user(
+    response: Response, user: UserCreateSchema, db: AsyncSession = Depends(get_db)
+):
     """
     Create user:\n
     user: shame of user to create\n
     db: datebase connection;\n
     """
     new_user = await user_queries.create(db=db, user_schema=user)
-    return JSONResponse(
-        status_code=201,
-        content=json.dumps(UserGetSchema(**new_user.__dict__).__dict__, default=str),
-    )
+    response.status_code = 201
+    return UserGetSchema(**new_user.__dict__)
 
 
 @router.put("", response_model=UserGetSchema, responses={**responses_update_user})

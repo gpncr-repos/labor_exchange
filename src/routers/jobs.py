@@ -1,10 +1,8 @@
 """" Model Jobs API  """
 
-import json
 from typing import List
 
-from fastapi import APIRouter, Depends
-from fastapi.responses import JSONResponse
+from fastapi import APIRouter, Depends, Response
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from dependencies import get_current_user, get_db
@@ -53,6 +51,7 @@ async def get_all_jobs(db: AsyncSession = Depends(get_db), limit: int = 100, ski
 
 @router.post("", response_model=JobSchema, responses={**responses_post_jobs})
 async def create_job(
+    response: Response,
     job: JobCreateSchema,
     db: AsyncSession = Depends(get_db),
     current_user: User = Depends(get_current_user),
@@ -64,9 +63,8 @@ async def create_job(
     """
     Real_Validation.is_company_for_job(current_user.is_company)
     created_job = await jobs_queries.create(db=db, job_schema=job, curent_user_id=current_user.id)
-    return JSONResponse(
-        status_code=201, content=json.dumps(JobSchema(**created_job.__dict__).__dict__, default=str)
-    )
+    response.status_code = 201
+    return JobSchema(**created_job.__dict__)
 
 
 @router.patch("", response_model=JobSchema, responses={**responses_update_jobs})

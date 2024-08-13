@@ -23,13 +23,29 @@ responses_get_responses = {
 
 responses_post_responses = {
     **responses,
+    201: {
+        "description": "response create",
+        "content": {
+            "application/json": {
+                "example": {
+                    "id": 1,
+                    "user_id": 1,
+                    "job_id": 1,
+                    "message": "dreem work",
+                    "created_at": "2024-08-06T20:41:48.521Z",
+                }
+            }
+        },
+    },
     200: {
         "description": "response create",
         "content": {
             "application/json": {
                 "example": {
-                    "message": "response create",
-                    "new responce messege": "dreem_WoRk",
+                    "id": 1,
+                    "user_id": 1,
+                    "job_id": 1,
+                    "message": "dreem work",
                     "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
@@ -44,8 +60,11 @@ responses_update_responses = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "response update",
-                    "new responce messege": "super_work",
+                    "id": 1,
+                    "user_id": 1,
+                    "job_id": 1,
+                    "message": "dreem work",
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },
@@ -58,10 +77,11 @@ responses_delete_responses = {
         "content": {
             "application/json": {
                 "example": {
-                    "message": "Response delete",
-                    "Response id": 5,
+                    "id": 1,
+                    "user_id": 1,
                     "job_id": 1,
-                    "Response message": "Great_work",
+                    "message": "dreem work",
+                    "created_at": "2024-08-06T20:41:48.521Z",
                 }
             }
         },
