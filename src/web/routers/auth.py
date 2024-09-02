@@ -2,7 +2,7 @@ from dependency_injector.wiring import Provide, inject
 from fastapi import APIRouter, Depends, HTTPException, status
 
 from dependencies.containers import RepositoriesContainer
-from repositeries import UserRepository
+from repositories import UserRepository
 from tools.security import create_access_token, verify_password
 from web.schemas import LoginSchema, TokenSchema
 

@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 from sqlalchemy.exc import IntegrityError
 
-from repositeries import UserRepository
+from repositories import UserRepository
 from storage.sqlalchemy.tables import Job
 from tools.fixtures.users import UserFactory
 from tools.security import hash_password

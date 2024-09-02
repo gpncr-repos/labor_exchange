@@ -1,7 +1,7 @@
 from dependency_injector import containers, providers
 
 from interfaces.i_sqlalchemy import ISQLAlchemy
-from repositeries import UserRepository
+from repositories import UserRepository
 
 
 class RepositoriesContainer(containers.DeclarativeContainer):

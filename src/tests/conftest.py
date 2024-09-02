@@ -13,7 +13,7 @@ from sqlalchemy.orm import sessionmaker
 
 from config import DBSettings
 from main import app
-from repositeries import UserRepository
+from repositories import UserRepository
 from tools.fixtures.users import UserFactory
 
 env_file_name = ".env." + os.environ.get("STAGE", "test")
