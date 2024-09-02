@@ -1,2 +1,1 @@
-from .user import get_current_user
-from .db import get_db
+from .current_user import get_current_user  # noqa

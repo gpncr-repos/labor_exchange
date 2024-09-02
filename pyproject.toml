@@ -1,0 +1,35 @@
+[tool.poetry]
+name = "labor-exchange"
+version = "0.1.0"
+description = ""
+authors = ["Харицкий Данил Константинович <Khlive.ftf@gmail.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+fastapi = {extras = ["all"], version = "^0.112.1"}
+pydantic = "^2.8.2"
+sqlalchemy = "^2.0.32"
+pydantic-settings = "^2.4.0"
+alembic = "^1.13.2"
+pathlib = "^1.0.1"
+psycopg2 = "^2.9.9"
+asyncpg = "^0.29.0"
+dependency-injector = "^4.41.0"
+passlib = "^1.7.4"
+python-jose = "^3.3.0"
+bcrypt = "^4.2.0"
+
+
+[tool.poetry.group.dev.dependencies]
+pre-commit = "^3.8.0"
+
+
+[tool.poetry.group.tests.dependencies]
+pytest = "^8.3.2"
+pytest-asyncio = "^0.24.0"
+factory-boy = "^3.3.1"
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
