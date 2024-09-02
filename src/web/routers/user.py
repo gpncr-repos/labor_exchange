@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from dependencies import get_current_user
 from dependencies.containers import RepositoriesContainer
 from models import User
-from repositeries import UserRepository
+from repositories import UserRepository
 from tools.security import hash_password
 from web.schemas import UserCreateSchema, UserSchema, UserUpdateSchema
 

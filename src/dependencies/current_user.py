@@ -3,7 +3,7 @@ from fastapi import Depends, HTTPException, status
 
 from dependencies.containers import RepositoriesContainer
 from models import User
-from repositeries import UserRepository
+from repositories import UserRepository
 from tools.security import JWTBearer, decode_access_token
 
 
