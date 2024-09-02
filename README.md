@@ -6,30 +6,24 @@
 Инструкция по настройке среды для разработки:
 Работаем из корневого каталога
 
-1) Создайте виртуальное окружение
-```bash
-python -m venv venv
+1) Установите Poetry согласно инструкции с официального сайта:
 ```
-2) Активируйте его, также выберите его в настройках
-`Pycharm Settings/Project/Python Intepreter`,
-чтобы оно автоматически подхватывалось
-```bash
-venv\Scripts\activate
+https://python-poetry.org/docs/
 ```
-3) Установите необходимые библиотеки
+2) Установите необходимые библиотеки
 ```bash
-pip install -r requirements.txt
+poetry install
 ```
-4) Поднимите базу:
+3) Поднимите базу:
 ```bash
 docker-compose up 
 ```
-5) Накатите миграцию:
+4) Накатите миграцию:
 ```shell
 alembic upgrade head
 ```
-6) Запустите файлик `src/main.py` через pycharm или командой
+5) Запустите файл `src/main.py` через pycharm или командой
 ```bash
 python src/main.py
 ```
-7) Теперь приложение запущено и доступно по адресу `localhost:8080/docs`
+6) Теперь приложение запущено и доступно по адресу `localhost:8080/docs`
