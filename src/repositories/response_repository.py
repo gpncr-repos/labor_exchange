@@ -20,8 +20,8 @@ class ResponseRepository(IRepositoryAsync):
         async with self.session() as session:
             response = Response(
                 id=response_create_dto.id,
-                user_id=response_create_dto.user_id,
                 job_id=response_create_dto.job_id,
+                user_id=response_create_dto.user_id,
                 message=response_create_dto.message,
             )
 
@@ -72,12 +72,12 @@ class ResponseRepository(IRepositoryAsync):
             if not response_from_db:
                 raise ValueError("Вакансия не найдена")
 
-            user_id = response_update_dto.user_id if response_update_dto.user_id is not None else response_from_db.user_id
             job_id = response_update_dto.job_id if response_update_dto.job_id is not None else response_from_db.job_id
+            user_id = response_update_dto.user_id if response_update_dto.user_id is not None else response_from_db.user_id
             message = response_update_dto.message if response_update_dto.message is not None else response_update_dto.message
 
-            response_from_db.user_id = user_id
             response_from_db.job_id = job_id
+            response_from_db.user_id = user_id
             response_from_db.message = message
 
             session.add(response_from_db)
@@ -102,14 +102,14 @@ class ResponseRepository(IRepositoryAsync):
 
     @staticmethod
     def __to_response_model(response_from_db: Response, include_relations: bool = False) -> ResponseModel:
-        response_user = None
         response_job = None
+        response_user = None
         response_model = None
 
         if response_from_db:
             if include_relations:
-                response_user = response_from_db.user
                 response_job = response_from_db.job
+                response_user = response_from_db.user
 
             response_model = ResponseModel(
                 id=response_from_db.id,
